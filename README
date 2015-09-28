@@ -1,10 +1,35 @@
-Toto je GIT repozitar pro projekt z IFJ
----------------------------------------
+IFJ 2015 - GIT Repository
+-------------------------
+
+Aktualni info
+--------------
+
+1) V novych .c a .h souborech prosim pouzivejte tuto hlavicku:
+
+/*
+ * Course IFJ @ FIT VUT Brno, 2015
+ * IFJ15 Interpreter Project
+ *
+ * Authors:
+ * Lukas Osadsky  - xosads00
+ * Pavol Plaskon  - xplask00
+ * Pavel Pospisil - xpospi88
+ * Matej Postolka - xposto02
+ *
+ * Unless otherwise stated, all code is licensed under a
+ * Creative Commons Attribution-ShareAlike 4.0 International License
+ *
+ */
+
+2) 29.9. - Prihasovani na projekt kapitan
+   1.10. - Prihlasovani na projekt zbytek tymu
+
+3) Projekt lze zkompilovat pomoci prikazu make, binarka se ulozi do bin/.
+
+Anketa
+------
 
 Hlasujte za kapitana tymu, prosim.
 
-Pavol Plaskon +1
+Pavol Plaskon +2
 Matej Postolka +1
-Pavol Plaskon +1
-
-rebase test

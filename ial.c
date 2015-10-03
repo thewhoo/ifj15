@@ -20,6 +20,52 @@
 
 #include "ial.h"
 
+int find(char *str, char *substr)
+{
+    int str_len = strlen(str);
+    int subs_len = strlen(substr);
+    int r = -1;
+
+    int *fail;
+    if((fail = malloc(sizeof(int)*subs_len)) == NULL)
+        exit(99);
+
+    //fill fail vector
+    fail[0] = r;
+    for(int i = 1; i < subs_len; i++)
+    {
+        r = fail[i - 1];
+        while ((r > -1) && (substr[r] != substr[i-1]))
+            r = fail[r];
+        fail[i] = r + 1;
+    }
+
+    //kmp searching
+
+    int str_ind = 0;
+    int subs_ind = 0;
+
+    while((str_ind < str_len) && (subs_ind < subs_len))
+    {
+        if ((subs_ind == -1) || (str[str_ind] == substr[subs_ind]))
+        {
+            str_ind++;
+            subs_ind++;
+        }
+        else
+            subs_ind = fail[subs_ind];
+    }
+    
+    free(fail);
+    
+    if (subs_ind >= subs_len)
+        return (str_ind - subs_len); 
+    else
+        return (-1); //-1 for ifj
+    
+}
+    
+
 /* ----------------heap sort-------------------*/
 
 void siftDown(char *str, int left, int right)

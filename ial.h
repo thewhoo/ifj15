@@ -16,6 +16,8 @@
 #ifndef IAL_H
 #define IAL_H
 
+int find(char *str, char *substr);
+
 /**
  * sort chars in string, ascending
  *

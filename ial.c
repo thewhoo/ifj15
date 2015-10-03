@@ -20,6 +20,8 @@
 
 #include "ial.h"
 
+
+/* -------------- KMP find--------------------*/
 int find(char *str, char *substr)
 {
     int str_len = strlen(str);
@@ -61,8 +63,7 @@ int find(char *str, char *substr)
     if (subs_ind >= subs_len)
         return (str_ind - subs_len); 
     else
-        return (-1); //-1 for ifj
-    
+        return (-1); //-1 for ifj    
 }
     
 

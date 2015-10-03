@@ -16,6 +16,13 @@
 #ifndef IAL_H
 #define IAL_H
 
+/**
+ * find substring in string
+ *
+ * @param str string
+ * @param substr substring
+ * @return index of match, from 0, -1 if not found
+ */
 int find(char *str, char *substr);
 
 /**

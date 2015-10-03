@@ -16,6 +16,16 @@
 #ifndef IAL_H
 #define IAL_H
 
+/**
+ * sort chars in string, ascending
+ *
+ * @param *str ptr to string
+ * @return *ptr to sorted string
+ */
+char * sort(char *str);
+
+/* -----------------Hash tab ------------------- */
+
 #define HTAB_SIZE 24593 //prime number, change later if needed 
   
 struct htab_listitem //used in IJC, change items if needed
@@ -86,5 +96,7 @@ void htab_free(htab_t *tab);
  * @param tab hash tabulka
  */
 void htab_statistics(htab_t* tab);
+
+
 
 #endif //IAL_H

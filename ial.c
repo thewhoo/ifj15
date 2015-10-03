@@ -16,9 +16,62 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "ial.h"
 
+/* ----------------heap sort-------------------*/
+
+void siftDown(char *str, int left, int right)
+{
+    int i, j, tmp;
+    bool cont; //continue   
+
+    i = left;
+    j = 2*i;
+    tmp = str[i];
+    cont = j <= right;
+
+    while (cont)
+    {
+        if (j < right)
+            if (str[j] < str[j+1])
+                j++;
+
+            if (tmp >= str[j])
+                cont = false;
+            else
+            {
+                str[i] = str[j];
+                i = j;
+                j = 2 * i;
+                cont = j <= right;
+            }
+    }
+
+    str[i] = tmp;
+}
+
+char *sort(char * str)
+{
+    int right = strlen(str) - 1;
+    int left = right / 2;
+
+    for (int i = left; i >= 0; i--)
+        siftDown(str, i, right);
+
+    for ( ; right >= 1; right--)
+    {
+        str[0] ^= str[right]; //xor swap
+        str[right] ^= str[0];
+        str[0] ^= str[right];
+        siftDown(str, 0, right-1);
+    }
+    
+    return str;    
+}
+
+/* ---------------hash table-------------------*/
 
 unsigned int hash_function(const char *str, unsigned htab_size)
 {
@@ -40,6 +93,7 @@ htab_t *htab_init(unsigned int size)
     tab->htab_size = size;
     for(unsigned int i = 0; i<size; i++)
         tab->list[i] = NULL;
+
     return tab;
 }
 
@@ -137,8 +191,11 @@ void htab_clear(htab_t *tab)
 
 void htab_free(htab_t *tab)
 {
-    htab_clear(tab);
-    free(tab); 
+    if (tab != NULL)
+    {
+        htab_clear(tab);
+        free(tab); 
+    }
 }
 
 void htab_statistics(htab_t* tab)

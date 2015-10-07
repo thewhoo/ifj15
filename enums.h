@@ -16,12 +16,39 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 #define VECTOR_AUTORESIZE_COEF 2
+#define KEYWORDS_COUNT 10
 
-enum error
+enum error_codes
 {
-  E_OK,
-  E_ALLOC,
-  E_OTHER
+  E_OK,     //0  
+  E_LEX,    //1
+  E_SYNTAX,
+  E_SEMANTIC_DEF,
+  E_SEMANTIC_TYPES,
+  E_AUTO_TYPE,
+  E_SEMANTIC_OTHERS,
+  E_READ_NUMBER,
+  E_UNITIALIZED,
+  E_ZERO_DIVISION,
+  E_RUNTIME_OTHERS,
+  E_INTERNAL
+
 };
+
+typedef enum tokens
+{
+    //keywords
+  token_auto,
+  token_cin,
+  token_cout,
+  token_double,
+  token_else,
+  token_for,
+  token_if,
+  token_int,
+  token_return,
+  token_string
+ //
+}TToken_type;
 
 #endif

@@ -31,7 +31,10 @@ enum error_codes
   E_UNITIALIZED,
   E_ZERO_DIVISION,
   E_RUNTIME_OTHERS,
-  E_INTERNAL
+  E_INTERNAL,
+
+  //local 
+  E_ALLOC
 
 };
 
@@ -59,8 +62,8 @@ typedef enum tokens
 //other tokens
   token_identifier, //identifier, not keyword
   token_eof,
-  token_semicolon   // ;
-  token_cout_parenth
+  token_semicolon,   // ;
+  token_cout_parenth,
 
 //math - withoud mod % ?
   token_mul,        // *

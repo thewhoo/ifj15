@@ -25,6 +25,6 @@
 
 #define KEYWORDS_COUNT 15
 
-char token_keywords = {"auto", "cin", "cout", "double", "else",
-                       "for", "if", "int", "return", "string", 
-                       "length", "substr", "concat", "find", "sort"};
+char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
+                          "for", "if", "int", "return", "string", 
+                          "length", "substr", "concat", "find", "sort"};

@@ -20,7 +20,7 @@
 
 typedef _token
 {
-    TToken_type type;
+    TToken_type type; //or int??
     char *data;
 
 }TToken;

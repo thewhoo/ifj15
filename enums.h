@@ -17,7 +17,6 @@
 #define ENUMS_H
 
 #define VECTOR_AUTORESIZE_COEF 2
-#define KEYWORDS_COUNT 10
 
 enum error_codes
 {
@@ -38,7 +37,7 @@ enum error_codes
 
 typedef enum tokens
 {
-//keywords
+//keywords - add main funciotn as keyword? 
   token_auto,
   token_cin,
   token_cout,
@@ -50,25 +49,34 @@ typedef enum tokens
   token_return,
   token_string,
 
+//built-in functions
+  token_bf_length,
+  token_bf_substr,
+  token_bf_concat,
+  token_bf_find,
+  token_bf_sort,  
+
 //other tokens
   token_identifier, //identifier, not keyword
-  token_eof
+  token_eof,
+  token_semicolon   // ;
+  token_cout_parenth
 
-//math
-  token_mul,
-  token_div,
-  token_add,
-  token_sub,
+//math - withoud mod % ?
+  token_mul,        // *
+  token_div,        // /
+  token_add,        // +
+  token_sub,        // -
 
 //comparing
-  token_equal,
-  token_not_equal,
-  token_greater,
-  token_greater_equal,
-  token_less,
-  token_less_equal
+  token_equal,      // =
+  token_not_equal,  // !=
+  token_greater,    // >
+  token_greater_equal, // >=
+  token_less,          // < 
+  token_less_equal     // <= 
 
-//
+//add parenthesis () {} []?
 
 
 }TToken_type;

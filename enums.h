@@ -15,6 +15,7 @@
 
 #ifndef ENUMS_H
 #define ENUMS_H
+
 #define VECTOR_AUTORESIZE_COEF 2
 #define KEYWORDS_COUNT 10
 
@@ -37,7 +38,7 @@ enum error_codes
 
 typedef enum tokens
 {
-    //keywords
+//keywords
   token_auto,
   token_cin,
   token_cout,
@@ -47,8 +48,29 @@ typedef enum tokens
   token_if,
   token_int,
   token_return,
-  token_string
- //
+  token_string,
+
+//other tokens
+  token_identifier, //identifier, not keyword
+  token_eof
+
+//math
+  token_mul,
+  token_div,
+  token_add,
+  token_sub,
+
+//comparing
+  token_equal,
+  token_not_equal,
+  token_greater,
+  token_greater_equal,
+  token_less,
+  token_less_equal
+
+//
+
+
 }TToken_type;
 
 #endif

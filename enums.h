@@ -41,47 +41,47 @@ enum error_codes
 typedef enum tokens
 {
 //keywords - add main funciotn as keyword? 
-  token_auto,
-  token_cin,
-  token_cout,
-  token_double,
-  token_else,
-  token_for,
-  token_if,
-  token_int,
-  token_return,
-  token_string,
+  TOKEN_AUTO,
+  TOKEN_CIN,
+  TOKEN_COUT,
+  TOKEN_DOUBLE,
+  TOKEN_ELSE,
+  TOKEN_FOR,
+  TOKEN_IF,
+  TOKEN_INT,
+  TOKEN_RETURN,
+  TOKEN_STRING,
 
 //built-in functions
-  token_bf_length,
-  token_bf_substr,
-  token_bf_concat,
-  token_bf_find,
-  token_bf_sort,  
+  TOKEN_BF_LENGTH,
+  TOKEN_BF_SUBSTR,
+  TOKEN_BF_CONCAT,
+  TOKEN_BF_FIND,
+  TOKEN_BF_SORT,  
 
 //other tokens
-  token_identifier, //identifier, not keyword
-  token_eof,
-  token_semicolon,   // ;
-  token_cout_parenth,
+  TOKEN_IDENTIFIER, //IDENTIFIER, NOT KEYWORD
+  TOKEN_EOF,
+  TOKEN_SEMICOLON,   // ;
+  TOKEN_COUT_PARENTH,
 
 //math - withoud mod % ?
-  token_mul,        // *
-  token_div,        // /
-  token_add,        // +
-  token_sub,        // -
+  TOKEN_MUL,        // *
+  TOKEN_DIV,        // /
+  TOKEN_ADD,        // +
+  TOKEN_SUB,        // -
 
 //comparing
-  token_equal,      // =
-  token_not_equal,  // !=
-  token_greater,    // >
-  token_greater_equal, // >=
-  token_less,          // < 
-  token_less_equal     // <= 
+  TOKEN_EQUAL,      // =
+  TOKEN_NOT_EQUAL,  // !=
+  TOKEN_GREATER,    // >
+  TOKEN_GREATER_EQUAL, // >=
+  TOKEN_LESS,          // < 
+  TOKEN_LESS_EQUAL     // <= 
 
 //add parenthesis () {} []?
 
 
-}TToken_type;
+};
 
 #endif

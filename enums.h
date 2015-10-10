@@ -38,7 +38,7 @@ enum error_codes
 
 };
 
-typedef enum tokens
+enum tokens
 {
 //keywords - add main funciotn as keyword? 
   TOKEN_AUTO,
@@ -85,9 +85,6 @@ typedef enum tokens
   TOKEN_GREATER_EQUAL,      // >=
   TOKEN_LESS,               // < 
   TOKEN_LESS_EQUAL          // <= 
-
-
-
 };
 
 #endif

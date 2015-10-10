@@ -31,7 +31,7 @@ enum error_codes
   E_UNITIALIZED,
   E_ZERO_DIVISION,
   E_RUNTIME_OTHERS,
-  E_INTERNAL,
+  E_INTERNAL = 99, //return values defined in project description
 
   //local 
   E_ALLOC
@@ -60,26 +60,32 @@ typedef enum tokens
   TOKEN_BF_SORT,  
 
 //other tokens
-  TOKEN_IDENTIFIER, //IDENTIFIER, NOT KEYWORD
+  TOKEN_IDENTIFIER,         //IDENTIFIER, NOT KEYWORD
   TOKEN_EOF,
-  TOKEN_SEMICOLON,   // ;
-  TOKEN_COUT_PARENTH,
+  TOKEN_TEXT,               // "some text in quotation marks"
+  TOKEN_SEMICOLON,          // ;
+  TOKEN_COMMA,              // ,
+  TOKEN_COUT_BRACKET,       // <<
+  TOKEN_CIN_BRACKET,        // >>
+  TOKEN_LROUND_BRACKET,     // (
+  TOKEN_RROUND_BRACKET,     // )
+  TOKEN_LCURLY_BRACKET,     // {
+  TOKEN_RCURLYBRACKET,      // }
 
-//math - withoud mod % ?
-  TOKEN_MUL,        // *
-  TOKEN_DIV,        // /
-  TOKEN_ADD,        // +
-  TOKEN_SUB,        // -
+//math 
+  TOKEN_MUL,                // *
+  TOKEN_DIV,                // /
+  TOKEN_ADD,                // +
+  TOKEN_SUB,                // -
 
 //comparing
-  TOKEN_EQUAL,      // =
-  TOKEN_NOT_EQUAL,  // !=
-  TOKEN_GREATER,    // >
-  TOKEN_GREATER_EQUAL, // >=
-  TOKEN_LESS,          // < 
-  TOKEN_LESS_EQUAL     // <= 
+  TOKEN_EQUAL,              // =
+  TOKEN_NOT_EQUAL,          // !=
+  TOKEN_GREATER,            // >
+  TOKEN_GREATER_EQUAL,      // >=
+  TOKEN_LESS,               // < 
+  TOKEN_LESS_EQUAL          // <= 
 
-//add parenthesis () {} []?
 
 
 };

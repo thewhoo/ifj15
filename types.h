@@ -13,14 +13,12 @@
  *
  */
 
-#include "enums.h"
-
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef _token
+typedef struct token
 {
-    TToken_type type; //or int??
+    int type;
     char *data;
 
 }TToken;

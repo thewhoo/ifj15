@@ -65,6 +65,7 @@ enum tokens
   TOKEN_STRING_VALUE,               // "some text in quotation marks"
   TOKEN_INT_VALUE,          // some integer
   TOKEN_DOUBLE_VALUE,       // double value
+  TOKEN_ASSIGN,             // =        e.g.(a = 3;)
 
   TOKEN_SEMICOLON,          // ;
   TOKEN_COMMA,              // ,
@@ -82,7 +83,7 @@ enum tokens
   TOKEN_SUB,                // -
 
 //comparing
-  TOKEN_EQUAL,              // =
+  TOKEN_EQUAL,              // ==
   TOKEN_NOT_EQUAL,          // !=
   TOKEN_GREATER,            // >
   TOKEN_GREATER_EQUAL,      // >=

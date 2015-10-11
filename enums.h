@@ -62,7 +62,10 @@ enum tokens
 //other tokens
   TOKEN_IDENTIFIER,         //IDENTIFIER, NOT KEYWORD
   TOKEN_EOF,
-  TOKEN_TEXT,               // "some text in quotation marks"
+  TOKEN_STRING_VALUE,               // "some text in quotation marks"
+  TOKEN_INT_VALUE,          // some integer
+  TOKEN_DOUBLE_VALUE,       // double value
+
   TOKEN_SEMICOLON,          // ;
   TOKEN_COMMA,              // ,
   TOKEN_COUT_BRACKET,       // <<

@@ -88,24 +88,3 @@ void freeVector(TVector *v)
 {
   free(v->data);
 }
-
-/*
- * @DEBUG_SECTION
- * These functions are for debugging purposes
- * They should be removed in the final version
- *
- */
-
-void dumpVector(TVector *v)
-{
-  for(int i=0; i<v->used; i++)
-    printf("%d: %d\n", i, v->data[i]);
-}
-
-void apVector(TVector *v, int count)
-{
-  for(int i=0; i<count; i++)
-    v->data[i] = i;
-
-  v->used = count;
-}

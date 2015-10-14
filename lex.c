@@ -23,7 +23,6 @@
 //tak nacitane slovo je len obycajny identifikator token_identifier
 //tie token typy su v enums.h
 
-#define KEYWORDS_COUNT 15
 
 char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
                           "for", "if", "int", "return", "string", 

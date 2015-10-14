@@ -16,9 +16,19 @@
 #include <stdio.h>
 #include "string.h"
 #include "enums.h"
+#include "lex.h"
 
 int main()
 {
+
+  TString s;
+  initString(&s, STR_DEFAULT_SIZE);
+
+  for(int i = 65; i < 70; i++)
+      insertIntoString(&s, i);
+  insertIntoString(&s, 0);
+
+  printf("%s\n", s.data);
 
   return 0;
 

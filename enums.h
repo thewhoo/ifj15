@@ -41,7 +41,7 @@ enum error_codes
 enum tokens
 {
 //keywords - add main funciotn as keyword? 
-  TOKEN_AUTO,
+  TOKEN_AUTO = 0, 
   TOKEN_CIN,
   TOKEN_COUT,
   TOKEN_DOUBLE,

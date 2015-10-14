@@ -18,19 +18,15 @@
 
 typedef struct
 {
-  int *data;
+  char *data;
   int capacity;
   int used;
-} TVector;
+} TString;
 
-int initVector(TVector *v, int size);
-int insertIntoVector(TVector *v, int value);
-int getFromVector(TVector *v, int index);
-void deleteFromVector(TVector *v, int index, int count);
-void freeVector(TVector *v);
-
-// Debug functions below
-void dumpVector(TVector *v);
-void apVector(TVector *v, int count);
+int initString(TString *v, int size);
+int insertIntoString(TString *v, char value);
+int getFromString(TString *v, int index);
+void deleteFromString(TString *v, int index, int count);
+void freeString(TString *v);
 
 #endif

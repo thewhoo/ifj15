@@ -16,10 +16,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "vector.h"
+#include "string.h"
 #include "enums.h"
 
-int initVector(TVector *v, int size)
+int initString(TString *v, int size)
 {
   v->data = malloc(size * sizeof(int));
   if (v->data == NULL)
@@ -31,7 +31,7 @@ int initVector(TVector *v, int size)
   return E_OK;
 }
 
-int resizeVector(TVector *v, int size)
+int resizeString(TString *v, int size)
 {
   // Cannot shrink used data
   assert(size > v->used);
@@ -49,12 +49,12 @@ int resizeVector(TVector *v, int size)
   return E_OK;
 }
 
-int insertIntoVector(TVector *v, int value)
+int insertIntoString(TString *v, char value)
 {
-  // Vector is full, it must be extended
+  // String is full, it must be extended
   int ret = E_OK;
   if (v->used >= v->capacity)
-    ret = resizeVector(v, v->capacity * VECTOR_AUTORESIZE_COEF);
+    ret = resizeString(v, v->capacity * VECTOR_AUTORESIZE_COEF);
   if (ret != E_OK)
     return ret;
 
@@ -65,7 +65,7 @@ int insertIntoVector(TVector *v, int value)
   return E_OK;
 }
 
-int getFromVector(TVector *v, int index)
+int getFromString(TString *v, int index)
 {
   // We should not access unallocated members
   assert(index < v->used);
@@ -73,7 +73,7 @@ int getFromVector(TVector *v, int index)
   return v->data[index];
 }
 
-void deleteFromVector(TVector *v, int index, int count)
+void deleteFromString(TString *v, int index, int count)
 {
   assert(index >= 0 && count > 0 && count <= v->used - index);
 
@@ -84,7 +84,7 @@ void deleteFromVector(TVector *v, int index, int count)
   v->used -= count;
 }
 
-void freeVector(TVector *v)
+void freeString(TString *v)
 {
   free(v->data);
 }

@@ -14,7 +14,7 @@
  */
 
 #include <stdio.h>
-#include "vector.h"
+#include "string.h"
 #include "enums.h"
 
 int main()

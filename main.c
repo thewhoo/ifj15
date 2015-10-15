@@ -30,6 +30,7 @@ int main()
 
   printf("%s\n", s.data);
 
+  freeString(&s);
   return 0;
 
 }

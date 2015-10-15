@@ -21,7 +21,7 @@
 
 int initString(TString *v, int size)
 {
-  v->data = malloc(size * sizeof(int));
+  v->data = malloc(size * sizeof(char));
   if (v->data == NULL)
     return E_ALLOC;
 
@@ -39,7 +39,7 @@ int resizeString(TString *v, int size)
   void *newData;
 
   // Prevent memory leak by using a temporary pointer
-  newData = realloc(v->data, size * sizeof(int));
+  newData = realloc(v->data, size * sizeof(char));
   if (newData == NULL)
     return E_ALLOC;
 
@@ -65,7 +65,7 @@ int insertIntoString(TString *v, char value)
   return E_OK;
 }
 
-int getFromString(TString *v, int index)
+char getFromString(TString *v, int index)
 {
   // We should not access unallocated members
   assert(index < v->used);

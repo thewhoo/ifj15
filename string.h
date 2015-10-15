@@ -68,7 +68,7 @@ int insertIntoString(TString *v, char value);
   * @param *v Pointer to the string struct
   * @param index Index of character to retrieve;
   */
-int getFromString(TString *v, int index);
+char getFromString(TString *v, int index);
 
 /**
   * @brief Delete characters from string

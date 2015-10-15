@@ -13,6 +13,17 @@
  *
  */
 
+/**
+  * @file error.h
+  * @brief Error states library
+  *
+  * Include this file to report errors in program
+  *  
+  */
+
+#ifndef ERROR_H
+#define ERROR_H
+
 enum error_codes
 {
   E_OK = 0,     //0  
@@ -28,10 +39,18 @@ enum error_codes
   E_RUNTIME_OTHERS = 10,
   E_INTERNAL = 99, //return values defined in project description
 
-  //local 
+  //local errors
   E_ALLOC
 
 };
 
+
+/**
+  * @brief Writes specific error message, clean up allocated memory and exit
+  *
+  * @param err error code
+  * @return void
+  */
 void exit_error(int err);
 
+#endif //ERROR_H

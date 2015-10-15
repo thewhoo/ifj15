@@ -24,8 +24,8 @@
   * s->data), but you MUST insert a binary 0 at the end of the string!
   */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef STRING_H
+#define STRING_H
 
 /**
   * @brief TString structure

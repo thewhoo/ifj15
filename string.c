@@ -18,10 +18,11 @@
 #include <assert.h>
 #include "string.h"
 #include "enums.h"
+#include "galloc.h"
 
 int initString(TString *v, int size)
 {
-  v->data = malloc(size * sizeof(char));
+  v->data = gmalloc(size * sizeof(char));
   if (v->data == NULL)
     return E_ALLOC;
 
@@ -39,7 +40,7 @@ int resizeString(TString *v, int size)
   void *newData;
 
   // Prevent memory leak by using a temporary pointer
-  newData = realloc(v->data, size * sizeof(char));
+  newData = grealloc(v->data, size * sizeof(char));
   if (newData == NULL)
     return E_ALLOC;
 
@@ -86,5 +87,5 @@ void deleteFromString(TString *v, int index, int count)
 
 void freeString(TString *v)
 {
-  free(v->data);
+  gfree(v->data);
 }

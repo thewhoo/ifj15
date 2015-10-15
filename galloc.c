@@ -15,6 +15,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "galloc.h"
 #include "enums.h"
 #define INITIAL_SIZE 30
@@ -25,6 +26,7 @@ typedef struct Vector
 	void **data;
 	int capacity;
 	int used;
+	bool initialized;
 } TVector;
 
 // Forward declarations of private functions
@@ -112,9 +114,14 @@ void searchAndRemove(TVector *v, void *value)
 	}
 }
 
-void gcInit()
+int gcInit()
 {
-	initVector(&mem, INITIAL_SIZE);
+	if (initVector(&mem, INITIAL_SIZE) != E_OK)
+		return E_ALLOC;
+	
+	mem.initialized = true;
+	
+	return E_OK;
 }
 
 void gcDestroy()
@@ -125,10 +132,14 @@ void gcDestroy()
 	}
 
 	free(mem.data);
+
+	mem.initialized = false;
 }
 
 void *gmalloc(int size)
 {
+	assert(mem.initialized);
+
 	void *ptr;
 	ptr = malloc(size);
 	if (ptr == NULL)
@@ -140,6 +151,8 @@ void *gmalloc(int size)
 
 void *grealloc(void *ptr, int size)
 {
+	assert(mem.initialized);
+
 	void *newPtr;
 	newPtr = realloc(ptr, size);
 	if (newPtr == NULL)

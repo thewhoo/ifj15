@@ -21,6 +21,8 @@
 
 int main()
 {
+  gcInit();
+
   TString s;
   initString(&s, STR_DEFAULT_SIZE);
 
@@ -30,10 +32,8 @@ int main()
 
   printf("%s\n", s.data);
 
-  freeString(&s);
+  //freeString(&s);
 
-  gcInit();
-  
   for(int i=0; i<10000; i++)
   {
 	  int *p = gmalloc(sizeof(int));

@@ -49,11 +49,12 @@ int stack_init(TStack* stack);
 void stack_free(TStack* stack);
 
 /**
-  * @brief  Removes one item from top of the stack, DO NOT RETURN THIS ITEM!
+  * @brief  Removes one item from top of the stack
   *
   * No effects on empty stack
   *
   * @param *stack Pointer to the stack structure
+  * @warning Pop do not return item from top of stack!
   */
 void stack_pop(TStack* stack);
 /**
@@ -73,6 +74,7 @@ void* stack_top(TStack* stack);
   * @brief  Check if is stack empty
   *
   * @param *stack Pointer to the stack structure
+  * @warning Top do not delete item from top of stack!
   */
 int stack_empty(TStack* stack);
 

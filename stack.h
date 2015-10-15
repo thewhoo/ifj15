@@ -37,7 +37,7 @@ typedef struct Stack
 } TStack;
 
 /**
-  * @brief  Init stack
+  * @brief  Init stack...
   *
   * Deallocate string
   *

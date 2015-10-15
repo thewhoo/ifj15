@@ -25,6 +25,13 @@ typedef struct Stack
     int used;
 } TStack;
 
+/**
+  * @brief  Init stack
+  *
+  * Deallocate string
+  *
+  * @param *v Pointer to the string
+  */
 int stack_init(TStack* stack);
 void stack_free(TStack* stack);
 void stack_pop(TStack* stack);

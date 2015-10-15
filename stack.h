@@ -30,5 +30,6 @@ void stack_free(TStack* stack);
 void stack_pop(TStack* stack);
 int stack_push(TStack* stack, void* item);
 void* stack_top(TStack* stack);
+int stack_empty(TStack* stack);
 
 #endif //STACk_H

@@ -68,3 +68,8 @@ void* stack_top(TStack *stack)
     else
         return NULL; 
 }
+
+int stack_empty(TStack *stack)
+{
+    return (stack->used == 0);
+}

@@ -1,6 +1,29 @@
 IFJ 2015 - GIT Repository
 -------------------------
 
+Jak na dokumentaci
+------------------
+Dokumentaci budeme generovat pomoci programu Doxygen. Tady:
+
+http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html
+
+je navod, jak pomoci commentu dokumentovat kod. Doxygen commenty
+prosim vkladejte pouze do .h souboru (v .c jsou pouze interni commenty
+vztahujici se k funkcnosti kodu).
+
+K dokumentaci prosim pouzivejte Java-style commenty, tzn. /** a nikoli
+/*!, abychom v dokumentovani kodu vyuzivali vsichni stejny system.
+Pro inspiraci si muzete prohlednout tuto stranku
+
+http://fnch.users.sourceforge.net/doxygen_c.html
+
+kde je pekny priklad dokumentovani kodu v C. Muzete si take prohlednout
+string.h, ktery jsem v Doxygenu zdokumentoval.
+
+Dokumentace je k nahlednuti na postolka.net/priv/ifjdoc, prihlaste
+se pomoci stejneho jmena/hesla jako na SSH. Dokumentace se automaticky
+aktualizuje po provedeni git push.
+
 Aktualni info
 --------------
 

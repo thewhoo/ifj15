@@ -47,6 +47,7 @@ typedef struct
   *
   * @param *v Pointer to the string struct
   * @param size Initial string size (you may use STR_AUTORESIZE_COEF)
+  * @return error Error code
   */
 int initString(TString *v, int size);
 
@@ -56,7 +57,8 @@ int initString(TString *v, int size);
   * Inserts a new character into the string.
   *
   * @param *v Pointer to the string struct
-  * @param value Char to insert
+  * @param value Char to inserti
+  * @return error Error code
   */
 int insertIntoString(TString *v, char value);
 
@@ -66,7 +68,8 @@ int insertIntoString(TString *v, char value);
   * Safely retrieve a character from the string
   *
   * @param *v Pointer to the string struct
-  * @param index Index of character to retrieve;
+  * @param index Index of character to retrieve;i
+  * @return char Character on given index
   */
 char getFromString(TString *v, int index);
 

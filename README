@@ -18,11 +18,15 @@ Pro inspiraci si muzete prohlednout tuto stranku
 http://fnch.users.sourceforge.net/doxygen_c.html
 
 kde je pekny priklad dokumentovani kodu v C. Muzete si take prohlednout
-string.h, ktery jsem v Doxygenu zdokumentoval.
+string.h, ktery jsem v Doxygenu zdokumentoval. Dokumentace se bude
+dynamicky aktualizovat pri kazdem pushnuti repozitare.
 
-Dokumentace je k nahlednuti na postolka.net/priv/ifjdoc, prihlaste
-se pomoci stejneho jmena/hesla jako na SSH. Dokumentace se automaticky
-aktualizuje po provedeni git push.
+Dokumentace je k nahlednuti na
+
+http://postolka.net/priv/ifjdoc/html
+
+dox
+defekt1
 
 Aktualni info
 --------------

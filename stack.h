@@ -39,7 +39,7 @@ typedef struct Stack
 /**
   * @brief  Init stack...
   *
-  * Deallocate string
+  * init stack on heap
   *
   * @param *v Pointer to the string
   */

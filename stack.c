@@ -20,6 +20,9 @@
 #include "galloc.h"
 #include "enums.h"
 
+#define DEFAULT_STACK_SIZE 15
+#define AUTORESIZE_COEF 2
+
 int stack_init(TStack *stack)
 {
     stack->data = gmalloc(DEFAULT_STACK_SIZE * sizeof(void *));

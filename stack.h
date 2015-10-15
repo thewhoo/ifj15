@@ -25,8 +25,6 @@
 #ifndef STACK_H
 #define STACK_H
 
-#define DEFAULT_STACK_SIZE 15
-
 typedef struct Stack
 {
     void **data; 

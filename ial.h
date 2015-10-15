@@ -37,12 +37,12 @@ char * sort(char *str);
 
 #define HTAB_SIZE 24593 //prime number, change later if needed 
   
-struct htab_listitem //used in IJC, change items if needed
+typedef struct htab_listitem //used in IJC, change items if needed
 {
     const char *key;
     unsigned int data;
     struct htab_listitem *next;
-};
+}htab_item;
 
 typedef struct hash_tab
 {
@@ -55,9 +55,9 @@ typedef struct hash_tab
  * @param str retazec, na vzpocitanie hash cisla
  * @param htab_size velkost hash tabulky
  * @return index do hash tabulky
- *
+ */
 unsigned int hash_function(const char *str, unsigned htab_size);
-*/
+
 
 /**
  * @brief vytvori a inicializuje hash tabulku 
@@ -70,9 +70,17 @@ htab_t *htab_init(unsigned int size);
  * @brief vyhlada prvok v tabulke, ak tam nie je tak ho prida 
  * @param tab hash tabulka
  * @param key prvok, ktory hladame
- * @return ukazatel na hladany prvok tabulky, ak sa nepodari pridat, tak null         
+ * @return ukazatel na hladany prvok tabulky, ak nie je tak null         
  */
 struct htab_listitem* htab_lookup(htab_t* tab, const char* key);
+
+/**
+ * @brief vlozi novy prvok do tabulky 
+ * @param tab hash tabulka
+ * @param key kluc noveho prvku
+ * @return ukazatel na novy prvok, alebo null 
+ */
+struct htab_listitem* htab_insert(htab_t* tab, const char* key);
 
 /**
  * @brief zavola funckiu pre kazdy prvok hash tabulky 

@@ -153,8 +153,7 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
     
     if(tab->list[index] == NULL) //ak je zoznam prazdny, pridanie na zaciatok
     {
-        tab->list[index] = malloc(sizeof(struct htab_listitem));
-        item = tab->list[index];
+        return NULL;
     }
     else //inak hladame key, ak je, vrati pointer, inak prida dalsi prvok
     {   
@@ -164,9 +163,31 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
             if(strcmp(item->key, key) == 0)
                 return item;    
             if(item->next == NULL)
-                break;
+                return NULL;
             item = item->next;
         }
+    }
+    
+    return NULL; 
+}
+
+struct htab_listitem* htab_insert(htab_t* tab, const char* key)
+{
+    struct htab_listitem* item;
+    unsigned int index;
+    
+    index = hash_function(key, tab->htab_size);
+    
+    if(tab->list[index] == NULL) //ak je zoznam prazdny, pridanie na zaciatok
+    {
+        tab->list[index] = malloc(sizeof(struct htab_listitem));
+        item = tab->list[index];
+    }
+    else //inak hladame key, ak je, vrati pointer, inak prida dalsi prvok
+    {   
+        item = tab->list[index];
+        while(item->next != NULL) //vieme, ze tab->list[index] != NULL
+            item = item->next;
 
         item->next = malloc(sizeof(struct htab_listitem));
         item = item->next;
@@ -185,6 +206,8 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
 
     return item; 
 }
+
+
 
 void htab_foreach(htab_t *tab, void function(const char* key, int value))
 {

@@ -19,7 +19,7 @@
 #include <stdbool.h>
 
 #include "ial.h"
-
+#include "galloc.h"
 
 /* -------------- KMP find--------------------*/
 int find(char *str, char *substr)
@@ -29,7 +29,7 @@ int find(char *str, char *substr)
     int r = -1;
 
     int *fail;
-    if((fail = malloc(sizeof(int)*subs_len)) == NULL)
+    if((fail = gmalloc(sizeof(int)*subs_len)) == NULL)
         exit(99);
 
     //fill fail vector
@@ -58,7 +58,7 @@ int find(char *str, char *substr)
             subs_ind = fail[subs_ind];
     }
     
-    free(fail);
+    gfree(fail);
     
     if (subs_ind >= subs_len)
         return (str_ind - subs_len); 
@@ -132,7 +132,7 @@ unsigned int hash_function(const char *str, unsigned htab_size)
 htab_t *htab_init(unsigned int size)
 {
     htab_t *tab;
-    tab = malloc(sizeof(htab_t) + sizeof(struct htab_listitem)*size);
+    tab = gmalloc(sizeof(htab_t) + sizeof(struct htab_listitem)*size);
 
     if (tab == NULL)
         return NULL;
@@ -180,7 +180,7 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
     
     if(tab->list[index] == NULL) //ak je zoznam prazdny, pridanie na zaciatok
     {
-        tab->list[index] = malloc(sizeof(struct htab_listitem));
+        tab->list[index] = gmalloc(sizeof(struct htab_listitem));
         item = tab->list[index];
     }
     else //inak hladame key, ak je, vrati pointer, inak prida dalsi prvok
@@ -189,14 +189,14 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
         while(item->next != NULL) //vieme, ze tab->list[index] != NULL
             item = item->next;
 
-        item->next = malloc(sizeof(struct htab_listitem));
+        item->next = gmalloc(sizeof(struct htab_listitem));
         item = item->next;
     }
 
     if(item == NULL)
         return NULL;
     
-    item->key = malloc(strlen(key) + 1);
+    item->key = gmalloc(strlen(key) + 1);
     if(item->key == NULL)
         return NULL;
 
@@ -241,8 +241,8 @@ void htab_remove(htab_t* tab, const char* key)
     else //prostredny/posledny prvok
         prev_item->next = item->next;
 
-    free((char*)item->key);
-    free(item);
+    gfree((char*)item->key);
+    gfree(item);
 }
 
 void htab_clear(htab_t *tab)
@@ -254,8 +254,8 @@ void htab_clear(htab_t *tab)
         {
             tmp = tab->list[i];
             tab->list[i] = tab->list[i]->next;
-            free((char*)tmp->key);
-            free(tmp);
+            gfree((char*)tmp->key);
+            gfree(tmp);
         }       
 }
 
@@ -264,7 +264,7 @@ void htab_free(htab_t *tab)
     if (tab != NULL)
     {
         htab_clear(tab);
-        free(tab); 
+        gfree(tab); 
     }
 }
 

@@ -14,7 +14,7 @@
  */
 
 #include "enums.h"
-
+#include "galloc.h"
 //lex.h si vytvor sam..bude tam asi len deklaracia funckie get_token 
 //vytvorim asi nejaky subor types.h kde bude ta struktura pre token
 //

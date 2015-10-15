@@ -13,14 +13,15 @@
  *
  */
 
-#include<stdlib.h>
+#include <stdlib.h>
 
 #include "stack.h"
 #include "enums.h"
+#include "galloc.h"
 
 int stack_init(TStack *stack)
 {
-    stack->data = malloc(DEFAULT_STACK_SIZE * sizeof(void *));
+    stack->data = gmalloc(DEFAULT_STACK_SIZE * sizeof(void *));
     if(stack->data == NULL)
          return E_ALLOC;   
     
@@ -32,7 +33,7 @@ int stack_init(TStack *stack)
 
 void stack_free(TStack* stack)
 {
-    free(stack->data);    
+    gfree(stack->data);    
 }
 
 int stack_push(TStack *stack, void* item)
@@ -41,7 +42,7 @@ int stack_push(TStack *stack, void* item)
 
     if(stack->capacity == (stack->used + 1))
     {
-        new_data = realloc(stack->data, 
+        new_data = grealloc(stack->data, 
                         sizeof(void *) * stack->capacity*VECTOR_AUTORESIZE_COEF);    
         if(new_data == NULL)
             return E_ALLOC;

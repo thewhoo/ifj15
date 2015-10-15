@@ -32,8 +32,10 @@
   * Initializes the garbage collector.
   * This function must be called before anything else
   * can be used, ideally at the beginning of the program.
+  *
+  * @return error Error code
   */
-void gcInit();
+int gcInit();
 
 /**
   * @brief Destroy garbage collector

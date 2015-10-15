@@ -20,7 +20,7 @@
   * This library allows the use of dynamically sized strings with automatic
   * extension.
   *
-  * @warning You may print the string using printf("%s\n", 
+  * @note You may print the string using printf("%s\n", 
   * s->data), but you MUST insert a binary 0 at the end of the string!
   */
 

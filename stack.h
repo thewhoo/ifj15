@@ -17,7 +17,7 @@
   * @file stack.h
   * @brief Stack library
   *
-  * This library allows the use of dynamically sized strings with automatic
+  * This library allows the use of the stack ADT with automatic
   * extension.
   *
   * @note You may print the string using printf("%s\n", 

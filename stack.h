@@ -13,6 +13,17 @@
  *
  */
 
+/**
+  * @file stack.h
+  * @brief Stack library
+  *
+  * This library allows the use of dynamically sized strings with automatic
+  * extension.
+  *
+  * @note You may print the string using printf("%s\n", 
+  * s->data), but you MUST insert a binary 0 at the end of the string!
+  */
+
 #ifndef STACK_H
 #define STACK_H
 

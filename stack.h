@@ -42,10 +42,40 @@ typedef struct Stack
   * @param *stack Pointer to the stack structure
   */
 int stack_init(TStack* stack);
+
+/**
+  * @brief  deallocate memory
+  *
+  * @param *stack Pointer to the stack structure
+  */
 void stack_free(TStack* stack);
+
+/**
+  * @brief  Removes one item from top of the stack, DO NOT RETURN THIS ITEM!
+  *
+  * No effects on empty stack
+  *
+  * @param *stack Pointer to the stack structure
+  */
 void stack_pop(TStack* stack);
+/**
+  * @brief  Insert item on top of the stack
+  *
+  * @param *item Pointer to item
+  * @param *stack Pointer to the stack structure
+  */
 int stack_push(TStack* stack, void* item);
+/**
+  * @brief  Returns item from top of the stack, DO NOT REMOVE IT
+  *
+  * @param *stack Pointer to the stack structure
+  */
 void* stack_top(TStack* stack);
+/**
+  * @brief  Check if is stack empty
+  *
+  * @param *stack Pointer to the stack structure
+  */
 int stack_empty(TStack* stack);
 
 #endif //STACk_H

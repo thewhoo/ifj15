@@ -13,6 +13,15 @@
  *
  */
 
+/**
+  * @file ial.h
+  * @brief Functions required for IAL
+  *
+  * ADT - Hash table
+  * built in functions - find, sort
+  *
+  */
+
 #ifndef IAL_H
 #define IAL_H
 

@@ -23,8 +23,6 @@
 int stack_init(TStack *stack)
 {
     stack->data = gmalloc(DEFAULT_STACK_SIZE * sizeof(void *));
-    if(stack->data == NULL)
-         return E_ALLOC;   
     
     stack->capacity = DEFAULT_STACK_SIZE;
     stack->used = 0;
@@ -39,16 +37,11 @@ void stack_free(TStack* stack)
 
 int stack_push(TStack *stack, void* item)
 {
-    void **new_data;
-
     if(stack->capacity == (stack->used + 1))
     {
-        new_data = grealloc(stack->data, 
-                        sizeof(void *) * stack->capacity*VECTOR_AUTORESIZE_COEF);    
-        if(new_data == NULL)
-            return E_ALLOC;
-        stack->data = new_data;
-        stack->capacity = stack->capacity * VECTOR_AUTORESIZE_COEF;
+        stack->data = grealloc(stack->data,
+                 sizeof(void *) * stack->capacity * AUTORESIZE_COEF);    
+        stack->capacity = stack->capacity * AUTORESIZE_COEF;
     }
 
     stack->data[stack->used] = item;

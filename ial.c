@@ -29,8 +29,7 @@ int find(char *str, char *substr)
     int r = -1;
 
     int *fail;
-    if((fail = gmalloc(sizeof(int)*subs_len)) == NULL)
-        exit(99);
+    fail = gmalloc(sizeof(int)*subs_len);
 
     //fill fail vector
     fail[0] = r;
@@ -134,9 +133,6 @@ htab_t *htab_init(unsigned int size)
     htab_t *tab;
     tab = gmalloc(sizeof(htab_t) + sizeof(struct htab_listitem)*size);
 
-    if (tab == NULL)
-        return NULL;
-
     tab->htab_size = size;
     for(unsigned int i = 0; i<size; i++)
         tab->list[i] = NULL;
@@ -151,11 +147,11 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
     
     index = hash_function(key, tab->htab_size);
     
-    if(tab->list[index] == NULL) //ak je zoznam prazdny, pridanie na zaciatok
+    if(tab->list[index] == NULL) //ak je zoznam prazdny
     {
         return NULL;
     }
-    else //inak hladame key, ak je, vrati pointer, inak prida dalsi prvok
+    else //inak hladame key, ak je, vrati pointer 
     {   
         item = tab->list[index];
         while(1) //vieme, ze tab->list[index] != NULL
@@ -183,7 +179,7 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
         tab->list[index] = gmalloc(sizeof(struct htab_listitem));
         item = tab->list[index];
     }
-    else //inak hladame key, ak je, vrati pointer, inak prida dalsi prvok
+    else //inak hladame key, pridame dalsi prvok
     {   
         item = tab->list[index];
         while(item->next != NULL) //vieme, ze tab->list[index] != NULL
@@ -193,12 +189,7 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
         item = item->next;
     }
 
-    if(item == NULL)
-        return NULL;
-    
     item->key = gmalloc(strlen(key) + 1);
-    if(item->key == NULL)
-        return NULL;
 
     strcpy((char*)item->key, key);
     item->data = 0;

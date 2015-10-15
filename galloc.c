@@ -43,7 +43,7 @@ int initVector(TVector *v, int size)
 {
   v->data = malloc(size * sizeof(void*));
   if (v->data == NULL)
-    return E_ALLOC;
+    exit_error(E_ALLOC);
 
   v->capacity = size;
   v->used = 0;
@@ -61,7 +61,7 @@ int resizeVector(TVector *v, int size)
   // Prevent memory leak by using a temporary pointer
   newData = realloc(v->data, size * sizeof(void*));
   if (newData == NULL)
-    return E_ALLOC;
+    exit_error(E_ALLOC);
 
   v->data = newData;
   v->capacity = size;

@@ -33,6 +33,7 @@
   * This function must be called before anything else
   * can be used, ideally at the beginning of the program.
   *
+  * @warning This function must be called before any other library calls can be used!
   * @return error Error code
   */
 int gcInit();
@@ -43,6 +44,9 @@ int gcInit();
   * Free all memory allocated using @c gcalloc() and @c gcrealloc()
   * and finally all the memory used by the actual collector. This
   * function must be called at the end of the program.
+  *
+  * @warning This function must be called before the program exits, otherwise
+  * you're going to cause a big memory leak!
   */
 void gcDestroy();
 

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "string.h"
+#include "error.h"
 #include "enums.h"
 #include "galloc.h"
 

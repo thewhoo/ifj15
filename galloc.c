@@ -17,7 +17,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "galloc.h"
-#include "enums.h"
+#include "error.h"
 #define INITIAL_SIZE 30
 #define AUTORESIZE_COEF 2
 
@@ -85,15 +85,12 @@ int insertIntoVector(TVector *v, void *value)
   return E_OK;
 }
 
-void deleteFromVector(TVector *v, int index, int count)
+void deleteFromVector(TVector *v, int index)
 {
-  assert(index >= 0 && count > 0 && count <= v->used - index);
+  assert(index >= 0 && index < v->used);
 
-  // Remove n values by replacing them with values located further in the array
-  for(int i = index; i < (v->used - count); i++)
-    v->data[i] = v->data[i+count];
-
-  v->used -= count;
+  // Remove value by replacing it with NULL
+  v->data[index] = NULL;
 }
 
 void freeVector(TVector *v)
@@ -108,7 +105,7 @@ void searchAndRemove(TVector *v, void *value)
 	{
 		if (value == v->data[i])
 		{
-			deleteFromVector(v, i, 1);
+			deleteFromVector(v, i);
 			break;
 		}
 	}
@@ -117,7 +114,7 @@ void searchAndRemove(TVector *v, void *value)
 int gcInit()
 {
 	if (initVector(&mem, INITIAL_SIZE) != E_OK)
-		return E_ALLOC;
+		exit_error(E_ALLOC);
 	
 	mem.initialized = true;
 	
@@ -126,6 +123,9 @@ int gcInit()
 
 void gcDestroy()
 {
+	if (mem.initialized == false)
+		return;
+
 	for (int i=0; i<mem.used; i++)
 	{
 		free(mem.data[i]);
@@ -143,7 +143,7 @@ void *gmalloc(int size)
 	void *ptr;
 	ptr = malloc(size);
 	if (ptr == NULL)
-		return NULL;
+		exit_error(E_ALLOC);
 
 	insertIntoVector(&mem, ptr);
 	return ptr;
@@ -156,7 +156,7 @@ void *grealloc(void *ptr, int size)
 	void *newPtr;
 	newPtr = realloc(ptr, size);
 	if (newPtr == NULL)
-		return NULL;
+		exit_error(E_ALLOC);
 
 	if (newPtr != ptr)
 	{

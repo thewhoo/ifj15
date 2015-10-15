@@ -16,8 +16,9 @@
 #include <stdlib.h>
 
 #include "stack.h"
-#include "enums.h"
+#include "error.h"
 #include "galloc.h"
+#include "enums.h"
 
 int stack_init(TStack *stack)
 {

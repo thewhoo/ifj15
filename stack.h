@@ -37,11 +37,11 @@ typedef struct Stack
 } TStack;
 
 /**
-  * @brief  Init stack...
+  * @brief  Init stack
   *
-  * init stack on heap
+  * Initializes an empty stack on heap with default size.
   *
-  * @param *v Pointer to the string
+  * @param *v Poin
   */
 int stack_init(TStack* stack);
 void stack_free(TStack* stack);

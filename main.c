@@ -18,6 +18,7 @@
 #include "enums.h"
 #include "lex.h"
 #include "galloc.h"
+#include "ilist.h"
 
 int main()
 {
@@ -55,7 +56,23 @@ int main()
   *ptr2[9999]=42;
   printf("%d\n", *ptr2[9999]);
 
-  gcDestroy();
+   Tins_list *ins = list_init();
+   for(int i = 0; i < 10; i++)
+   { 
+       TList_item *item = gmalloc(sizeof(TList_item));
+       item->ins_type = i*i;
+       list_insert(ins, item);
+    }
+    list_first(ins);
+    for(int i = 0; i < 10; i++)
+    {   
+        printf("ins list %d %d\n", i, ins->act->ins_type);
+        list_next(ins);
+    }
+    if(ins->act == NULL)
+        printf("all items from list were printed\n");
+    list_free(ins);
+    gcDestroy();
 
   return 0;
 

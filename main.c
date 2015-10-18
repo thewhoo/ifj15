@@ -14,66 +14,28 @@
  */
 
 #include <stdio.h>
-#include "string.h"
-#include "enums.h"
-#include "lex.h"
+#include <stdlib.h>
 #include "galloc.h"
-#include "ilist.h"
+#include "parser.h"
+#include "error.h"
 
-int main()
+int main(int argc, char **argv)
 {
-  gcInit();
 
-  TString s;
-  initString(&s, STR_DEFAULT_SIZE);
+    if (argc < 2)
+        exit_error(E_INTERNAL);
 
-  for(int i = 65; i < 70; i++)
-      insertIntoString(&s, i);
-  insertIntoString(&s, 0);
+    FILE *fp = fopen(argv[1], "r");
+    if (fp == NULL)
+        exit_error(E_INTERNAL);
 
-  printf("%s\n", s.data);
+    gcInit();
 
-  //freeString(&s);
+    parse(fp);
 
-  for(int i=0; i<10000; i++)
-  {
-	  int *p = gmalloc(sizeof(int));
-	  *p = i;
-	  printf("%d\n", *p);
-  }
-
-  int **ptr2 = gmalloc(10*sizeof(int*));
-  for (int i=0; i<10; i++)
-  {
-	  ptr2[i]=gmalloc(sizeof(int));
-	  *ptr2[i] = i;
-  }
-  for (int i=0; i<10; i++)
-	  printf("%d\n", *ptr2[i]);
-
-  ptr2 = grealloc(ptr2, 10000*sizeof(int*));
-  ptr2[9999]=gmalloc(sizeof(int));
-  *ptr2[9999]=42;
-  printf("%d\n", *ptr2[9999]);
-
-   Tins_list *ins = list_init();
-   for(int i = 0; i < 10; i++)
-   { 
-       TList_item *item = gmalloc(sizeof(TList_item));
-       item->ins_type = i*i;
-       list_insert(ins, item);
-    }
-    list_first(ins);
-    for(int i = 0; i < 10; i++)
-    {   
-        printf("ins list %d %d\n", i, ins->act->ins_type);
-        list_next(ins);
-    }
-    if(ins->act == NULL)
-        printf("all items from list were printed\n");
-    list_free(ins);
     gcDestroy();
 
-  return 0;
+    fclose(fp);
 
+    return 0;
 }

@@ -18,6 +18,7 @@
 #include "lex.h" 
 #include "adt.h" 
 #include "error.h"
+#include "string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,13 +40,15 @@ char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
                           "length", "substr", "concat", "find", "sort"};
 
 int main()
-{
+{	
+	TString buffer;
 	States state=S_START;
 	bool read=true;
 	char c,c_prev;
 	char buff[1024]; 
 	int i, b_i = 0;
 	memset(&buff,0,1024);
+
 
 	while(read)
 	{
@@ -435,7 +438,8 @@ int main()
 
 //****************************************************
 		case S_QUOT: //QUOTATION
-			if (c=='"') {  
+			if (c=='"') { 
+				buff[b_i] = c;  
 				printf("'%s' ", buff);
 				state= S_START;
 				for(i=0; i<=b_i; i++)

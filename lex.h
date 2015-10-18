@@ -19,4 +19,33 @@
 #define STR_DEFAULT_SIZE 20
 #define KEYWORDS_COUNT 15
 
+typedef enum
+{
+	S_START,			//start
+	S_ERROR,			//error
+
+	S_MUL,				// *
+	S_DIV,				// /
+	S_LBC,				// /*
+	S_RBC,				// /* *
+	S_LCOM,				// //
+	S_LESS,				// <
+	S_GREAT,			// >
+	S_ASSIGN,			// =
+	S_EXCM,				// !
+	S_QUOT,				// "
+
+	S_INT,				// int
+	S_DOT,				// int.
+	S_DBL,				// double
+	S_EXPO_E,			// base^e
+	S_EXPO_M,			// base^e+-
+	S_EXPO,				// base^e+-int
+
+	S_IDENT,			// indentifier
+	S_KEYW				// keyword
+
+} States;
+
+
 #endif // LEX_H

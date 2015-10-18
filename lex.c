@@ -16,7 +16,7 @@
 #include "enums.h"
 #include "galloc.h"
 #include "lex.h" 
-#include "types.h" 
+#include "adt.h" 
 #include "error.h"
 
 #include <stdio.h>
@@ -43,9 +43,9 @@ int main()
 	States state=S_START;
 	bool read=true;
 	char c,c_prev;
-	char buff[256]; 
+	char buff[1024]; 
 	int i, b_i = 0;
-	memset(&buff,0,256);
+	memset(&buff,0,1024);
 
 	while(read)
 	{
@@ -368,9 +368,7 @@ int main()
 				state=S_START;
 			}			
 			else
-			{
 				state=S_ERROR;
-			}
 		break;	
 
 //****************************************************
@@ -437,8 +435,6 @@ int main()
 
 //****************************************************
 		case S_QUOT: //QUOTATION
-			buff[b_i] = c;  
-			b_i++;
 			if (c=='"') {  
 				printf("'%s' ", buff);
 				state= S_START;
@@ -446,7 +442,20 @@ int main()
 					buff[i]=0;
 				b_i=0;
 			}
+			else if(c==EOF)
+			{
+				state=S_ERROR;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
+			}
+			else
+			{
+			buff[b_i] = c;  
+			b_i++;
+			}
 		 break;
+
 //****************************************************
 		case S_ERROR: // ERROR
 			printf ("ERROR\n");

@@ -26,7 +26,7 @@ enum vars
 {
     TYPE_INT,
     TYPE_DOUBLE,
-    TYPE STRING
+    TYPE_STRING
 };
 
 typedef struct var

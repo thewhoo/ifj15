@@ -22,6 +22,36 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+enum vars
+{
+    TYPE_INT,
+    TYPE_DOUBLE,
+    TYPE STRING
+};
+
+typedef struct var
+{
+    int var_type;
+    char *name;
+    int initialized;
+    union 
+    {
+        int i;
+        double d;
+        char *str;
+    }data;
+}TVar;
+
+typedef struct func
+{
+    char *name;
+    int return_type;
+    int defined;   
+//something for arguments..list? struct? 
+//ptr to local symbol table?
+}TFunction;
+
+
 typedef struct token
 {
     int type;

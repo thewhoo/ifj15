@@ -1,0 +1,11 @@
+lex.c 
+- zatial len testovacia verzia 
+- data sa nikde neukladaju len sa vsetko printuje
+- ignor komentov a whitespace
+- jednotlive "tokeny" su printnute na stdin a oddelene apostrofmi
+- vyzera ze to "tokeny" tvori tak ako ma
+- lex_test subor ktory som testoval, preslo takmer cez vsetko
+- pri najdeni lex chyby napise ERROR
+
+- ak chcete testovat tak: ./lex < file
+

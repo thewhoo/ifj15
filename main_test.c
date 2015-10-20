@@ -20,12 +20,12 @@
 #include "lex.h"
 #include "galloc.h"
 #include "ilist.h"
-
-int main()
+void test_TString()
 {
-  gcInit();
-
+  printf("/***********Testing String Library************/\n");
+  
   TString s;
+  
   initString(&s, STR_DEFAULT_SIZE);
 
   for(int i = 65; i < 70; i++)
@@ -35,7 +35,12 @@ int main()
   printf("%s\n", s.data);
 
   //freeString(&s);
-
+}
+  
+void test_galloc()
+{
+  printf("/***********Testing galloc Library************/\n");
+  
   for(int i=0; i<10000; i++)
   {
 	  int *p = gmalloc(sizeof(int));
@@ -56,7 +61,12 @@ int main()
   ptr2[9999]=gmalloc(sizeof(int));
   *ptr2[9999]=42;
   printf("%d\n", *ptr2[9999]);
+}
 
+void test_iList()
+{
+   printf("/***********Testing ilist Library************/\n");
+   
    Tins_list *ins = list_init();
    for(int i = 0; i < 10; i++)
    {
@@ -73,7 +83,19 @@ int main()
     if(ins->act == NULL)
         printf("all items from list were printed\n");
     list_free(ins);
-    gcDestroy();
+}
+
+int main()
+{
+  gcInit();
+
+  test_TString();
+
+  test_galloc();
+
+  test_iList();
+
+  gcDestroy();
 
   return 0;
 

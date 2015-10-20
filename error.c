@@ -26,7 +26,8 @@ void exit_error(int err)
         case(E_LEX):
             fprintf(stderr, "Error: lexical error\n");
             break;          
-
+        case(E_INTERNAL):
+            fprintf(stderr, "Error: Something went wrong!\n");
     }
     
     gcDestroy();

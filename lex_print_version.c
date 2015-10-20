@@ -34,7 +34,7 @@
 //tak nacitane slovo je len obycajny identifikator token_identifier
 //tie token typy su v enums.h
 
-void keyword_check(TToken token) // compares identifier with keywords
+bool keyword_check(TToken token) // compares identifier with keywords
 {
 	int i;
 	char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
@@ -46,18 +46,25 @@ void keyword_check(TToken token) // compares identifier with keywords
 		{
 			token.data = token_keywords[i];
 			token.type=i;
+			printf("'/%s/' ", token.data);
+			return true;
 		}		
 	}
+	return false;
 }
 
-TToken get_token()
+int main()
 {	
+
   gcInit(); //garbage collector init
 	TToken token;
 	TString buffer; //rewritable buffer
 	States state=S_START;
-	bool read=true,dot=false;
+	bool read=true,dot=true;
 	char c;
+	char buff[1024]; 
+	int i, b_i = 0;
+	memset(&buff,0,1024);
 
 	initString(&buffer,STR_DEFAULT_SIZE); // buffer initialization
 
@@ -71,54 +78,58 @@ TToken get_token()
 			{
 				case EOF:
 					read=false;
-					token.type=TOKEN_ADD;
-					return token;
 				break;
 				case '+':
 					token.type=TOKEN_ADD;
-					return token;
+					printf("'%c' ",c);
 				break;
 				case '-':
 					token.type=TOKEN_SUB;
-					return token;
+					printf("'%c' ",c);
 				break;
 				case '*':
 					state=S_MUL;
+					buff[b_i]=c;
 				break;
 				case '/':
 					state= S_DIV;
+					buff[b_i] = c;
 				break;
 				case '=':
 					state= S_ASSIGN;
+					buff[b_i] = c;
 				break;
 				case '!':
 					state= S_EXCM;
+					buff[b_i] = c;
 				break;
 				case '<':
 					state= S_LESS;
+					buff[b_i] = c;
 				break;
 				case '>':
 					state= S_GREAT;
+					buff[b_i] = c;
 				break;		
 				case '(':
+					printf("'%c' ",c);
 					token.type=TOKEN_LROUND_BRACKET;
-					return token;
 				break;				
 				case ')':
+					printf("'%c' ",c);
 					token.type=TOKEN_RROUND_BRACKET;
-					return token;
 				break;		
 				case '{':
+					printf("'%c' ",c);
 					token.type=TOKEN_LCURLY_BRACKET;
-					return token;
 				break;	
 				case '}':
+					printf("'%c' ",c);
 					token.type=TOKEN_RCURLY_BRACKET;
-					return token;
 				break;	
 				case ',':
+					printf("'%c' ",c);
 					token.type=TOKEN_COMMA;
-					return token;
 					break;
 				case ';':
 					printf("'%c' ",c);
@@ -126,7 +137,7 @@ TToken get_token()
 				break;
 				case '"':
 					state= S_QUOT;
-					return token;
+					insertIntoString(&buffer, c);
 				break;
 				default:
 					if(isdigit(c))
@@ -147,7 +158,7 @@ TToken get_token()
 					else
 						state=S_ERROR;								
 			}
-		break;
+			break;
 
 //********************************************** 
 		case S_INT: // INTEGER
@@ -169,12 +180,11 @@ TToken get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
+				printf("'%s' ",buffer.data);
 				ungetc(c,stdin);
 				token.type=TOKEN_INT_VALUE;
-				token.data=buffer.data;
 				state=S_START;
 				deleteFromString(&buffer,0,buffer.used);
-				return token;
 			}
 		break;
 
@@ -206,12 +216,11 @@ TToken get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
+				printf("'%s' ",buff);
 				ungetc(c,stdin);
 				token.type=TOKEN_DOUBLE_VALUE;
-				token.data=buffer.data;
 				state=S_START;
 				deleteFromString(&buffer,0,buffer.used);
-				return token;
 			}
 		break;
 
@@ -257,6 +266,7 @@ TToken get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
+				printf("'%s' ",buffer.data);
 				ungetc(c,stdin);
 				
 				if (dot=true)
@@ -269,9 +279,7 @@ TToken get_token()
 					token.type=TOKEN_INT_VALUE;
 				}
 				state=S_START;
-				token.data=buffer.data;
 				deleteFromString(&buffer,0,buffer.used);
-				return token;
 			}
 		break;
 		
@@ -286,11 +294,13 @@ TToken get_token()
 				insertIntoString(&buffer, 0);
 				token.data=buffer.data;
 				token.type=TOKEN_IDENTIFIER;
-				keyword_check(token);
+				if(keyword_check(token)==false)
+				{
+					printf("'%s' ",buffer.data);
+				}
 				ungetc(c,stdin);
 				state=S_START;
 				deleteFromString(&buffer,0,buffer.used);
-				return token;
 			}
 		break;
 
@@ -301,9 +311,10 @@ TToken get_token()
 			else
 			{
 				ungetc(c,stdin);
+				printf("'%c' ",buff[b_i]);
 				token.type=TOKEN_MUL;
+				buff[b_i]=0;
 				state=S_START;
-				return token;
 			}
 		break;
 
@@ -317,9 +328,10 @@ TToken get_token()
 			else
 			{
 				ungetc(c,stdin);
+				printf("'%c' ",buff[b_i]);
+				buff[b_i]=0;
 				token.type=TOKEN_DIV;
 				state=S_START;
-				return token;
 			}
 		break;	
 
@@ -351,16 +363,22 @@ TToken get_token()
 		case S_ASSIGN: // ASSIGNMENT
 			if (c=='=')
 			{
+				b_i++;
+				buff[b_i] = c;
+				printf("'%s' ",buff);
 				token.type=TOKEN_EQUAL;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
 				state=S_START;
-				return token;
 			}			
 			else
 			{
 				ungetc(c,stdin);
+				printf("'%c' ",buff[b_i]);
 				token.type=TOKEN_ASSIGN;
+				buff[b_i]=0;
 				state=S_START;
-				return token;
 			}
 		break;	
 	
@@ -368,9 +386,14 @@ TToken get_token()
 		case S_EXCM: // EXCLAMATION MARK
 			if (c=='=')
 			{
+				b_i++;
+				buff[b_i] = c;
+				printf("'%s' ",buff);
 				token.type=TOKEN_NOT_EQUAL;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
 				state=S_START;
-				return token;
 			}			
 			else
 				state=S_ERROR;
@@ -380,22 +403,33 @@ TToken get_token()
 		case S_LESS: // LESS THAN
 			if (c=='=')
 			{
-				token.type=TOKEN_LESS_EQUAL;;
+				b_i++;
+				buff[b_i] = c;
+				printf("'%s' ",buff);
+				token.type=TOKEN_LESS_EQUAL;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
 				state=S_START;
-				return token;
 			}
 			else if (c=='<')
 			{
+				b_i++;
+				buff[b_i] = c;
+				printf("'%s' ",buff);
 				token.type=TOKEN_COUT_BRACKET;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
 				state=S_START;
-				return token;
 			}				
 			else
 			{
 				ungetc(c,stdin);
+				printf("'%c' ",buff[b_i]);
 				token.type=TOKEN_LESS;
+				buff[b_i]=0;
 				state=S_START;
-				return token;
 			}
 		break;
 
@@ -403,22 +437,33 @@ TToken get_token()
 		case S_GREAT: //GREATER THAN
 			if (c=='=')
 			{
+				b_i++;
+				buff[b_i] = c;
+				printf("'%s' ",buff);
 				token.type=TOKEN_GREATER_EQUAL;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
 				state=S_START;
-				return token;
 			}
 			else if (c=='>')
 			{
+				b_i++;
+				buff[b_i] = c;
+				printf("'%s' ",buff);
 				token.type=TOKEN_CIN_BRACKET;
+				for(i=0; i<=b_i; i++)
+					buff[i]=0;
+				b_i=0;
 				state=S_START;
-				return token;
 			}				
 			else
 			{
 				ungetc(c,stdin);
+				printf("'%c' ",buff[b_i]);
 				token.type=TOKEN_GREATER;
+				buff[b_i]=0;
 				state=S_START;
-				return token;
 			}
 		break;
 
@@ -427,11 +472,10 @@ TToken get_token()
 			if (c=='"') { 
 				insertIntoString(&buffer, c);
 				insertIntoString(&buffer, 0); 
+				printf("'%s' ", buffer.data);
 				token.type=TOKEN_STRING_VALUE;
-				token.data=buffer.data;
 				state= S_START;
 				deleteFromString(&buffer,0,buffer.used);
-				return token;
 			}
 			else if(c==EOF)
 			{
@@ -452,6 +496,7 @@ TToken get_token()
 			exit_error(E_LEX);
 		}
 	}
+	printf("\n");
 	freeString(&buffer);
   gcDestroy();
 }

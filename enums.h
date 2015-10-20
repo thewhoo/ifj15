@@ -32,6 +32,12 @@ enum tokens
   TOKEN_RETURN,
   TOKEN_STRING,
 
+  TOKEN_LENGTH,
+  TOKEN_SUBSTR,
+  TOKEN_CONCAT,
+  TOKEN_FIND,
+  TOKEN_SORT,
+
 //built-in functions
   TOKEN_BF_LENGTH,
   TOKEN_BF_SUBSTR,
@@ -42,7 +48,7 @@ enum tokens
 //other tokens
   TOKEN_IDENTIFIER,         //IDENTIFIER, NOT KEYWORD
   TOKEN_EOF,
-  TOKEN_STRING_VALUE,               // "some text in quotation marks"
+  TOKEN_STRING_VALUE,        // "some text in quotation marks"
   TOKEN_INT_VALUE,          // some integer
   TOKEN_DOUBLE_VALUE,       // double value
   TOKEN_ASSIGN,             // =        e.g.(a = 3;)
@@ -54,7 +60,7 @@ enum tokens
   TOKEN_LROUND_BRACKET,     // (
   TOKEN_RROUND_BRACKET,     // )
   TOKEN_LCURLY_BRACKET,     // {
-  TOKEN_RCURLYBRACKET,      // }
+  TOKEN_RCURLY_BRACKET,     // }
 
 //math 
   TOKEN_MUL,                // *

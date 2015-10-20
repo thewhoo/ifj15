@@ -35,7 +35,7 @@ void lex_init(FILE *f)
 
 void add_data()
 {
- return;
+    return;
 }
 
 void keyword_check(TToken* token) // compares identifier with keywords
@@ -46,18 +46,17 @@ void keyword_check(TToken* token) // compares identifier with keywords
                           	"length", "substr", "concat", "find", "sort"};
 	for (i = 0; i < KEYWORDS_COUNT; i++)
 		if (strcmp(token_keywords[i], token->data) == 0)
-			token->type=i;
+			token->type = i;
 }
 
 TToken* get_token()
 {	
 	TToken *token = gmalloc(sizeof(TToken));
-	TString buffer; //rewritable buffer
-	States state=S_START;
-	bool dot=false;
+	TString buffer; 
+	States state = S_START;
 	int c;
 
-	initString(&buffer,STR_DEFAULT_SIZE); // buffer initialization
+	initString(&buffer,STR_DEFAULT_SIZE); 
 
 	while(1)
 	{
@@ -103,18 +102,18 @@ TToken* get_token()
 				case '{':
 					token->type = TOKEN_LCURLY_BRACKET;
 					return token;
-				break;	
+				    break;	
 				case '}':
 					token->type = TOKEN_RCURLY_BRACKET;
 					return token;
-				break;	
+				    break;	
 				case ',':
 					token->type = TOKEN_COMMA;
 					return token;
 				case ';':
 					token->type = TOKEN_SEMICOLON;
 				    return token;
-                                case '"':
+                case '"':
 					state = S_QUOT;
 				    break;
 				default:
@@ -143,7 +142,6 @@ TToken* get_token()
 			}
 			else if(c == '.')
 			{
-				dot=true;
 				insertIntoString(&buffer, c);
 				state = S_DOT;				
 			}
@@ -230,24 +228,13 @@ TToken* get_token()
 //*****************************************************
 		case S_EXPO: // state S_EXPO
 			if (isdigit(c))
-			{
 				insertIntoString(&buffer, c);
-			}		
 			else
 			{
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
-				
-				if (dot == true)
-				{
-					token->type = TOKEN_DOUBLE_VALUE;
-					dot = false;
-				}
-				else
-				{
-					token->type = TOKEN_INT_VALUE;
-				}
-				token->data=buffer.data;
+				token->type = TOKEN_DOUBLE_VALUE;
+				token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -334,7 +321,7 @@ TToken* get_token()
 				token->type = TOKEN_ASSIGN;
 				return token;
 			}
-	      	   break;	
+	      	 break;	
 	
 //****************************************************
 		case S_EXCM: // EXCLAMATION MARK

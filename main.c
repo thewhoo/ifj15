@@ -18,6 +18,7 @@
 #include "galloc.h"
 #include "parser.h"
 #include "error.h"
+#include "lex.h"
 
 int main(int argc, char **argv)
 {
@@ -30,8 +31,9 @@ int main(int argc, char **argv)
         exit_error(E_INTERNAL);
 
     gcInit();
+    lex_init(fp);
 
-    parse(fp);
+    parse();
 
     gcDestroy();
 

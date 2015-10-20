@@ -31,6 +31,6 @@
   *
   * @param *fp Pointer to file with IFJ15 source code
   */
-  void parse(FILE *fp);
+  void parse();
 
   #endif // PARSER_H

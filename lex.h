@@ -13,6 +13,8 @@
  *
  */
 
+#include "adt.h"
+
 #ifndef LEX_H
 #define LEX_H
 
@@ -43,9 +45,10 @@ typedef enum
 	S_EXPO,				// base^e+-int
 
 	S_IDENT,			// indentifier
-	S_KEYW				// keyword
 
 } States;
 
+void lex_init(FILE *f);
+TToken* get_token();
 
 #endif // LEX_H

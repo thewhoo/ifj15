@@ -15,13 +15,22 @@
 
  #include <stdio.h>
  #include "parser.h"
+ #include "adt.h"
  #include "lex.h"
  #include "galloc.h"
-
+ #include "enums.h"
  // Just a skeleton ATM, I will do something when I
  // figure out how the fucking LL tables work
 
- void parse(FILE *fp)
+ void parse()
  {
-     printf("%ld\n", (long)fp);
+     TToken* token;
+
+     do
+     {
+         token = get_token();
+         printf("Token type: %d\nToken data: %s\n", token->type, token->data);
+
+     }while(token->type != TOKEN_EOF);
+ 
  }

@@ -27,6 +27,7 @@ int initString(TString *v, int size)
   if (v->data == NULL)
     return E_ALLOC;
 
+  v->data[0] = 0;
   v->capacity = size;
   v->used = 0;
 

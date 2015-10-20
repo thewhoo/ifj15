@@ -33,11 +33,6 @@ void lex_init(FILE *f)
     fp = f;
 }
 
-void add_data()
-{
-    return;
-}
-
 void keyword_check(TToken* token) // compares identifier with keywords
 {
 	int i;

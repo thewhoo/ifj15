@@ -57,7 +57,7 @@ TToken* get_token()
 	int c;
 
 	initString(&buffer,STR_DEFAULT_SIZE); 
-
+	token->data = buffer.data;
 	while(1)
 	{
 		c = fgetc(fp);
@@ -113,7 +113,8 @@ TToken* get_token()
 				case ';':
 					token->type = TOKEN_SEMICOLON;
 				    return token;
-                case '"':
+        case '"':
+					insertIntoString(&buffer, c);	
 					state = S_QUOT;
 				    break;
 				default:
@@ -145,7 +146,7 @@ TToken* get_token()
 				insertIntoString(&buffer, c);
 				state = S_DOT;				
 			}
-			else if(c == 'E'||c == 'e')
+			else if(c == 'E' || c == 'e')
 			{
 				insertIntoString(&buffer, c);
 				state = S_EXPO_E;				
@@ -155,7 +156,6 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_INT_VALUE;
-				token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -179,17 +179,16 @@ TToken* get_token()
 			{
 				insertIntoString(&buffer, c);
 			}
-			else if(c == 'E'||c == 'e')
+			else if(c == 'E' || c == 'e')
 			{
 				insertIntoString(&buffer, c);
-				state= S_EXPO_E;				
+				state = S_EXPO_E;				
 			}
 			else
 			{
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_DOUBLE_VALUE;
-				token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -201,7 +200,7 @@ TToken* get_token()
 				insertIntoString(&buffer, c);
 				state = S_EXPO;
 			}
-			else if(c == '+'||c == '-')
+			else if (c == '+' || c == '-')
 			{
 				insertIntoString(&buffer, c);
 				state= S_EXPO_M;				
@@ -234,7 +233,6 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_DOUBLE_VALUE;
-				token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -248,7 +246,6 @@ TToken* get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
-				token->data = buffer.data;
 				token->type = TOKEN_IDENTIFIER;
 				keyword_check(token);
 				ungetc(c,fp);
@@ -258,13 +255,12 @@ TToken* get_token()
 
 //*************************************************************
 		case S_MUL: // MULTIPLY
-			if (c=='/')
-				state=S_ERROR;		
+			if (c == '/')
+				state = S_ERROR;		
 			else
 			{
 				ungetc(c,fp);
-				token->type=TOKEN_MUL;
-				state=S_START;
+				token->type = TOKEN_MUL;
 				return token;
 			}
 		    break;
@@ -272,14 +268,14 @@ TToken* get_token()
 //*************************************************************
 		case S_DIV: // DIVIDE
 			if (c == '/')
-				state=S_LCOM;
+				state = S_LCOM;
 
-			else if (c=='*')
-				state=S_LBC;			
+			else if (c == '*')
+				state = S_LBC;			
 			else
 			{
 				ungetc(c,fp);
-				token->type=TOKEN_DIV;
+				token->type = TOKEN_DIV;
 				return token;
 			}
 		    break;	
@@ -292,20 +288,20 @@ TToken* get_token()
 				
 //****************************************************
 		case S_LBC: // LEFT BLOCK COMMENT
-			if (c=='*')
-				state=S_RBC;
-			if(c==EOF)
-				state=S_ERROR;
+			if (c == '*')
+				state = S_RBC;
+			if(c == EOF)
+				state = S_ERROR;
 		    break;
 
 //****************************************************
 		case S_RBC: //RIGHT BLOCK COMMENT
-			if (c=='/')
-				state=S_START;
-			else if (c==EOF)
-				state=S_ERROR;
+			if (c == '/')
+				state = S_START;
+			else if (c == EOF)
+				state = S_ERROR;
 			else
-				state=S_LBC;
+				state = S_LBC;
 		break;
 				
 //****************************************************
@@ -327,21 +323,21 @@ TToken* get_token()
 		case S_EXCM: // EXCLAMATION MARK
 			if (c == '=')
 			{
-				token->type=TOKEN_NOT_EQUAL;
+				token->type = TOKEN_NOT_EQUAL;
 				return token;
 			}			
 			else
-				state=S_ERROR;
+				state = S_ERROR;
 		   break;	
 
 //****************************************************
 		case S_LESS: // LESS THAN
 			if (c=='=')
 			{
-				token->type=TOKEN_LESS_EQUAL;;
+				token->type=TOKEN_LESS_EQUAL;
 				return token;
 			}
-			else if (c=='<')
+			else if (c == '<')
 			{
 				token->type=TOKEN_COUT_BRACKET;
 				return token;
@@ -349,7 +345,7 @@ TToken* get_token()
 			else
 			{
 				ungetc(c,fp);
-				token->type=TOKEN_LESS;
+				token->type = TOKEN_LESS;
 				return token;
 			}
 		   break;
@@ -358,12 +354,12 @@ TToken* get_token()
 		case S_GREAT: //GREATER THAN
 			if (c=='=')
 			{
-				token->type=TOKEN_GREATER_EQUAL;
+				token->type = TOKEN_GREATER_EQUAL;
 				return token;
 			}
-			else if (c=='>')
+			else if (c == '>')
 			{
-				token->type=TOKEN_CIN_BRACKET;
+				token->type = TOKEN_CIN_BRACKET;
 				return token;
 			}				
 			else
@@ -376,16 +372,15 @@ TToken* get_token()
 
 //****************************************************
 		case S_QUOT: //QUOTATION
-			if (c=='"') { 
+			if (c == '"') { 
 				insertIntoString(&buffer, c);
 				insertIntoString(&buffer, 0); 
 				token->type = TOKEN_STRING_VALUE;
-				token->data = buffer.data;
 				return token;
 			}
-			else if(c==EOF)
+			else if(c == EOF)
 			{
-				state=S_ERROR;
+				state = S_ERROR;
 			}
 			else
 			{

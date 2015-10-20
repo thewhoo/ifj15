@@ -34,13 +34,18 @@
 //tak nacitane slovo je len obycajny identifikator token_identifier
 //tie token typy su v enums.h
 
+void TToken add_data()
+{
+
+}
+
 void keyword_check(TToken token) // compares identifier with keywords
 {
 	int i;
 	char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
                           	"for", "if", "int", "return", "string", 
                           	"length", "substr", "concat", "find", "sort"};
-	for (i=0;i<15;i++)
+	for (i=0;i<KEYWORDS_COUNT;i++)
 	{
 		if (strcmp(token_keywords[i],token.data)==0)
 		{
@@ -50,7 +55,7 @@ void keyword_check(TToken token) // compares identifier with keywords
 	}
 }
 
-TToken get_token()
+TToken lex_init(FILE *fp)
 {	
   gcInit(); //garbage collector init
 	TToken token;
@@ -63,7 +68,7 @@ TToken get_token()
 
 	while(read)
 	{
-		c=getchar();
+		c=getchar(fp);
 		switch(state)
 		{
 		case S_START:
@@ -169,7 +174,7 @@ TToken get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_INT_VALUE;
 				token.data=buffer.data;
 				state=S_START;
@@ -206,7 +211,7 @@ TToken get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_DOUBLE_VALUE;
 				token.data=buffer.data;
 				state=S_START;
@@ -257,7 +262,7 @@ TToken get_token()
 			else
 			{
 				insertIntoString(&buffer, 0);
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				
 				if (dot=true)
 				{
@@ -287,7 +292,7 @@ TToken get_token()
 				token.data=buffer.data;
 				token.type=TOKEN_IDENTIFIER;
 				keyword_check(token);
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				state=S_START;
 				deleteFromString(&buffer,0,buffer.used);
 				return token;
@@ -300,7 +305,7 @@ TToken get_token()
 				state=S_ERROR;		
 			else
 			{
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_MUL;
 				state=S_START;
 				return token;
@@ -316,7 +321,7 @@ TToken get_token()
 				state=S_LBC;			
 			else
 			{
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_DIV;
 				state=S_START;
 				return token;
@@ -357,7 +362,7 @@ TToken get_token()
 			}			
 			else
 			{
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_ASSIGN;
 				state=S_START;
 				return token;
@@ -392,7 +397,7 @@ TToken get_token()
 			}				
 			else
 			{
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_LESS;
 				state=S_START;
 				return token;
@@ -415,7 +420,7 @@ TToken get_token()
 			}				
 			else
 			{
-				ungetc(c,stdin);
+				ungetc(c,fp);
 				token.type=TOKEN_GREATER;
 				state=S_START;
 				return token;
@@ -446,7 +451,6 @@ TToken get_token()
 
 //****************************************************
 		case S_ERROR: // ERROR
-			printf("ERROR\n");
 			freeString(&buffer);
     	gcDestroy();
 			exit_error(E_LEX);

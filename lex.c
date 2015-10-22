@@ -71,8 +71,8 @@ TToken* get_token()
 					token->type = TOKEN_SUB;
 					return token;
 				case '*':
-					state = S_MUL;
-				    break;
+					token->type = TOKEN_MUL;
+					return token;
 				case '/':
 					state = S_DIV;
 				    break;
@@ -162,6 +162,11 @@ TToken* get_token()
 				insertIntoString(&buffer, c);
 				state = S_DBL;
 			}
+			else if(c == 'E' || c == 'e')
+			{
+				insertIntoString(&buffer, c);
+				state = S_EXPO_E;	
+			}	
 			else
 			{
 				state = S_ERROR;
@@ -247,19 +252,6 @@ TToken* get_token()
 				return token;
 			}
 		    break;
-
-//*************************************************************
-		case S_MUL: // MULTIPLY
-			if (c == '/')
-				state = S_ERROR;		
-			else
-			{
-				ungetc(c,fp);
-				token->type = TOKEN_MUL;
-				return token;
-			}
-		    break;
-
 //*************************************************************
 		case S_DIV: // DIVIDE
 			if (c == '/')

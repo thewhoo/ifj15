@@ -26,7 +26,6 @@ typedef enum
 	S_START,			//start
 	S_ERROR,			//error
 
-	S_MUL,				// *
 	S_DIV,				// /
 	S_LBC,				// /*
 	S_RBC,				// /* *

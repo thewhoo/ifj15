@@ -20,9 +20,11 @@
 #include "lex.h"
 #include "galloc.h"
 #include "ilist.h"
+#include "stack.h"
+
 void test_TString()
 {
-  printf("/***********Testing String Library************/\n");
+  printf("\n/****************Testing String Library*****************/\n");
   
   TString s;
   
@@ -39,7 +41,7 @@ void test_TString()
   
 void test_galloc()
 {
-  printf("/***********Testing galloc Library************/\n");
+  printf("\n/****************Testing galloc Library*****************/\n");
   
   for(int i=0; i<10000; i++)
   {
@@ -65,7 +67,7 @@ void test_galloc()
 
 void test_iList()
 {
-   printf("/***********Testing ilist Library************/\n");
+   printf("\n/****************Testing ilist Library******************/\n");
    
    Tins_list *ins = list_init();
    for(int i = 0; i < 10; i++)
@@ -85,6 +87,33 @@ void test_iList()
     list_free(ins);
 }
 
+void test_stack()
+{   
+    printf("\n/****************Testing stack Library*****************/\n");
+    
+    TStack stack;
+    int p = 3;
+    int *ptr = &p;
+
+    stack_init(&stack);
+    for(int i = 0; i < 100; i++)
+    {
+        stack_push(&stack, ptr);
+        printf("stack size: %d, stack used: %d\n", stack.capacity, stack.used);
+    }
+
+    printf("stack size: %d, stack used: %d\n", stack.capacity, stack.used);
+
+    while(!stack_empty(&stack))
+    {
+        printf("%d  ", *((int*)stack_top(&stack)));
+        stack_pop(&stack);
+    }
+
+    printf("\nstack size: %d, stack used: %d\n", stack.capacity, stack.used);
+}
+
+
 int main()
 {
   gcInit();
@@ -94,6 +123,8 @@ int main()
   test_galloc();
 
   test_iList();
+
+  test_stack();
 
   gcDestroy();
 

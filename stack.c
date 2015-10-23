@@ -38,9 +38,9 @@ void stack_free(TStack* stack)
     gfree(stack->data);    
 }
 
-int stack_push(TStack *stack, void* item)
+int stack_push(TStack* stack, void* item)
 {
-    if(stack->capacity == (stack->used + 1))
+    if(stack->capacity <= stack->used)
     {
         stack->data = grealloc(stack->data,
                  sizeof(void *) * stack->capacity * AUTORESIZE_COEF);    

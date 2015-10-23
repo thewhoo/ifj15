@@ -28,6 +28,11 @@ void exit_error(int err)
             break;          
         case(E_INTERNAL):
             fprintf(stderr, "Error: Something went wrong!\n");
+            break;
+        case(E_ALLOC):
+            fprintf(stderr, "Error: Memory allocation failed!\n");
+            err = E_INTERNAL;
+            break;
     }
     
     gcDestroy();

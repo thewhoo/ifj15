@@ -108,8 +108,7 @@ TToken* get_token()
 				case ';':
 					token->type = TOKEN_SEMICOLON;
 				    return token;
-        case '"':
-					insertIntoString(&buffer, c);	
+                case '"':
 					state = S_QUOT;
 				    break;
 				default:
@@ -360,7 +359,6 @@ TToken* get_token()
 //****************************************************
 		case S_QUOT: //QUOTATION
 			if (c == '"') { 
-				insertIntoString(&buffer, c);
 				insertIntoString(&buffer, 0); 
 				token->type = TOKEN_STRING_VALUE;
 				return token;

@@ -27,11 +27,19 @@
 #include "string.h"
 
 FILE *fp;
+TToken *token_buffer = NULL;
+
 
 void lex_init(FILE *f)
 {
     fp = f;
 }
+
+void unget_token(TToken *token)
+{
+    token_buffer = token;
+}
+
 
 void keyword_check(TToken* token) // compares identifier with keywords
 {
@@ -46,7 +54,16 @@ void keyword_check(TToken* token) // compares identifier with keywords
 
 TToken* get_token()
 {	
-	TToken *token = gmalloc(sizeof(TToken));
+	TToken* token;
+    
+    if(token_buffer != NULL)
+    {
+        token = token_buffer;
+        token_buffer = NULL;
+        return token;
+    }
+        
+    token = gmalloc(sizeof(TToken));
 	TString buffer; 
 	States state = S_START;
 	int c;

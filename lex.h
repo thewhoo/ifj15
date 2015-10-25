@@ -48,6 +48,16 @@ typedef enum
 } States;
 
 void lex_init(FILE *f);
+
+/**
+  * @brief Returns one token back to the "tokens stream"
+  *
+  * If you return more tokens back, only last will be remembered
+  *
+  * @param token Pointer to token 
+  */
+void unget_token(TToken *token);
+
 TToken* get_token();
 
 #endif // LEX_H

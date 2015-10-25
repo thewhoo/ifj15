@@ -44,7 +44,7 @@ char * sort(char *str);
 
 /* -----------------Hash tab ------------------- */
 
-#define HTAB_SIZE 24593 //prime number, change later if needed 
+#define HTAB_SIZE 97 //planetmath.org/goodhashtableprimes
   
 typedef struct htab_listitem //used in IJC, change items if needed
 {
@@ -59,21 +59,19 @@ typedef struct hash_tab
     struct htab_listitem* list[];
 }htab_t;
 
-/** used in IJC, now just private function
- * @brief sbdm hash funkcia
- * @param str retazec, na vzpocitanie hash cisla
- * @param htab_size velkost hash tabulky
- * @return index do hash tabulky
- */
-unsigned int hash_function(const char *str, unsigned htab_size);
-
-
 /**
  * @brief vytvori a inicializuje hash tabulku 
  * @param size velkost tabulky 
  * @return vrati ukazatel na tabulku alebo null
  */
 htab_t *htab_init(unsigned int size);
+
+/**
+ * @brief copy constructor 
+ * @param htab pointer to original hash table
+ * @return pointer to copied hash table
+ */
+htab_t *htab_copy(htab_t *old_tab);
 
 /**
  * @brief vyhlada prvok v tabulke, ak tam nie je tak ho prida 

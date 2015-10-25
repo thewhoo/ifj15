@@ -140,6 +140,26 @@ htab_t *htab_init(unsigned int size)
     return tab;
 }
 
+htab_t* htab_copy(htab_t* old_tab)
+{
+    if(old_tab == NULL)
+        return NULL;
+
+    htab_item *old_item;
+    htab_item *new_item;
+    htab_t *new_tab = htab_init(old_tab->htab_size);
+   
+    for(unsigned int i = 0; i < old_tab->htab_size; i++)
+        for(old_item=old_tab->list[i]; old_item!=NULL; old_item=old_item->next)
+        {
+            new_item = htab_insert(new_tab, old_item->key);
+            new_item->data = old_item->data;
+            new_item->next = NULL;
+        }
+
+    return new_tab;
+}
+
 struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
 {
     struct htab_listitem* item;
@@ -179,7 +199,7 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
         tab->list[index] = gmalloc(sizeof(struct htab_listitem));
         item = tab->list[index];
     }
-    else //inak hladame key, pridame dalsi prvok
+    else 
     {   
         item = tab->list[index];
         while(item->next != NULL) //vieme, ze tab->list[index] != NULL

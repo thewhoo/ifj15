@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include "string.h"
 #include "enums.h"
+#include "ial.h"
 #include "lex.h"
 #include "galloc.h"
 #include "ilist.h"
@@ -113,6 +114,35 @@ void test_stack()
     printf("\nstack size: %d, stack used: %d\n", stack.capacity, stack.used);
 }
 
+void htab_print(const char *key, int value)
+{
+    printf("key: %s value: %d\n", key, value);
+}
+
+void test_htab()
+{
+    printf("\n/****************Testing htab Library*****************/\n");
+
+    htab_item *item;
+    htab_t* tab = htab_init(2);
+
+    item = htab_insert(tab, "a");
+    item->data = 112;
+    item = htab_insert(tab, "aa");
+    item->data = 114;
+    item = htab_insert(tab, "aaa");
+    item->data = 113;
+
+    htab_t* new_tab = htab_copy(tab);
+
+    htab_foreach(tab, htab_print);
+    htab_statistics(tab);
+
+    printf("\nNew copied table:\n\n");
+    htab_free(tab); 
+    htab_foreach(new_tab, htab_print);
+    htab_statistics(new_tab);
+}
 
 int main()
 {
@@ -125,6 +155,8 @@ int main()
   test_iList();
 
   test_stack();
+
+  test_htab();
 
   gcDestroy();
 

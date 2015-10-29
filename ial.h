@@ -46,10 +46,14 @@ char * sort(char *str);
 
 #define HTAB_SIZE 97 //planetmath.org/goodhashtableprimes
   
-typedef struct htab_listitem //used in IJC, change items if needed
+typedef struct htab_listitem 
 {
     const char *key;
-    unsigned int data;
+    union
+    {
+        struct s_variable *variable;
+        struct s_function *function;
+    }data;
     struct htab_listitem *next;
 }htab_item;
 
@@ -94,7 +98,9 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key);
  * @param tab hash tabulka
  * @param function funkcia, ktoru chceme volat
  */
-void htab_foreach(htab_t *tab, void function(const char* key, int value));
+void htab_foreach(
+        htab_t *tab, 
+        void function(const char* key, struct s_variable *var));
 
 /**
  * @brief odstrani prvok z tabulky 

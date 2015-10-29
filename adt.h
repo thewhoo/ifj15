@@ -22,6 +22,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "ilist.h"
+
 enum vars
 {
     TYPE_INT,
@@ -29,7 +31,7 @@ enum vars
     TYPE_STRING
 };
 
-typedef struct var
+typedef struct s_variable
 {
     int var_type;
     char *name;
@@ -40,16 +42,17 @@ typedef struct var
         double d;
         char *str;
     }data;
-}TVar;
+} TVariable;
 
-typedef struct func
+typedef struct s_function
 {
     char *name;
     int return_type;
-    int defined;   
+    int defined;  
+    Tins_list *ins_list;  
 //something for arguments..list? struct? 
 //ptr to local symbol table?
-}TFunction;
+} TFunction;
 
 
 typedef struct token
@@ -57,6 +60,6 @@ typedef struct token
     int type;
     char *data;
 
-}TToken;
+} TToken;
 
 #endif //TYPES_H

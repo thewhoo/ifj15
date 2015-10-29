@@ -20,6 +20,7 @@
 
 #include "ial.h"
 #include "galloc.h"
+#include "adt.h"
 
 /* -------------- KMP find--------------------*/
 int find(char *str, char *substr)
@@ -145,15 +146,22 @@ htab_t* htab_copy(htab_t* old_tab)
     if(old_tab == NULL)
         return NULL;
 
+    TVariable *var_copy;
     htab_item *old_item;
     htab_item *new_item;
+    // create new hash tab
     htab_t *new_tab = htab_init(old_tab->htab_size);
-   
+
     for(unsigned int i = 0; i < old_tab->htab_size; i++)
         for(old_item=old_tab->list[i]; old_item!=NULL; old_item=old_item->next)
         {
+            // insert new empty item in hash tab
             new_item = htab_insert(new_tab, old_item->key);
-            new_item->data = old_item->data;
+            // copy variable 
+            var_copy = gmalloc(sizeof(TVariable));
+            memcpy(var_copy, old_item->data.variable, sizeof(TVariable));   
+            // insert pointer to new var in new htab item
+            new_item->data.variable = var_copy;
             new_item->next = NULL;
         }
 
@@ -212,7 +220,6 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
     item->key = gmalloc(strlen(key) + 1);
 
     strcpy((char*)item->key, key);
-    item->data = 0;
     item->next = NULL;
 
     return item; 
@@ -220,13 +227,15 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
 
 
 
-void htab_foreach(htab_t *tab, void function(const char* key, int value))
+void htab_foreach(
+        htab_t *tab,
+        void function(const char* key, struct s_variable *var))
 {
     struct htab_listitem *item;
 
     for(unsigned int i = 0; i < tab->htab_size; i++)
         for(item = tab->list[i]; item != NULL; item = item->next)
-            function(item->key, item->data);
+            function(item->key, item->data.variable);
 }
 
 void htab_remove(htab_t* tab, const char* key)

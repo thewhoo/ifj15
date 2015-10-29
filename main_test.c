@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
+
+#include "adt.h"
 #include "enums.h"
 #include "ial.h"
 #include "lex.h"
@@ -114,9 +116,9 @@ void test_stack()
     printf("\nstack size: %d, stack used: %d\n", stack.capacity, stack.used);
 }
 
-void htab_print(const char *key, int value)
+void htab_print(const char *key, struct s_variable *var)
 {
-    printf("key: %s value: %d\n", key, value);
+    printf("key: %s integer value: %d\n", key, var->data.i);
 }
 
 void test_htab()
@@ -126,22 +128,30 @@ void test_htab()
     htab_item *item;
     htab_t* tab = htab_init(2);
 
+    TVariable a = {.var_type = 1, .data.i = 1123};   
+    TVariable b = {.var_type = 1, .data.i = 1125};   
+    TVariable c = {.var_type = 1, .data.i = 1127};   
+
     item = htab_insert(tab, "a");
-    item->data = 112;
+    item->data.variable = &a;
     item = htab_insert(tab, "aa");
-    item->data = 114;
+    item->data.variable = &b;
     item = htab_insert(tab, "aaa");
-    item->data = 113;
+    item->data.variable = &c;
 
-    htab_t* new_tab = htab_copy(tab);
 
+    printf("Original table:\n\n");
     htab_foreach(tab, htab_print);
     htab_statistics(tab);
 
-    printf("\nNew copied table:\n\n");
+    printf("\nCreating new copy of table.\nDeleting original table.\n");
+    htab_t* new_tab = htab_copy(tab);
     htab_free(tab); 
+    
+    printf("\nNew copied table:\n\n");
     htab_foreach(new_tab, htab_print);
     htab_statistics(new_tab);
+    htab_free(new_tab);
 }
 
 int main()

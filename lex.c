@@ -68,7 +68,7 @@ TToken* get_token()
 	States state = S_START;
 	int c;
 
-	initString(&buffer,STR_DEFAULT_SIZE); 
+	initString(&buffer, STR_DEFAULT_SIZE); 
 	token->data = buffer.data;
 	while(1)
 	{

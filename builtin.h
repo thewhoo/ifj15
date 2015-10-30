@@ -19,6 +19,12 @@
   *
   */
 
+#include "adt.h"
+
 int length(TVariable *str);
 
 char* concat(TVariable* str1, TVariable* str2);
+
+void cout(TVariable* output);
+
+void cin(TVariable *in);

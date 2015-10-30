@@ -34,7 +34,7 @@ enum error_codes
   E_AUTO_TYPE = 5,
   E_SEMANTIC_OTHERS = 6,
   E_READ_NUMBER = 7,
-  E_UNITIALIZED = 8,
+  E_UNINITIALIZED = 8,
   E_ZERO_DIVISION = 9,
   E_RUNTIME_OTHERS = 10,
   E_INTERNAL = 99, //return values defined in project description

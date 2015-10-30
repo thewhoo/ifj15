@@ -39,7 +39,7 @@ void exit_error(int err)
         case(E_SEMANTIC_TYPES):
             fprintf(stderr, "Error: Semantic type error!\n");
             break;
-        case(E_UNITIALIZED):
+        case(E_UNINITIALIZED):
             fprintf(stderr, "Math operation with unitialized var!\n");
             break;
         case(E_ZERO_DIVISION):

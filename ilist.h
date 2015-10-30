@@ -25,9 +25,9 @@
 typedef struct listitem
 {
     int ins_type;
-    void *adr1;
-    void *adr2;
-    void *adr3;
+    void *addr1;
+    void *addr2;
+    void *addr3;
     struct listitem *next;
 }TList_item;
 

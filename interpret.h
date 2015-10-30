@@ -25,10 +25,10 @@
 enum instructions
 {
     INS_ASSIGN,
-    INS_ADD, //dest, src1, src2
-    INS_SUB, //dest, src1, src2
-    INS_MUL, //dest, src1, src2
-    INS_DIV, //dest, src1, src2
+    INS_ADD,        //dest, src1, src2
+    INS_SUB,        //dest, src1, src2
+    INS_MUL,        //dest, src1, src2
+    INS_DIV,        //dest, src1, src2
     INS_EQ,
     INS_NEQ,
     INS_GREATER,
@@ -42,13 +42,13 @@ enum instructions
     INS_PUSH_TAB,
     INS_POP_TAB,
     //built-int functions
-    INS_LENGTH, //dest, src1
+    INS_LENGTH,     //dest, src1
     INS_SUBSTR,
-    INS_CONCAT, //dest, src1, src2
-    INS_FIND, //dest, src1, src2
-    INS_SORT,
+    INS_CONCAT,     //dest, src1, src2
+    INS_FIND,       //dest, src1, src2
+    INS_SORT,       //dest, src1
     INS_CIN,
-    INS_COUT
+    INS_COUT        //src1
 }; 
 
 void interpret();

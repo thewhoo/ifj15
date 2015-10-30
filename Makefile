@@ -7,10 +7,10 @@ all: clean $(TARGET)
 test: clean $(TEST)
 
 $(TARGET): *.c *.h
-	$(CC) $(CFLAGS) -o $(TARGET) lex.c error.c galloc.c ial.c ilist.c main.c parser.c stack.c string.c
+	$(CC) $(CFLAGS) -o $(TARGET) lex.c error.c galloc.c ial.c ilist.c interpret.c main.c parser.c stack.c string.c builtin.c
 
 $(TEST): *.c *.h
-	$(CC) $(CFLAGS) -o $(TEST)  lex.c error.c galloc.c ial.c ilist.c main_test.c parser.c stack.c string.c
+	$(CC) $(CFLAGS) -o $(TEST)  lex.c error.c galloc.c ial.c ilist.c interpret.c main_test.c parser.c stack.c string.c builtin.c
 
 clean:
 	$(RM) $(TARGET) $(TEST)

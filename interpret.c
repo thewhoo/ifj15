@@ -13,10 +13,16 @@
  *
  */
 
+#include <string.h>
+#include <stdio.h>
+
 #include "interpret.h"
+#include "galloc.h"
+#include "builtin.h"
 #include "error.h"
 #include "adt.h"
 #include "ial.h"
+#include "stack.h"
 
 TStack *gStack;
 TStack *active_frame;
@@ -32,8 +38,9 @@ TVariable* get_var(char *address)
             return item->data.variable;
     }
     
-    fprint(stderr,"Var not found, should not happen!\n");
+    fprintf(stderr,"Var not found, should not happen!\n");
     exit_error(99);
+    return NULL;
 }
 
 void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
@@ -41,7 +48,7 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
     double a, b;
 
     if(!src1->initialized || !src2->initialized)
-        exit_error(E_UNITIALIZED);
+        exit_error(E_UNINITIALIZED);
 
     if(src1->var_type == TYPE_DOUBLE)
         a = src1->data.d;
@@ -54,7 +61,7 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
         b = src2->data.i;
 
 
-    switch(type):
+    switch(type)
     {
         case('+'):
             if(dest->var_type == TYPE_DOUBLE)
@@ -91,13 +98,15 @@ void interpret_loop(Tins_list *ins_list)
 {
     int ret_int;
     char* ret_str;
+    char* str;
+    TVariable *var1, *var2, *var3;
 
-    TList_item *ins;
+    TList_item *ins = ins_list->first;
     active_frame = stack_top(gStack);
 
     while(ins != NULL)
     {
-        switch(ins->ins_type):
+        switch(ins->ins_type)
         {
             //math
             case(INS_ADD):
@@ -118,37 +127,65 @@ void interpret_loop(Tins_list *ins_list)
                 break;
             //built-in
             case(INS_LENGTH):
-                ret_int = length(get_var(ins->addr2));
-                tmp_var = get_var(ins->addr1);
-                tmp_var->var_type = TYPE_INT;
-                tmp_var->data.i = ret_int;
-                tmp_var->initialized = 1;
+                //CHECK RETURN VAR TYPE? 
+                var2 = get_var(ins->addr2);
+                if(!var2->initialized)
+                    exit_error(E_UNINITIALIZED);
+                ret_int = length(var2);
+                var1 = get_var(ins->addr1);
+                var1->var_type = TYPE_INT;
+                var1->data.i = ret_int;
+                var1->initialized = 1;
                 break;
             case(INS_SUBSTR):
-                
+                //3 agrumenty, 1 return..neda sa ako 1 instrukcia..hm.. 
                 break;
             case(INS_CONCAT):
-                ret_str = concat(get_var(ins->addr2), get_var(ins->addr3));
-                tmp_var = get_var(ins->addr1)
-                tmp_var->var_type = TYPE_STRING;
-                tmp_var->data.str = ret_str;
-                tmp_var->initialized = 1;
+                var2 = get_var(ins->addr2);
+                var3 = get_var(ins->addr3);
+                if(!var2->initialized || !var3->initialized)
+                    exit_error(E_UNINITIALIZED);
+                ret_str = concat(var2, var3);
+                var1 = get_var(ins->addr1);
+                var1->var_type = TYPE_STRING;
+                var1->data.str = ret_str;
+                var1->initialized = 1;
                 break;
             case(INS_FIND):
-                ret_int = find(get_var(ins->addr2), get_var(ins->addr3));
-                tmp_var = get_var(ins->addr1);
-                tmp_var->var_type = TYPE_INT;
-                tmp_var->data.i = ret_int;
-                tmp_var->initialized = 1;
+                var2 = get_var(ins->addr2);
+                var3 = get_var(ins->addr3);
+                if(!var2->initialized || !var3->initialized)
+                    exit_error(E_UNINITIALIZED);
+                ret_int = find(var2, var3);
+                var1 = get_var(ins->addr1);
+                var1->var_type = TYPE_INT;
+                var1->data.i = ret_int;
+                var1->initialized = 1;
                 break;
             case(INS_SORT):
-
+                //create copy of string, sort do not affect original string
+                var2 = get_var(ins->addr2);
+                if(var2->var_type != TYPE_STRING)
+                    exit_error(E_SEMANTIC_TYPES);
+                
+                str = gmalloc(strlen(var2->data.str) + 1);
+                strcpy(str, var2->data.str);
+                ret_str = sort(str);
+                gfree(str);
+                var1 = get_var(ins->addr1);
+                var1->var_type = TYPE_STRING;
+                var1->data.str = ret_str;
+                var1->initialized = 1;
                 break;
             case(INS_CIN):
-
-                break;
+                cin(get_var(ins->addr1));
+                //ADD CIN FOT INT AND DOUBLE"""""""""""""""""""""""
+               break;
             case(INS_COUT):
-
+                var1 = get_var(ins->addr1);
+                if(!var1->initialized)
+                    exit_error(E_UNINITIALIZED);
+                cout(var1);
                 break;           
 
         }
@@ -173,7 +210,7 @@ void interpret()
     stack_push(func_main_frame, main_tab);
     
 
-    stack_push(&gStack, func_main_frame);
+    stack_push(gStack, func_main_frame);
     
-    interpret_loop(func_main->ins_list)
+    interpret_loop(func_main->data.function->ins_list);
 }

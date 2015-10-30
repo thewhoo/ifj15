@@ -24,6 +24,7 @@
 #include "galloc.h"
 #include "ilist.h"
 #include "stack.h"
+#include "builtin.h"
 
 void test_TString()
 {
@@ -33,7 +34,7 @@ void test_TString()
   
   initString(&s, STR_DEFAULT_SIZE);
 
-  for(int i = 65; i < 70; i++)
+  for(int i = 65; i < 120; i++)
       insertIntoString(&s, i);
   insertIntoString(&s, 0);
 
@@ -50,8 +51,9 @@ void test_galloc()
   {
 	  int *p = gmalloc(sizeof(int));
 	  *p = i;
-	  printf("%d\n", *p);
+	  printf("%d ", *p);
   }
+  printf("\n");
 
   int **ptr2 = gmalloc(10*sizeof(int*));
   for (int i=0; i<10; i++)
@@ -60,8 +62,8 @@ void test_galloc()
 	  *ptr2[i] = i;
   }
   for (int i=0; i<10; i++)
-	  printf("%d\n", *ptr2[i]);
-
+	  printf("%d ", *ptr2[i]);
+  printf("\n");
   ptr2 = grealloc(ptr2, 10000*sizeof(int*));
   ptr2[9999]=gmalloc(sizeof(int));
   *ptr2[9999]=42;
@@ -178,7 +180,20 @@ void test_KMP_search()
     printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
     y.data.str = "";
     printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+}
 
+void test_cin()
+{
+    printf("\n/****************Testing cin<<*****************/\n");
+
+    TVariable in;
+    in.var_type = TYPE_STRING;
+    
+    for(int i = 0; i<5; i++)
+    {
+        cin(&in);
+        printf("readed: %s\n", in.data.str);
+    }
 }
 
 int main()
@@ -187,7 +202,7 @@ int main()
 
   test_TString();
 
-  test_galloc();
+  //test_galloc();
 
   test_iList();
 
@@ -196,6 +211,8 @@ int main()
   test_htab();
 
   test_KMP_search();
+
+  test_cin();
 
   gcDestroy();
 

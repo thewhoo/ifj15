@@ -14,9 +14,15 @@
  */
 
 #include <string.h>
+#include <stdio.h>
+#include <ctype.h>
 
 #include "error.h"
 #include "adt.h"
+#include "galloc.h"
+#include "string.h"
+
+#define STR_SIZE 20
 
 int length(TVariable *str)
 {
@@ -42,4 +48,51 @@ char* concat(TVariable* str1, TVariable* str2)
     strcat(new_str, s2);
 
     return new_str;
+}
+
+void cout(TVariable* output)
+{
+    if(output->var_type == TYPE_INT)
+        printf("%d", output->data.i);
+    else if(output->var_type == TYPE_INT)
+        printf("%g", output->data.d);
+    else if(output->var_type == TYPE_STRING)
+        printf("%s", output->data.str);
+    else
+        fprintf(stderr, "Cout: No idea about data type!\n");
+}
+
+void cin(TVariable* in)
+{
+    int c;
+    TString buffer;
+    
+    initString(&buffer, STR_SIZE);
+
+    if(in->var_type == TYPE_STRING)
+    {
+        c = getchar();      
+        while(isspace(c))
+            c = getchar();
+        if(c == EOF)
+        {
+            insertIntoString(&buffer, 0);
+            in->data.str = buffer.data;
+            return; 
+        }
+
+        insertIntoString(&buffer, c);
+        c = getchar();      
+        while(!isspace(c))
+        {
+            insertIntoString(&buffer, c);
+            c = getchar();
+        }
+        ungetc(c, stdin);
+            
+        insertIntoString(&buffer, 0);
+        in->data.str = buffer.data;
+        return;
+    }
+    
 }

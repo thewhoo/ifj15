@@ -50,8 +50,8 @@ typedef struct s_function
     int return_type;
     int defined;  
     Tins_list *ins_list;  
+    htab_t *local_tab;
 //something for arguments..list? struct? 
-//ptr to local symbol table?
 } TFunction;
 
 

@@ -19,6 +19,7 @@
 #include "parser.h"
 #include "error.h"
 #include "lex.h"
+#include "interpret.h"
 
 int main(int argc, char **argv)
 {

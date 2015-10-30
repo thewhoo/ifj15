@@ -25,14 +25,14 @@
 enum instructions
 {
     INS_ASSIGN,
-    INS_ADD,
-    INS_SUB,
-    INS_MUL,
-    INS_DIV,
+    INS_ADD, //dest, src1, src2
+    INS_SUB, //dest, src1, src2
+    INS_MUL, //dest, src1, src2
+    INS_DIV, //dest, src1, src2
     INS_EQ,
     INS_NEQ,
     INS_GREATER,
-    INS_GREATEQ
+    INS_GREATEQ,
     INS_LESSER,
     INS_LESSEQ,
     INS_JMP,
@@ -42,7 +42,7 @@ enum instructions
     INS_PUSH_TAB,
     INS_POP_TAB,
     //built-int functions
-    INS_LENGTH,
+    INS_LENGTH, //dest, src1
     INS_SUBSTR,
     INS_CONCAT,
     INS_FIND,

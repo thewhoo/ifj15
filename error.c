@@ -33,6 +33,17 @@ void exit_error(int err)
             fprintf(stderr, "Error: Memory allocation failed!\n");
             err = E_INTERNAL;
             break;
+        case(E_SEMANTIC_DEF):
+            fprintf(stderr, "Error: Some semantic error!\n");
+            break;
+        case(E_UNITIALIZED):
+            fprintf(stderr, "Math operation with unitialized var!\n");
+            break;
+        case(E_ZERO_DIVISION):
+            fprintf(stderr, "Math error: Zero division!\n");
+            break;
+
+
     }
     
     gcDestroy();

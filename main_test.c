@@ -94,26 +94,25 @@ void test_stack()
 {   
     printf("\n/****************Testing stack Library*****************/\n");
     
-    TStack stack;
+    TStack *stack = stack_init();
     int p = 3;
     int *ptr = &p;
 
-    stack_init(&stack);
     for(int i = 0; i < 100; i++)
     {
-        stack_push(&stack, ptr);
-        printf("stack size: %d, stack used: %d\n", stack.capacity, stack.used);
+        stack_push(stack, ptr);
+        printf("stack size: %d, stack used: %d\n", stack->capacity, stack->used);
     }
 
-    printf("stack size: %d, stack used: %d\n", stack.capacity, stack.used);
+    printf("At the end: stack size: %d, stack used: %d\n", stack->capacity, stack->used);
 
-    while(!stack_empty(&stack))
+    while(!stack_empty(stack))
     {
-        printf("%d  ", *((int*)stack_top(&stack)));
-        stack_pop(&stack);
+        printf("%d  ", *((int*)stack_top(stack)));
+        stack_pop(stack);
     }
 
-    printf("\nstack size: %d, stack used: %d\n", stack.capacity, stack.used);
+    printf("\nstack size: %d, stack used: %d\n", stack->capacity, stack->used);
 }
 
 void htab_print(const char *key, struct s_variable *var)

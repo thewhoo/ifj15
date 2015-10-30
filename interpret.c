@@ -14,9 +14,155 @@
  */
 
 #include "interpret.h"
+#include "error.h"
+#include "adt.h"
+#include "ial.h"
 
+TStack *gStack;
+TStack *active_frame;
+
+TVariable* get_var(char *address)
+{
+    htab_item *item = NULL;
+    // what abou constants???
+    for(int i = active_frame->used - 1; i>=0; i--)
+    {
+        item = htab_lookup((htab_t *)active_frame->data[i], address);
+        if(item != NULL)
+            return item->data.variable;
+    }
+    
+    fprint(stderr,"Var not found, should not happen!\n");
+    exit_error(99);
+}
+
+void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
+{
+    double a, b;
+
+    if(!src1->initialized || !src2->initialized)
+        exit_error(E_UNITIALIZED);
+
+    if(src1->var_type == TYPE_DOUBLE)
+        a = src1->data.d;
+    else
+        a = src1->data.i;
+
+    if(src2->var_type == TYPE_DOUBLE)
+        b = src2->data.d;
+    else
+        b = src2->data.i;
+
+
+    switch(type):
+    {
+        case('+'):
+            if(dest->var_type == TYPE_DOUBLE)
+                dest->data.d = a+b;
+            else
+                dest->data.i = a+b;       
+            break;
+        case('-'):
+            if(dest->var_type == TYPE_DOUBLE)
+                dest->data.d = a-b;
+            else
+                dest->data.i = a-b;        
+            break;
+        case('*'):
+            if(dest->var_type == TYPE_DOUBLE)
+                dest->data.d = a*b;
+            else
+                dest->data.i = a*b;       
+            break;
+        case('/'):
+            if(b == 0)
+                exit_error(E_ZERO_DIVISION);
+
+            if(dest->var_type == TYPE_DOUBLE)
+                dest->data.d = a/b;
+            else
+                dest->data.i = a/b;       
+            break;
+    }
+}
+
+void interpret_loop(Tins_list *ins_list)
+{
+    TList_item *ins;
+    active_frame = stack_top(gStack);
+
+    TVariable *tmp_var1;
+    TVARIABLE *tmp_var2;
+
+    while(ins != NULL)
+    {
+        switch(ins->ins_type):
+        {
+            //math
+            case(INS_ADD):
+                math_ins('+', get_var(ins->addr1), get_var(ins->addr2),
+                        get_var(ins->addr3));
+                break;
+            case(INS_SUB):
+                math_ins('-', get_var(ins->addr1), get_var(ins->addr2),
+                        get_var(ins->addr3));
+                break;
+            case(INS_MUL):
+                math_ins('*', get_var(ins->addr1), get_var(ins->addr2),
+                        get_var(ins->addr3));
+                break;
+            case(INS_DIV):
+                math_ins('/', get_var(ins->addr1), get_var(ins->addr2),
+                        get_var(ins->addr3));
+                break;
+            //built-in
+            case(INS_LENGTH):
+                tmp_var1 = length(get_var(ins_addr2));
+                tmp_var2 = get_var(ins_addr1);
+                tmp_var2 = tmp_var1->data.i;
+                break;
+            case(INS_SUBSTR):
+
+                break;
+            case(INS_CONCAT):
+
+                break;
+            case(INS_FIND):
+                
+                break;
+            case(INS_SORT):
+
+                break;
+            case(INS_CIN):
+
+                break;
+            case(INS_COUT):
+
+                break;           
+
+        }
+    }
+}
 
 void interpret()
 {
+    // expect ptr to global symb table
+    htab_t *global_tab;
 
+    //init global stack for interpret
+    gStack = stack_init();    
+    //find main function in global symbol table
+    htab_item *func_main = htab_lookup(global_tab, "main");
+    if(func_main == NULL)
+        exit_error(3);
+    
+    //copy of main symbol table
+    htab_t *main_tab = htab_copy(func_main->data.function->local_tab);
+    TStack *func_main_frame = stack_init();
+    stack_push(func_main_frame, main_tab);
+    
+
+    stack_push(&gStack, func_main_frame);
+    
+    interpret_loop(func_main->ins_list)
 }

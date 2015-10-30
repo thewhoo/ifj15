@@ -23,19 +23,21 @@
 #define DEFAULT_STACK_SIZE 15
 #define AUTORESIZE_COEF 2
 
-int stack_init(TStack *stack)
+TStack* stack_init()
 {
+    TStack *stack = gmalloc(sizeof(TStack));
     stack->data = gmalloc(DEFAULT_STACK_SIZE * sizeof(void *));
     
     stack->capacity = DEFAULT_STACK_SIZE;
     stack->used = 0;
 
-    return 0;
+    return stack;
 }
 
 void stack_free(TStack* stack)
 {
-    gfree(stack->data);    
+    gfree(stack->data); 
+    gfree(stack);   
 }
 
 int stack_push(TStack* stack, void* item)

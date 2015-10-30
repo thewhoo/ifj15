@@ -37,9 +37,9 @@ typedef struct Stack
   *
   * Initializes an empty stack on heap with default size.
   *
-  * @param *stack Pointer to the stack structure
+  * @return Pointer to initialized stack 
   */
-int stack_init(TStack* stack);
+TStack* stack_init();
 
 /**
   * @brief  deallocate memory

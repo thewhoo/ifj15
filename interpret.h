@@ -44,8 +44,8 @@ enum instructions
     //built-int functions
     INS_LENGTH, //dest, src1
     INS_SUBSTR,
-    INS_CONCAT,
-    INS_FIND,
+    INS_CONCAT, //dest, src1, src2
+    INS_FIND, //dest, src1, src2
     INS_SORT,
     INS_CIN,
     INS_COUT

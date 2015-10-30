@@ -84,15 +84,16 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
                 dest->data.i = a/b;       
             break;
     }
+    dest->initialized = 1;
 }
 
 void interpret_loop(Tins_list *ins_list)
 {
+    int ret_int;
+    char* ret_str;
+
     TList_item *ins;
     active_frame = stack_top(gStack);
-
-    TVariable *tmp_var1;
-    TVARIABLE *tmp_var2;
 
     while(ins != NULL)
     {
@@ -117,18 +118,28 @@ void interpret_loop(Tins_list *ins_list)
                 break;
             //built-in
             case(INS_LENGTH):
-                tmp_var1 = length(get_var(ins_addr2));
-                tmp_var2 = get_var(ins_addr1);
-                tmp_var2 = tmp_var1->data.i;
+                ret_int = length(get_var(ins->addr2));
+                tmp_var = get_var(ins->addr1);
+                tmp_var->var_type = TYPE_INT;
+                tmp_var->data.i = ret_int;
+                tmp_var->initialized = 1;
                 break;
             case(INS_SUBSTR):
-
+                
                 break;
             case(INS_CONCAT):
-
+                ret_str = concat(get_var(ins->addr2), get_var(ins->addr3));
+                tmp_var = get_var(ins->addr1)
+                tmp_var->var_type = TYPE_STRING;
+                tmp_var->data.str = ret_str;
+                tmp_var->initialized = 1;
                 break;
             case(INS_FIND):
-                
+                ret_int = find(get_var(ins->addr2), get_var(ins->addr3));
+                tmp_var = get_var(ins->addr1);
+                tmp_var->var_type = TYPE_INT;
+                tmp_var->data.i = ret_int;
+                tmp_var->initialized = 1;
                 break;
             case(INS_SORT):
 

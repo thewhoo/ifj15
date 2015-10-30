@@ -153,6 +153,34 @@ void test_htab()
     htab_free(new_tab);
 }
 
+void test_KMP_search()
+{
+    printf("\n/****************Testing KMP search function*****************/\n");
+    
+    TVariable x, y;
+    x.data.str = "ahoj";
+    y.data.str = "a";
+    
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "h";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "o";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "j";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "x";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "ah";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "ho";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "oj";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+    y.data.str = "";
+    printf("%s in %s: %d\n", y.data.str, x.data.str, find(&x,&y));
+
+}
+
 int main()
 {
   gcInit();
@@ -166,6 +194,8 @@ int main()
   test_stack();
 
   test_htab();
+
+  test_KMP_search();
 
   gcDestroy();
 

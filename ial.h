@@ -25,6 +25,8 @@
 #ifndef IAL_H
 #define IAL_H
 
+#include "adt.h"
+
 /**
  * find substring in string
  *
@@ -32,7 +34,7 @@
  * @param substr substring
  * @return index of match, from 0, -1 if not found
  */
-int find(char *str, char *substr);
+int find(TVariable* s, TVariable* search);
 
 /**
  * sort chars in string, ascending

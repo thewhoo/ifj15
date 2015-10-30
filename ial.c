@@ -23,8 +23,11 @@
 #include "adt.h"
 
 /* -------------- KMP find--------------------*/
-int find(char *str, char *substr)
+int find(TVariable *s, TVariable *search)
 {
+    char* str = s->data.str;
+    char* substr = search->data.str;
+
     int str_len = strlen(str);
     int subs_len = strlen(substr);
     int r = -1;

@@ -50,7 +50,7 @@ typedef struct s_function
     int return_type;
     int defined;  
     Tins_list *ins_list;  
-    htab_t *local_tab;
+    struct hash_tab *local_tab;
 //something for arguments..list? struct? 
 } TFunction;
 

@@ -16,29 +16,31 @@
  #include <stdio.h>
  #include "parser.h"
  #include "adt.h"
+ #include "stack.h"
  #include "lex.h"
  #include "galloc.h"
  #include "enums.h"
+ #include "error.h"
 
  #define LL_ROWS 30
  #define LL_COLS 35
- 
+
  #define RULES 62
  #define MAX_PUSHED_STATES 8
- 
- 
+
+
  /* LL Table definition
   * Each row number corresponds to Token Number + 1
   * Below is how the top row header would look like in tokens
-  
+
 t_auto,t_cin,t_cout,t_double,t_else,t_for,t_if,t_int,t_return,t_string,token_bf_length,token_bf_substr,token_bf_concat,token_bf_find,token_bf_sort,res,res,res,res,res,t_identifier,t_eof,t_string_value,t_int_value,t_double_value,t_assign,t_semicolon,t_comma,t_cout_bracket,t_cin_bracket,t_lround_bracket,t_rround_bracket,t_lcurly_bracket,t_rcurly_bracket,t_expression
-  
+
   *
   */
 
 
  int LLtab[LL_ROWS][LL_COLS] = {
- 
+
  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
  	{0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
  	{0,0,0,0,3,0,0,0,3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -69,15 +71,15 @@ t_auto,t_cin,t_cout,t_double,t_else,t_for,t_if,t_int,t_return,t_string,token_bf_
  	{0,59,0,0,58,0,0,0,58,0,58,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,0,0,0,0,0,0,0,0,0,0,0,0,0},
  	{0,0,0,0,0,0,0,0,0,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
- 	
+
  };
- 
+
  /* Rules definition
   * States are pushed on stack in reverse order
   */
-  
+
   int rules[RULES][MAX_PUSHED_STATES] = {
-  
+
   	{0,0,0,0,0,0,0,0},	// Rule 0 - placeholder rule
   	{1,2,0,0,0,0,0,0},	// Rule 1
   	{0,0,0,0,0,0,0,0},	// Rule 2 - epsilon rule
@@ -140,18 +142,76 @@ t_auto,t_cin,t_cout,t_double,t_else,t_for,t_if,t_int,t_return,t_string,token_bf_
   	{-27,30,-26,-21,-1,0,0,0}, // Rule 59
   	{30,-26,-21,0,0,0,0,0},	// Rule 60
   	{-27,30,-9,0,0,0,0,0}	// Rule 61
-  
+
   };
+
+ // Definition of stack used for parsing
+ TStack* parseStack;
+ TToken* token;
+
+ void expr()
+ {
+	token=get_token();
+ }
+
+ void parse_error()
+ {
+ 	fprintf(stderr,"Parse error, stack dump:\n");
+ 	// TODO: Print stack dump here
+
+	exit_error(E_SYNTAX);
+ }
 
  void parse()
  {
-     TToken* token;
+     int initialState = 1;
+     parseStack = stack_init();
+     stack_push(parseStack, &initialState);
+     token = get_token();
 
-     do
+     while(token->type != TOKEN_EOF)
      {
-         token = get_token();
-         printf("Token type: %d\nToken data: %s\n", token->type, token->data);
+     	int* sTop = stack_top(parseStack);
+     	if(*sTop == 30)
+	{
+		printf("Calling expr!\n");
+     		expr();
+		continue;
+	}
+     	if(*sTop < 0)
+     	{
+     	    	printf("Expecting token: %d", -(*sTop)-1);
+     	    	printf("\tReceived token: %d\n", token->type);
+     		if (token->type != (-(*sTop) - 1))
+     			parse_error();
 
-     }while(token->type != TOKEN_EOF);
- 
+    		stack_pop(parseStack);
+    		token = get_token();
+		printf("Token processed\n");
+     	}
+     	else
+     	{
+     		int rule = LLtab[*sTop][token->type + 1];
+     		printf("Resolved rule: %d\n", rule);
+		if(rule == 0)
+     			parse_error();
+
+		stack_pop(parseStack);
+
+     		for(int i = 0;i < MAX_PUSHED_STATES; i++)
+     		{
+     			int value = rules[rule][i];
+     			int* valToStack = gmalloc(sizeof(int));
+     			*valToStack = value;
+     			if (value == 0)
+     				break;
+
+     			stack_push(parseStack, valToStack);
+     		}
+     	}
+
+     }
+
+     printf("Syntaxe OK\n");
+
  }

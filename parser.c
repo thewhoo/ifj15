@@ -212,6 +212,11 @@ t_auto,t_cin,t_cout,t_double,t_else,t_for,t_if,t_int,t_return,t_string,token_bf_
 
      }
 
-     printf("Syntaxe OK\n");
+     int* sTop = stack_top(parseStack);
+     printf("Stack state at EOF: %d\n", *sTop);
+     if(*sTop == 1)
+     	printf("Syntaxe OK\n");
+     else
+	parse_error();
 
  }

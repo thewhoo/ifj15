@@ -24,6 +24,7 @@
 #include "ial.h"
 #include "stack.h"
 
+
 TStack *gStack;
 TStack *active_frame;
 
@@ -194,9 +195,8 @@ void interpret_loop(Tins_list *ins_list)
 
 void interpret()
 {
-    // expect ptr to global symb table
-    htab_t *global_tab;
 
+htab_t *global_tab = NULL;
     //init global stack for interpret
     gStack = stack_init();    
     //find main function in global symbol table

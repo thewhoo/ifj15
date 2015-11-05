@@ -16,11 +16,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "error.h"
 #include "adt.h"
 #include "galloc.h"
 #include "string.h"
+#include "lex.h"
+#include "enums.h"
 
 #define STR_SIZE 20
 
@@ -66,7 +69,11 @@ void cin(TVariable* in)
 {
     int c;
     TString buffer;
-    
+    TToken *token;
+
+    int int_number = 0;
+    double double_number = 0;
+
     initString(&buffer, STR_SIZE);
 
     if(in->var_type == TYPE_STRING)
@@ -92,7 +99,36 @@ void cin(TVariable* in)
             
         insertIntoString(&buffer, 0);
         in->data.str = buffer.data;
-        return;
     }
-    
+    else if(in->var_type == TYPE_DOUBLE)
+    {
+        lex_init(stdin);
+        token = get_token();
+        if(token->type != TOKEN_DOUBLE_VALUE)
+            exit_error(E_READ_NUMBER);
+        
+        double_number = atof(token->data);
+        in->data.d = double_number;
+        gfree(token->data);
+        gfree(token);
+    }
+    else if(in->var_type == TYPE_INT)
+    {
+        lex_init(stdin);
+        token = get_token();
+        if(token->type != TOKEN_INT_VALUE)
+            exit_error(E_READ_NUMBER);
+        
+        int_number = atoi(token->data);
+        in->data.i = int_number;
+        gfree(token->data);
+        gfree(token);
+    }
+    else
+    {
+        fprintf(stderr, "Cin: No idea about data type!\n");
+        exit_error(99);
+    }
+
+    in->initialized = 1;
 }

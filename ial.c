@@ -294,7 +294,7 @@ void htab_free(htab_t *tab)
 void htab_statistics(htab_t* tab)
 {
     unsigned int max = 0;    
-    unsigned int min = 1000000000; //magic constant..    
+    unsigned int min = 1000000000;    
     unsigned int avg = 0;    
     unsigned int length = 0;    
     struct htab_listitem* item;

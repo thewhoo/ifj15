@@ -188,11 +188,30 @@ void test_cin()
 
     TVariable in;
     in.var_type = TYPE_STRING;
+    TVariable inint;
+    inint.var_type = TYPE_INT;
+    TVariable indoub;
+    indoub.var_type = TYPE_DOUBLE;
     
-    for(int i = 0; i<5; i++)
+    printf("Type string 3x\n");
+    for(int i = 0; i<3; i++)
     {
         cin(&in);
         printf("readed: %s\n", in.data.str);
+    }
+    printf("Type integer 3x\n");
+
+    for(int i = 0; i<3; i++)
+    {
+        cin(&inint);
+        printf("readed: %d\n", inint.data.i);
+    }
+    printf("Type double 3x\n");
+
+    for(int i = 0; i<3; i++)
+    {
+        cin(&indoub);
+        printf("readed: %g\n", indoub.data.d);
     }
 }
 

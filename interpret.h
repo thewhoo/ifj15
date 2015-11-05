@@ -39,6 +39,7 @@ enum instructions
     INS_CJMP,
     INS_LAB,
     INS_CALL,
+    INS_RET,
     INS_PUSH_TAB,
     INS_POP_TAB,
     //built-int functions

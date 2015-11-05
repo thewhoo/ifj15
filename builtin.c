@@ -132,3 +132,41 @@ void cin(TVariable* in)
 
     in->initialized = 1;
 }
+
+
+char* substr(char *s, int i, int n)
+{
+    int subslen;
+    char* subs;
+    int subs_i = 0;
+    int slen = strlen(s);     
+
+    if(i < 0 || i > slen)
+        exit_error(E_RUNTIME_OTHERS);
+
+    if(i == slen)
+    {
+        subs = gmalloc(1);   
+        subs[0] = 0;
+        return subs;
+    }
+    
+    if(n < 0)
+        n = slen;
+
+    if((i + n) > slen)
+        subslen = slen - i + 1;
+    else
+        subslen = n + 1;
+    subs = gmalloc(subslen);
+    
+    while((i < slen) && (subs_i < n))
+    {
+        subs[subs_i] = s[i];
+        subs_i++;
+        i++;
+    }
+    subs[subs_i] = 0;
+
+    return subs;
+}

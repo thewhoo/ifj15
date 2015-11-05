@@ -46,7 +46,10 @@ void exit_error(int err)
             fprintf(stderr, "Math error: Zero division!\n");
             break;
         case(E_READ_NUMBER):
-            fprintf(stderr, "Cin: Fail to read number from stdin\n");
+            fprintf(stderr, "Cin: Fail to read number from stdin!\n");
+            break;
+        case(E_RUNTIME_OTHERS):
+            fprintf(stderr, "Interpret: runtime failure\n");
             break;
 
     }

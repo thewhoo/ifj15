@@ -190,6 +190,9 @@ void interpret_loop(Tins_list *ins_list)
                 break;           
 
         }
+        ins = ins->next;
+        if(ins == NULL)
+            exit_error(E_RUNTIME_OTHERS);
     }
 }
 

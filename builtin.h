@@ -28,3 +28,5 @@ char* concat(TVariable* str1, TVariable* str2);
 void cout(TVariable* output);
 
 void cin(TVariable *in);
+
+char* substr(char *s, int i, int n);

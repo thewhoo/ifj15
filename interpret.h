@@ -35,13 +35,14 @@ enum instructions
     INS_GREATEQ,    //dest, src1, src2
     INS_LESSER,     //dest, src1, src2
     INS_LESSEQ,     //dest, src1, src2
-    INS_JMP,
-    INS_CJMP,
-    INS_LAB,
-    INS_CALL,
-    INS_RET,
-    INS_PUSH_TAB, //htab_t*
-    INS_POP_TAB,  //htab_t*
+    INS_JMP,        //dest
+    INS_CJMP,       //
+    INS_LAB,        //
+    INS_PUSH,       //src1
+    INS_CALL,       //
+    INS_RET,        //
+    INS_PUSH_TAB,   //htab_t*
+    INS_POP_TAB,    //htab_t*
     //built-int functions
     INS_LENGTH,     //dest, src1
     INS_SUBSTR,
@@ -52,6 +53,10 @@ enum instructions
     INS_COUT        //src1
 }; 
 
+/**
+  * @brief 3 address code interpretation
+  *
+  */
 void interpret();
 
 #endif

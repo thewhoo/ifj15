@@ -141,7 +141,7 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
                 break;
         }
     }
-    else if((src1->var_type != TYPE_STRING) && (src2->var-type != TYPE_STRING))
+    else if((src1->var_type != TYPE_STRING) && (src2->var_type != TYPE_STRING))
     {
         switch(type)
         {
@@ -209,6 +209,17 @@ void interpret_loop(Tins_list *ins_list)
             case(INS_POP_TAB):
                 htab_free(stack_top(active_frame));
                 stack_pop(active_frame);
+                break;
+            case(INS_JMP):
+                ins = (TList_item *) ins->addr1;
+                continue; // OR BREAK
+            case(INS_CJMP):
+                //sth
+                break;
+            case(INS_LAB):
+                break;
+            case(INS_CALL):
+                
                 break;
 
             //built-in

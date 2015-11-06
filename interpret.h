@@ -29,26 +29,26 @@ enum instructions
     INS_SUB,        //dest, src1, src2
     INS_MUL,        //dest, src1, src2
     INS_DIV,        //dest, src1, src2
-    INS_EQ,
-    INS_NEQ,
-    INS_GREATER,
-    INS_GREATEQ,
-    INS_LESSER,
-    INS_LESSEQ,
+    INS_EQ,         //dest, src1, src2
+    INS_NEQ,        //dest, src1, src2
+    INS_GREATER,    //dest, src1, src2
+    INS_GREATEQ,    //dest, src1, src2
+    INS_LESSER,     //dest, src1, src2
+    INS_LESSEQ,     //dest, src1, src2
     INS_JMP,
     INS_CJMP,
     INS_LAB,
     INS_CALL,
     INS_RET,
-    INS_PUSH_TAB,
-    INS_POP_TAB,
+    INS_PUSH_TAB, //htab_t*
+    INS_POP_TAB,  //htab_t*
     //built-int functions
     INS_LENGTH,     //dest, src1
     INS_SUBSTR,
     INS_CONCAT,     //dest, src1, src2
     INS_FIND,       //dest, src1, src2
     INS_SORT,       //dest, src1
-    INS_CIN,
+    INS_CIN,        //dest
     INS_COUT        //src1
 }; 
 

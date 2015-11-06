@@ -47,7 +47,7 @@ TVariable* get_var(char *address)
 void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
 {
     double a, b;
-
+//Check if var is STRING????????
     if(!src1->initialized || !src2->initialized)
         exit_error(E_UNINITIALIZED);
 
@@ -92,6 +92,83 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
                 dest->data.i = a/b;       
             break;
     }
+
+    dest->initialized = 1;
+}
+
+void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
+{
+    int result, a, b;
+
+    if(!src1->initialized || !src2->initialized)
+        exit_error(E_UNINITIALIZED);
+    
+    //Check for dest type?  double a = 3 > 4 ..but result of comapring must be
+    //INT
+    
+    if(src1->var_type == TYPE_DOUBLE)
+        a = src1->data.d;
+    else
+        a = src1->data.i;
+
+    if(src2->var_type == TYPE_DOUBLE)
+        b = src2->data.d;
+    else
+        b = src2->data.i;
+    
+    if((src1->var_type == TYPE_STRING) && (src2->var_type == TYPE_STRING))
+    {
+        result = strcmp(src1->data.str, src2->data.str);
+        switch(type)
+        {
+            case(INS_EQ):
+                dest->data.i = (result == 0) ? 1 : 0;
+                break;
+            case(INS_NEQ):
+                dest->data.i = (result != 0) ? 1 : 0;
+                break;
+            case(INS_GREATER):
+                dest->data.i = (result > 0) ? 1 : 0;
+                break;
+            case(INS_GREATEQ):
+                dest->data.i = (result >= 0) ? 1 : 0;
+                break;
+            case(INS_LESSER):
+                dest->data.i = (result < 0) ? 1 : 0;
+                break;
+            case(INS_LESSEQ):
+                dest->data.i = (result <= 0) ? 1 : 0;
+                break;
+        }
+    }
+    else if((src1->var_type != TYPE_STRING) && (src2->var-type != TYPE_STRING))
+    {
+        switch(type)
+        {
+            case(INS_EQ):
+                dest->data.i = (a == b) ? 1 : 0;
+                break;
+            case(INS_NEQ):
+                dest->data.i = (a != b) ? 1 : 0;
+                break;
+            case(INS_GREATER):
+                dest->data.i = (a > b) ? 1 : 0;
+                break;
+            case(INS_GREATEQ):
+                dest->data.i = (a >= b) ? 1 : 0;
+                break;
+            case(INS_LESSER):
+                dest->data.i = (a < b) ? 1 : 0;
+                break;
+            case(INS_LESSEQ):
+                dest->data.i = (a <= b) ? 1 : 0;
+                break;
+        }
+    }
+    else
+        exit_error(E_SEMANTIC_TYPES);
+
+    dest->var_type = TYPE_INT;
     dest->initialized = 1;
 }
 
@@ -126,6 +203,14 @@ void interpret_loop(Tins_list *ins_list)
                 math_ins('/', get_var(ins->addr1), get_var(ins->addr2),
                         get_var(ins->addr3));
                 break;
+
+            case(INS_PUSH_TAB):
+                stack_push(active_frame, ins->addr1);
+            case(INS_POP_TAB):
+                htab_free(stack_top(active_frame));
+                stack_pop(active_frame);
+                break;
+
             //built-in
             case(INS_LENGTH):
                 //CHECK RETURN VAR TYPE? 
@@ -180,7 +265,6 @@ void interpret_loop(Tins_list *ins_list)
                 break;
             case(INS_CIN):
                 cin(get_var(ins->addr1));
-                //ADD CIN FOT INT AND DOUBLE"""""""""""""""""""""""
                break;
             case(INS_COUT):
                 var1 = get_var(ins->addr1);

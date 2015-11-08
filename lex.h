@@ -35,6 +35,8 @@ typedef enum
 	S_ASSIGN,			// =
 	S_EXCM,				// !
 	S_QUOT,				// "
+	S_ESCAPE,			// esc sequence
+	S_HEX_NUMBER,		// hex number
 
 	S_INT,				// int
 	S_DOT,				// int.
@@ -56,6 +58,9 @@ void lex_init(FILE *f);
   *
   * @param token Pointer to token 
   */
+
+char hex_to_ascii(char first, char second);
+
 void unget_token(TToken *token);
 
 TToken* get_token();

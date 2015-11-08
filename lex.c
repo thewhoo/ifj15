@@ -52,6 +52,15 @@ void keyword_check(TToken* token) // compares identifier with keywords
 			token->type = i;
 }
 
+char hex_to_ascii(char first, char second) //  converts 'xdd' to ascii symbol
+{
+	char hex[3], *stop;
+	hex[0] = first;
+	hex[1] = second;
+	hex[2] = 0;
+	return strtol(hex, &stop, 16);
+}
+
 TToken* get_token()
 {	
 	TToken* token;
@@ -66,11 +75,11 @@ TToken* get_token()
     token = gmalloc(sizeof(TToken));
 	TString buffer; 
 	States state = S_START;
-	int c;
+	char a[2]; // array for hex number
+	int c, i=0;
 
 	initString(&buffer, STR_DEFAULT_SIZE); 
 	token->data = buffer.data;
-
 	while(1)
 	{
 		c = fgetc(fp);
@@ -115,11 +124,9 @@ TToken* get_token()
 				case '{':
 					token->type = TOKEN_LCURLY_BRACKET;
 					return token;
-				    break;	
 				case '}':
 					token->type = TOKEN_RCURLY_BRACKET;
-					return token;
-				    break;	
+					return token;	
 				case ',':
 					token->type = TOKEN_COMMA;
 					return token;
@@ -168,13 +175,12 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_INT_VALUE;
-	            token->data = buffer.data;
 				return token;
 			}
 		    break;
 
 //*************************************************
-		case S_DOT: // // INTEGER DOT
+		case S_DOT: // INTEGER DOT
 			if (isdigit(c))
 			{
 				insertIntoString(&buffer, c);
@@ -207,7 +213,6 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_DOUBLE_VALUE;
-	            token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -252,7 +257,6 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_DOUBLE_VALUE;
-	            token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -267,7 +271,6 @@ TToken* get_token()
 			{
 				insertIntoString(&buffer, 0);
 				token->type = TOKEN_IDENTIFIER;
-	            token->data = buffer.data;
 				keyword_check(token);
 				ungetc(c,fp);
 				return token;
@@ -380,21 +383,77 @@ TToken* get_token()
 
 //****************************************************
 		case S_QUOT: //QUOTATION
-			if (c == '"') { 
+			if (c == '"') 
+			{ 
 				insertIntoString(&buffer, 0); 
 				token->type = TOKEN_STRING_VALUE;
-	            token->data = buffer.data;
 				return token;
 			}
 			else if(c == EOF)
 			{
 				state = S_ERROR;
 			}
+			else if(c == '\\')
+			{
+				state = S_ESCAPE;
+			}
 			else
 			{
 				insertIntoString(&buffer, c);
 			}
 		   break;
+
+//****************************************************
+		case S_ESCAPE: //ESCAPE SEQUENCES
+			if (c == 't')
+			{
+				insertIntoString(&buffer, '\"');
+				state = S_QUOT;
+			}
+			else if (c == '"')
+			{
+				insertIntoString(&buffer, '\"');
+				state = S_QUOT;
+			}
+			else if (c == '\\')
+			{
+				insertIntoString(&buffer, '\\');
+				state = S_QUOT;
+			}
+			else if (c == 'n')
+			{
+				insertIntoString(&buffer, '\n');
+				state = S_QUOT;
+			}
+			else if (c == 'x')
+			{
+				state = S_HEX_NUMBER;
+			}
+			else
+			{
+				state = S_QUOT;	
+			}
+			break;
+
+//****************************************************	
+		case S_HEX_NUMBER: // HEXADECIMAL NUMBER
+			if (isxdigit(c) && (i < 2)) // if is hexadigit and i<2
+			{
+				a[i]=c;
+				i++;
+			}
+			else if (i == 2)
+			{
+				char hta = hex_to_ascii(a[0], a[1]);
+				insertIntoString(&buffer, hta);
+				state = S_QUOT;
+				i=0;
+			}
+			else
+			{
+				state=S_ERROR;
+			}
+			break;
 
 //****************************************************
 		case S_ERROR: // ERROR

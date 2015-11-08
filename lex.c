@@ -440,16 +440,16 @@ TToken* get_token()
 			if (isxdigit(c) && (i < 2)) // if is hexadigit and i<2
 			{
 				a[i]=c;
-				i++;
-			}
-			
-            if (i == 2)
-			{
-				char hta = hex_to_ascii(a[0], a[1]);
-				insertIntoString(&buffer, hta);
-				state = S_QUOT;
-				i = 0;
-			}
+				i++;			
+             
+                if (i == 2)
+                {
+                    char hta = hex_to_ascii(a[0], a[1]);
+                    insertIntoString(&buffer, hta);
+                    state = S_QUOT;
+                    i = 0;
+                }
+            }
 			else
 			{
 				state=S_ERROR;

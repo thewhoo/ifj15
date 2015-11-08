@@ -104,7 +104,7 @@ void cin(TVariable* in)
     {
         lex_init(stdin);
         token = get_token();
-        if(token->type != TOKEN_DOUBLE_VALUE)
+        if((token->type != TOKEN_DOUBLE_VALUE) && (token->type != TOKEN_INT_VALUE))
             exit_error(E_READ_NUMBER);
         
         double_number = atof(token->data);

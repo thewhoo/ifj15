@@ -412,7 +412,7 @@ TToken* get_token()
 			}
 			else if (c == '"')
 			{
-				insertIntoString(&buffer, '\"');
+				insertIntoString(&buffer, '"');
 				state = S_QUOT;
 			}
 			else if (c == '\\')
@@ -442,12 +442,13 @@ TToken* get_token()
 				a[i]=c;
 				i++;
 			}
-			else if (i == 2)
+			
+            if (i == 2)
 			{
 				char hta = hex_to_ascii(a[0], a[1]);
 				insertIntoString(&buffer, hta);
 				state = S_QUOT;
-				i=0;
+				i = 0;
 			}
 			else
 			{

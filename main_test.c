@@ -215,6 +215,22 @@ void test_cin()
     }
 }
 
+void test_lex_escape()
+{
+    printf("\n/****************Testing lex escape<<*****************/\n");
+   
+    TToken *token;
+
+    lex_init(stdin);
+
+    do
+    {
+       token = get_token(); 
+       printf("token: %s\n", token->data);
+
+    } while(token->type != TOKEN_EOF);
+}
+
 int main()
 {
   gcInit();
@@ -231,7 +247,9 @@ int main()
 
   test_KMP_search();
 
-  test_cin();
+  //test_cin();
+    
+  test_lex_escape();
 
   gcDestroy();
 

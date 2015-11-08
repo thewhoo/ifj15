@@ -407,7 +407,7 @@ TToken* get_token()
 		case S_ESCAPE: //ESCAPE SEQUENCES
 			if (c == 't')
 			{
-				insertIntoString(&buffer, '\"');
+				insertIntoString(&buffer, '\t');
 				state = S_QUOT;
 			}
 			else if (c == '"')
@@ -431,7 +431,7 @@ TToken* get_token()
 			}
 			else
 			{
-				state = S_QUOT;	
+				state=S_ERROR;	
 			}
 			break;
 

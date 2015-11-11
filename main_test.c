@@ -205,7 +205,7 @@ void test_cin()
     {
         cin(&inint);
         printf("readed: %d\n", inint.data.i);
-    }
+    } 
     printf("Type double 3x\n");
 
     for(int i = 0; i<3; i++)
@@ -217,15 +217,21 @@ void test_cin()
 
 void test_lex_escape()
 {
-    printf("\n/****************Testing lex escape<<*****************/\n");
+    printf("\n/****************Testing lex escape and token to var/func<<*****************/\n");
    
     TToken *token;
+    TVariable *var;
+    TFunction *f;
 
     lex_init(stdin);
-
     do
     {
-       token = get_token(); 
+       token = get_token();
+       var = token_to_var(token);
+       printf("double var: %d, %s, %d, %g\n", var->var_type, var->name, var->initialized,
+               var->data.d);
+       f = token_to_function(token); 
+       printf("func: %s, %d\n", f->name, f->defined);
        printf("token: %s\n", token->data);
 
     } while(token->type != TOKEN_EOF);
@@ -247,10 +253,8 @@ int main()
 
   test_KMP_search();
 
-  //test_cin();
-    
+  test_cin();
   test_lex_escape();
-
   gcDestroy();
 
   return 0;

@@ -20,7 +20,7 @@
 
 enum tokens
 {
-//keywords - add main funciotn as keyword? 
+//keywords 
   TOKEN_AUTO = 0, 
   TOKEN_CIN,
   TOKEN_COUT,

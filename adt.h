@@ -19,10 +19,11 @@
   *
   */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef ADTYPES_H
+#define ADTYPES_H
 
 #include "ilist.h"
+#include "stack.h"
 
 enum vars
 {
@@ -47,11 +48,11 @@ typedef struct s_variable
 typedef struct s_function
 {
     char *name;
-    int return_type;
+int return_type;
     int defined;  
     Tins_list *ins_list;  
     struct hash_tab *local_tab;
-//something for arguments..list? struct? 
+    TStack *params_stack;
 } TFunction;
 
 
@@ -62,4 +63,34 @@ typedef struct token
 
 } TToken;
 
-#endif //TYPES_H
+/**
+  * @brief Create TVar representation for local/constant
+  *        symbol table from token.
+  *
+  * For identifier - create TVar named by var identifier, set as NOT initialized
+  *                  var_type is NOT set(isn't in token).
+  *                  ADD var type, then it's ready for storing in symbol table.
+  * For int/double/string value - create TVar named by string value, set
+  *                               as initialized, value and type is set,
+  *                               ready for storing to constant table
+  *
+  * @param *token ptr to token from lexer
+  * @return TVariable new initialized TVar
+  */
+TVariable* token_to_var(TToken* token);
+
+/**
+ * @brief Creates TFunction representation for global symbol table from token.
+ *
+ * Sets funciton name. 
+ * Function "defined" is FALSE (no idea if it's * definition/declaration,
+ *                               set it manually later)
+ * Instruction list for function is initialized and ready for use.
+ * Local symbol table is initialized and ready.
+ * Params stack is initialized and ready.
+ *
+ * @param *token ptr to token from lexer.
+ * @return ptr to TFunction type
+ */
+TFunction* token_to_function(TToken* token);
+#endif //ADTYPES_H

@@ -26,6 +26,34 @@
 #include "error.h"
 #include "string.h"
 
+typedef enum
+{
+	S_START,			//start
+	S_ERROR,			//error
+
+	S_DIV,				// /
+	S_LBC,				// /*
+	S_RBC,				// /* *
+	S_LCOM,				// //
+	S_LESS,				// <
+	S_GREAT,			// >
+	S_ASSIGN,			// =
+	S_EXCM,				// !
+	S_QUOT,				// "
+	S_ESCAPE,			// esc sequence
+	S_HEX_NUMBER,		// hex number
+
+	S_INT,				// int
+	S_DOT,				// int.
+	S_DBL,				// double
+	S_EXPO_E,			// base^e
+	S_EXPO_M,			// base^e+-
+	S_EXPO,				// base^e+-int
+
+	S_IDENT,			// indentifier
+
+} States;
+
 FILE *fp;
 TToken *token_buffer = NULL;
 

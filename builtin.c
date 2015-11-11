@@ -22,7 +22,6 @@
 #include "adt.h"
 #include "galloc.h"
 #include "string.h"
-#include "lex.h"
 #include "enums.h"
 
 #define STR_SIZE 20
@@ -65,22 +64,26 @@ void cout(TVariable* output)
         fprintf(stderr, "Cout: No idea about data type!\n");
 }
 
+enum state{ START, S_INT, S_DOT, S_DBL, S_EXPO_E, S_EXPO, S_EXPO_M, };
+
 void cin(TVariable* in)
 {
-    int c;
-    TString buffer;
-    TToken *token;
+    int state = START;
+    int reading = 1;
 
-    int int_number = 0;
-    double double_number = 0;
+    int c;
+    int int_num;
+    double double_num;
+    TString buffer;
 
     initString(&buffer, STR_SIZE);
 
     if(in->var_type == TYPE_STRING)
     {
-        c = getchar();      
-        while(isspace(c))
-            c = getchar();
+        do{
+            c = getchar();      
+        } while(isspace(c));
+
         if(c == EOF)
         {
             insertIntoString(&buffer, 0);
@@ -88,8 +91,6 @@ void cin(TVariable* in)
             return; 
         }
 
-        insertIntoString(&buffer, c);
-        c = getchar();      
         while(!isspace(c))
         {
             insertIntoString(&buffer, c);
@@ -102,27 +103,128 @@ void cin(TVariable* in)
     }
     else if(in->var_type == TYPE_DOUBLE)
     {
-        lex_init(stdin);
-        token = get_token();
-        if((token->type != TOKEN_DOUBLE_VALUE) && (token->type != TOKEN_INT_VALUE))
-            exit_error(E_READ_NUMBER);
-        
-        double_number = atof(token->data);
-        in->data.d = double_number;
-        gfree(token->data);
-        gfree(token);
+        while(reading)
+        {
+            c = getchar();
+            switch(state)
+            {
+                case(START):
+                    if (isspace(c))
+                        break;
+                    else if(isdigit(c))
+                    {
+                        insertIntoString(&buffer, c);
+                        state = S_INT;
+                    }
+                    else            
+                        exit_error(E_READ_NUMBER);
+                break;
+                case(S_INT):
+                    if (isdigit(c))
+                        insertIntoString(&buffer, c);
+                    else if(c == '.')
+                    {
+                        insertIntoString(&buffer, '.');
+                        state = S_DOT;
+                    }
+                    else if(c == 'E' || c == 'e')
+                    {
+                        insertIntoString(&buffer, c);
+                        state = S_EXPO_E;
+                    }
+                    else
+                    {
+                        ungetc(c, stdin);
+                        insertIntoString(&buffer, 0);
+                        reading = 0;
+                    }
+                    break;
+                case(S_DOT):
+                    if (isdigit(c))
+                    {
+                        insertIntoString(&buffer, c);
+                        state = S_DBL;
+                    }
+                    else
+                        exit_error(E_READ_NUMBER);
+                    break;
+                case S_DBL: 
+                    if (isdigit(c))
+                    {
+                        insertIntoString(&buffer, c);
+                    }
+                    else if(c == 'E' || c == 'e')
+                    {
+                        insertIntoString(&buffer, c);
+                        state = S_EXPO_E;				
+                    }
+                    else
+                    {
+                        insertIntoString(&buffer, 0);
+                        ungetc(c, stdin);
+                        reading = 0;
+                    }
+                    break;
+                case S_EXPO_E:
+                    if (isdigit(c))
+                    {
+                        insertIntoString(&buffer, c);
+                        state = S_EXPO;
+                    }
+                    else if (c == '+' || c == '-')
+                    {
+                        insertIntoString(&buffer, c);
+                        state= S_EXPO_M;				
+                    }		
+                    else
+                        exit_error(E_READ_NUMBER);
+                    break;			
+                case S_EXPO_M:
+                    if (isdigit(c))
+                    {
+                        insertIntoString(&buffer, c);
+                        state= S_EXPO;
+                    }		
+                    else
+                        exit_error(E_READ_NUMBER);
+                    break;	
+                case S_EXPO:
+                    if (isdigit(c))
+                        insertIntoString(&buffer, c);
+                    else
+                    {
+                        insertIntoString(&buffer, 0);
+                        ungetc(c, stdin);
+                        reading = 0;
+                    }
+                    break;
+            }
+
+        }
+
+        double_num = strtod(buffer.data, NULL);
+        in->data.d = double_num;
     }
     else if(in->var_type == TYPE_INT)
     {
-        lex_init(stdin);
-        token = get_token();
-        if(token->type != TOKEN_INT_VALUE)
-            exit_error(E_READ_NUMBER);
+        do{
+            c = getchar();      
+        } while(isspace(c));
         
-        int_number = atoi(token->data);
-        in->data.i = int_number;
-        gfree(token->data);
-        gfree(token);
+        if((c == EOF) || (!isdigit(c)))
+            exit_error(E_READ_NUMBER);
+
+        while(isdigit(c))
+        {
+            insertIntoString(&buffer, c);
+            c = getchar();
+        }
+        ungetc(c, stdin);
+            
+        insertIntoString(&buffer, 0);
+
+        int_num = strtol(buffer.data, NULL, 10);       
+        in->data.i = int_num;
     }
     else
     {

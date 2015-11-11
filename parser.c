@@ -13,210 +13,646 @@
  *
  */
 
- #include <stdio.h>
- #include "parser.h"
- #include "adt.h"
- #include "stack.h"
- #include "lex.h"
- #include "galloc.h"
- #include "enums.h"
- #include "error.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include "parser.h"
+#include "adt.h"
+#include "lex.h"
+#include "galloc.h"
+#include "enums.h"
+#include "error.h"
 
- #define LL_ROWS 30
- #define LL_COLS 35
+TToken* token;
 
- #define RULES 62
- #define MAX_PUSHED_STATES 8
+// Forward declarations of "rule" functions
+bool PROG();
+bool FUNCTION_DECL();
+bool DATA_TYPE();
+bool FUNC_DECL_PARAMS();
+bool FUNC_DECL_PARAMS_NEXT();
+bool NESTED_BLOCK();
+bool NBC();
+bool DECL_OR_ASSIGN();
+bool DECL_ASSIGN();
+bool FCALL_OR_ASSIGN();
+bool FOA_PART2();
+bool HARD_VALUE();
+bool FUNCTION_CALL_PARAMS();
+bool FUNCTION_CALL_PARAM();
+bool FUNCTION_CALL_PARAMS_NEXT();
+bool BUILTIN_CALL();
+bool BUILTIN_FUNC();
+bool IF_STATEMENT();
+bool ELSE_STATEMENT();
+bool COUT();
+bool COUT_NEXT();
+bool COUT_OUTPUT();
+bool CIN();
+bool CIN_NEXT();
+bool FOR_STATEMENT();
+bool FOR_DECLARATION();
+bool FOR_EXPR();
+bool FOR_ASSIGN();
+bool RETURN();
+void CALL_EXPR();
 
+void CALL_EXPR()
+{
+}
 
- /* LL Table definition
-  * Each row number corresponds to Token Number + 1
-  * Below is how the top row header would look like in tokens
+// Definitions of "rule" functions
+bool PROG()
+{
+	bool ret = false;
 
-t_auto,t_cin,t_cout,t_double,t_else,t_for,t_if,t_int,t_return,t_string,token_bf_length,token_bf_substr,token_bf_concat,token_bf_find,token_bf_sort,res,res,res,res,res,t_identifier,t_eof,t_string_value,t_int_value,t_double_value,t_assign,t_semicolon,t_comma,t_cout_bracket,t_cin_bracket,t_lround_bracket,t_rround_bracket,t_lcurly_bracket,t_rcurly_bracket,t_expression
-
-  *
-  */
-
-
- int LLtab[LL_ROWS][LL_COLS] = {
-
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,3,0,0,0,3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,5,0,0,0,4,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,7,0,0,0,7,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,10,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0},
- 	{0,12,17,16,12,0,18,15,12,20,12,14,14,14,14,14,0,0,0,0,0,13,0,0,0,0,0,0,0,0,0,0,0,19,21},
- 	{0,23,0,0,22,0,0,0,22,0,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,25,25,0,0,0,24,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,28,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,29,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,33,31,32,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,34,0,34,34,34,0,0,0,0,0,0,35,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,37,37,37,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,38,0,0,0,39,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,40,40,40,40,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,41,42,43,44,45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,46,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,48,48,48,48,47,48,48,48,48,48,48,48,48,48,48,0,0,0,0,0,48,0,0,0,0,0,0,0,0,0,0,0,48,48},
- 	{0,0,0,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,50,0,51,51,51,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,53,0,52,0,0,0,0,0},
- 	{0,0,54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,0,0,55,0,0,0,0},
- 	{0,0,0,0,0,0,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,59,0,0,58,0,0,0,58,0,58,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,0,0,0,0,0,0,0,0,0,0,0,0,0},
- 	{0,0,0,0,0,0,0,0,0,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-
- };
-
- /* Rules definition
-  * States are pushed on stack in reverse order
-  */
-
-  int rules[RULES][MAX_PUSHED_STATES] = {
-
-  	{0,0,0,0,0,0,0,0},	// Rule 0 - placeholder rule
-  	{1,2,0,0,0,0,0,0},	// Rule 1
-  	{0,0,0,0,0,0,0,0},	// Rule 2 - epsilon rule
-  	{6,-32,4,-31,-21,3},	// Rule 3
-  	{-8,0,0,0,0,0,0,0},	// Rule 4
-  	{-4,0,0,0,0,0,0,0},	// Rule 5
-  	{-10,0,0,0,0,0,0,0},	// Rule 6
-  	{5,-21,3,0,0,0,0,0},	// Rule 7
-  	{0,0,0,0,0,0,0,0},	// Rule 8 - epsilon rule
-  	{4,-28,0,0,0,0,0,0},	// Rule 9
-  	{0,0,0,0,0,0,0,0},	// Rule 10 - epsilon rule
-  	{-34,7,-33,0,0,0,0,0},	// Rule 11
-  	{7,8,0,0,0,0,0,0},	// Rule 12
-  	{7,11,0,0,0,0,0,0},	// Rule 13
-  	{7,17,0,0,0,0,0,0},	// Rule 14
-  	{7,19,0,0,0,0,0,0},	// Rule 15
-  	{7,21,0,0,0,0,0,0},	// Rule 16
-  	{7,24,0,0,0,0,0,0},	// Rule 17
-  	{7,26,0,0,0,0,0,0},	// Rule 18
-  	{7,6,0,0,0,0,0,0},	// Rule 19
-  	{29,0,0,0,0,0,0,0},	// Rule 20
-  	{0,0,0,0,0,0,0,0},	// Rule 21 - epsilon rule
-  	{9,-21,3,0,0,0,0,0},	// Rule 22
-  	{-27,30,-26,-21,-1,0,0,0}, // Rule 23
-  	{6,-32,4,-31,0,0,0,0},	// Rule 24
-  	{-27,10,0,0,0,0,0,0},	// Rule 25
-  	{30,-26,0,0,0,0,0,0},	// Rule 26
-  	{0,0,0,0,0,0,0,0},	// Rule 27 - epsilon rule
-  	{12,-21,0,0,0,0,0,0},	// Rule 28
-  	{-27,-32,14,-31,0,0,0,0}, // Rule 29
-  	{-27,30,-26,0,0,0,0,0},	// Rule 30
-  	{-24,0,0,0,0,0,0,0},	// Rule 31
-  	{-25,0,0,0,0,0,0,0},	// Rule 32
-  	{-23,0,0,0,0,0,0,0},	// Rule 33
-  	{16,15,0,0,0,0,0,0},	// Rule 34
-  	{0,0,0,0,0,0,0,0},	// Rule 35 - epsilon rule
-  	{-21,0,0,0,0,0,0,0},	// Rule 36
-  	{13,0,0,0,0,0,0,0},	// Rule 37
-  	{14,-28,0,0,0,0,0,0},	// Rule 38
-  	{0,0,0,0,0,0,0,0},	// Rule 39 - epsilon rule
-  	{-27,-32,14,-31,18,0,0,0}, // Rule 40
-  	{-11,0,0,0,0,0,0,0},	// Rule 41
-  	{-12,0,0,0,0,0,0,0},	// Rule 42
-  	{-13,0,0,0,0,0,0,0},	// Rule 43
-  	{-14,0,0,0,0,0,0,0},	// Rule 44
-  	{-15,0,0,0,0,0,0,0},	// Rule 45
-  	{20,6,-32,30,-31,-7,0,0}, // Rule 46
-  	{6,-5,0,0,0,0,0,0},	// Rule 47
-  	{0,0,0,0,0,0,0,0},	// Rule 48 - epsilon rule
-  	{-27,23,22,-29,-3,0,0,0}, // Rule 49
-  	{-21,0,0,0,0,0,0,0},	// Rule 50
-  	{13,0,0,0,0,0,0,0},	// Rule 51
-  	{23,22,-29,0,0,0,0,0},	// Rule 52
-  	{0,0,0,0,0,0,0,0},	// Rule 53 - epsilon rule
-  	{-27,25,-21,-30,-2,0,0,0}, // Rule 54
-  	{25,-21,-30,0,0,0,0,0},	// Rule 55
-  	{0,0,0,0,0,0,0,0},	// Rule 56 - epsilon rule
-  	{6,-32,28,-27,30,27,-31,-6}, // Rule 57
-  	{-27,10,-21,3,0,0,0,0},	// Rule 58
-  	{-27,30,-26,-21,-1,0,0,0}, // Rule 59
-  	{30,-26,-21,0,0,0,0,0},	// Rule 60
-  	{-27,30,-9,0,0,0,0,0}	// Rule 61
-
-  };
-
- // Definition of stack used for parsing
- TStack* parseStack;
- TToken* token;
-
- void expr()
- {
-	token=get_token();
- }
-
- void parse_error()
- {
- 	fprintf(stderr,"Parse error, stack dump:\n");
- 	// TODO: Print stack dump here
-
-	exit_error(E_SYNTAX);
- }
-
- void parse()
- {
-     int initialState = 1;
-     parseStack = stack_init();
-     stack_push(parseStack, &initialState);
-     token = get_token();
-
-     while(token->type != TOKEN_EOF)
-     {
-     	int* sTop = stack_top(parseStack);
-     	if(*sTop == 30)
+	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
 	{
-		printf("Calling expr!\n");
-     		expr();
-		continue;
+		ret = FUNCTION_DECL() && PROG();
 	}
-     	if(*sTop < 0)
-     	{
-     	    	printf("Expecting token: %d", -(*sTop)-1);
-     	    	printf("\tReceived token: %d\n", token->type);
-     		if (token->type != (-(*sTop) - 1))
-     			parse_error();
+	else if (token->type == TOKEN_EOF)
+	{
+		ret = true;
+	}
 
-    		stack_pop(parseStack);
-    		token = get_token();
-		printf("Token processed\n");
-     	}
-     	else
-     	{
-     		int rule = LLtab[*sTop][token->type + 1];
-     		printf("Resolved rule: %d\n", rule);
-		if(rule == 0)
-     			parse_error();
+	return ret;
+}
 
-		stack_pop(parseStack);
+bool FUNCTION_DECL()
+{
+	bool ret = false;
+	bool midway = true;
 
-     		for(int i = 0;i < MAX_PUSHED_STATES; i++)
-     		{
-     			int value = rules[rule][i];
-     			int* valToStack = gmalloc(sizeof(int));
-     			*valToStack = value;
-     			if (value == 0)
-     				break;
+	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+	{
+		if(DATA_TYPE())
+		{
+			if (token->type == TOKEN_IDENTIFIER)
+				token = get_token();
+			else
+				midway = false;
+			
+			if (token->type == TOKEN_LROUND_BRACKET)
+				token = get_token();
+			else
+				midway = false;
 
-     			stack_push(parseStack, valToStack);
-     		}
-     	}
+			if(FUNC_DECL_PARAMS())
+			{
+				if (token->type == TOKEN_RROUND_BRACKET)
+				{
+					token = get_token();
+					ret = NESTED_BLOCK();
+				}
+			}
+		}
+	}
 
-     }
+	return ret && midway;
+}
 
-     int* sTop = stack_top(parseStack);
-     printf("Stack state at EOF: %d\n", *sTop);
-     if(*sTop == 1)
-     	printf("Syntaxe OK\n");
-     else
-	parse_error();
+bool DATA_TYPE()
+{
+	bool ret = false;
 
- }
+	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+	{
+		token = get_token();
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool FUNC_DECL_PARAMS()
+{
+	bool ret = false;
+
+	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+	{
+		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
+		{
+			ret = FUNC_DECL_PARAMS_NEXT();
+		}
+	}
+	else if (token->type == TOKEN_RROUND_BRACKET)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool FUNC_DECL_PARAMS_NEXT()
+{
+	bool ret = false;
+
+	if (token->type == TOKEN_COMMA)
+	{
+		token = get_token();
+		ret = FUNC_DECL_PARAMS();
+	}
+	else if (token->type == TOKEN_RROUND_BRACKET)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool NESTED_BLOCK()
+{
+	bool ret = false;
+
+	if (token->type == TOKEN_LCURLY_BRACKET)
+	{
+		token = get_token();
+		if(NBC())
+		{
+			ret = (token->type == TOKEN_RCURLY_BRACKET);
+			token = get_token();
+		}
+	}
+
+	return ret;
+}
+
+bool NBC()
+{
+	bool ret = false;
+	
+	switch(token->type)
+	{
+		case TOKEN_AUTO:
+		case TOKEN_INT:
+		case TOKEN_DOUBLE:
+		case TOKEN_STRING:
+			ret = DECL_OR_ASSIGN() && NBC();
+			break;
+		
+		case TOKEN_IDENTIFIER:
+			ret = FCALL_OR_ASSIGN() && NBC();
+			break;
+
+		case TOKEN_LENGTH:
+		case TOKEN_SUBSTR:
+		case TOKEN_CONCAT:
+		case TOKEN_FIND:
+		case TOKEN_SORT:
+			ret = BUILTIN_CALL() && NBC();
+			break;
+
+		case TOKEN_IF:
+			ret = IF_STATEMENT() && NBC();
+			break;
+
+		case TOKEN_COUT:
+			ret = COUT() && NBC();
+			break;
+
+		case TOKEN_CIN:
+			ret = CIN() && NBC();
+			break;
+
+		case TOKEN_FOR:
+			ret = FOR_STATEMENT() && NBC();
+			break;
+
+		case TOKEN_LCURLY_BRACKET:
+			ret = NESTED_BLOCK() && NBC();
+			break;
+
+		case TOKEN_RETURN:
+			ret = RETURN();
+			break;
+
+		case TOKEN_RCURLY_BRACKET:
+			ret = true;
+			break;
+	}
+
+	return ret;
+}
+
+bool DECL_OR_ASSIGN()
+{
+	bool ret = false;
+	bool midway = true;
+
+	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+	{
+		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
+		{
+			token = get_token();
+			if(DECL_ASSIGN())
+			{
+				ret = (token->type == TOKEN_SEMICOLON);
+				token = get_token();
+			}
+		}
+	}
+	else if (token->type == TOKEN_AUTO)
+	{
+		token = get_token();
+		if (token->type == TOKEN_IDENTIFIER)
+			token = get_token();
+		else
+			midway = false;
+		
+		if (token->type == TOKEN_ASSIGN)
+			CALL_EXPR();
+		else
+			midway = false;
+
+		ret = (token->type == TOKEN_SEMICOLON);
+		token = get_token();
+
+	}
+
+	return ret && midway;
+}
+
+bool DECL_ASSIGN()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_ASSIGN)
+	{
+		token = get_token();
+		CALL_EXPR();
+		ret = true;
+	}
+	else if(token->type == TOKEN_SEMICOLON)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool FCALL_OR_ASSIGN()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_IDENTIFIER)
+	{
+		token = get_token();
+		ret = FOA_PART2();
+	}
+
+	return ret;
+}
+
+bool FOA_PART2()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_LROUND_BRACKET)
+	{
+		token = get_token();
+		if(FUNCTION_CALL_PARAMS() && token->type == TOKEN_RROUND_BRACKET)
+		{
+			token = get_token();
+			ret = (token->type == TOKEN_SEMICOLON);
+			token = get_token();
+		}
+	}
+	else if (token->type == TOKEN_ASSIGN)
+	{
+		token = get_token();
+		CALL_EXPR();
+		ret = (token->type == TOKEN_SEMICOLON);
+		token = get_token();
+	}
+
+	return ret;
+}
+
+bool HARD_VALUE()
+{
+	bool ret = (token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE);
+	token = get_token();
+	return ret;
+}
+
+bool FUNCTION_CALL_PARAMS()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_IDENTIFIER || token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE)
+	{
+		ret = FUNCTION_CALL_PARAM() && FUNCTION_CALL_PARAMS_NEXT();
+	}
+	else if (token->type == TOKEN_RROUND_BRACKET)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool FUNCTION_CALL_PARAM()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_IDENTIFIER)
+	{
+		token = get_token();
+		ret = true;
+	}
+	else
+	{
+		ret = HARD_VALUE();
+	}
+
+	return ret;
+}
+
+bool FUNCTION_CALL_PARAMS_NEXT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_COMMA)
+	{
+		token = get_token();
+		ret = FUNCTION_CALL_PARAMS();
+	}
+	else if (token->type == TOKEN_RROUND_BRACKET)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+bool BUILTIN_CALL()
+{
+	bool ret = false;
+
+	if(BUILTIN_FUNC() && token->type == TOKEN_LROUND_BRACKET)
+	{
+		token = get_token();
+		if(FUNCTION_CALL_PARAMS() && token->type == TOKEN_RROUND_BRACKET)
+		{
+			token = get_token();
+			ret = (token->type == TOKEN_SEMICOLON);
+			token = get_token();
+		}
+	}
+
+	return ret;
+}
+
+bool BUILTIN_FUNC()
+{
+	bool ret = false;
+	ret = (token->type == TOKEN_LENGTH || token->type == TOKEN_SUBSTR || token->type == TOKEN_CONCAT || token->type == TOKEN_FIND || token->type == TOKEN_SORT);
+	token = get_token();
+	return ret;
+}
+
+bool IF_STATEMENT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_IF)
+	{
+		token = get_token();
+		if(token->type == TOKEN_LROUND_BRACKET)
+		{
+			CALL_EXPR();
+			if(token->type == TOKEN_RROUND_BRACKET)
+				ret = NESTED_BLOCK() && ELSE_STATEMENT();
+		}
+	}
+
+	return ret;
+}
+
+bool ELSE_STATEMENT()
+{
+	bool ret = false;
+	
+	switch(token->type)
+	{
+		case TOKEN_ELSE:
+			token = get_token();
+			ret = NESTED_BLOCK();
+			break;
+		
+		case TOKEN_AUTO:
+		case TOKEN_INT:
+		case TOKEN_DOUBLE:
+		case TOKEN_STRING:
+		case TOKEN_IDENTIFIER:
+		case TOKEN_LENGTH:
+		case TOKEN_SUBSTR:
+		case TOKEN_CONCAT:
+		case TOKEN_FIND:
+		case TOKEN_SORT:
+		case TOKEN_IF:
+		case TOKEN_COUT:
+		case TOKEN_CIN:
+		case TOKEN_FOR:
+		case TOKEN_LCURLY_BRACKET:
+		case TOKEN_RETURN:
+		case TOKEN_RCURLY_BRACKET:
+			ret = true;
+			break;
+	}
+
+	return ret;
+}
+
+bool COUT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_COUT)
+	{
+		token = get_token();
+		if(token->type == TOKEN_COUT_BRACKET)
+		{
+			token = get_token();
+			ret = COUT_OUTPUT() && COUT_NEXT() && token->type == TOKEN_SEMICOLON;
+			token = get_token();
+		}
+	}
+
+	return ret;
+}
+
+bool COUT_OUTPUT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_IDENTIFIER)
+	{
+		token = get_token();
+		ret = true;
+	}
+	else
+		ret = HARD_VALUE();
+
+	return ret;
+}
+
+bool COUT_NEXT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_COUT_BRACKET)
+	{
+		token = get_token();
+		ret = COUT_OUTPUT() && COUT_NEXT();
+	}
+	else if (token->type == TOKEN_SEMICOLON)
+		ret = true;
+
+	return ret;
+}
+
+bool CIN()
+{
+	bool ret = false;
+	bool midway = true;
+	
+	if(token->type == TOKEN_CIN)
+		token = get_token();
+	else
+		midway = false;
+	
+	if(token->type == TOKEN_CIN_BRACKET)
+		token = get_token();
+	else
+		midway = false;
+
+	if(token->type == TOKEN_IDENTIFIER)
+	{
+		token = get_token();
+		ret = CIN_NEXT() && (token->type == TOKEN_SEMICOLON);
+		token = get_token();
+	}
+
+	return ret && midway;
+}
+
+bool CIN_NEXT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_CIN_BRACKET)
+	{
+		token = get_token();
+		if(token->type == TOKEN_IDENTIFIER)
+		{
+			token = get_token();
+			ret = CIN_NEXT();
+		}
+	}
+	else if(token->type == TOKEN_SEMICOLON)
+		ret = true;
+
+	return ret;
+}
+
+bool FOR_STATEMENT()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_FOR)
+	{
+		token = get_token();
+		if(token->type == TOKEN_LROUND_BRACKET)
+		{
+			token = get_token();
+			if(FOR_DECLARATION() && FOR_EXPR() && FOR_ASSIGN() && token->type == TOKEN_RROUND_BRACKET)
+				ret = NESTED_BLOCK();
+		}
+	}
+
+	return ret;
+}
+
+bool FOR_DECLARATION()
+{
+	bool ret = false;
+	
+	if(token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+	{
+		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
+		{
+			token = get_token();
+			ret = DECL_ASSIGN() && token->type == TOKEN_SEMICOLON;
+			token = get_token();
+		}
+	}
+	else if(token->type == TOKEN_AUTO)
+	{
+		token = get_token();
+		if(token->type == TOKEN_IDENTIFIER)
+		{
+			token = get_token();
+			if(token->type == TOKEN_ASSIGN)
+			{
+				token = get_token();
+				CALL_EXPR();
+				ret = (token->type == TOKEN_SEMICOLON);
+				token = get_token();
+			}
+		}
+	}
+
+	return ret;
+}
+
+bool FOR_EXPR()
+{
+	bool ret = false;
+
+	ret = (token->type == TOKEN_SEMICOLON);
+	token = get_token();
+
+	return ret;
+}
+
+bool FOR_ASSIGN()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_IDENTIFIER)
+	{
+		token = get_token();
+		if(token->type == TOKEN_ASSIGN)
+		{
+			token = get_token();
+			CALL_EXPR();
+			ret = true;
+		}
+	}
+
+	return ret;
+}
+
+bool RETURN()
+{
+	bool ret = false;
+
+	if(token->type == TOKEN_RETURN)
+	{
+		token = get_token();
+		CALL_EXPR();
+		ret = (token->type == TOKEN_SEMICOLON);
+		token = get_token();
+	}
+
+	return ret;
+}
+
+void parse()
+{
+	token = get_token();
+	if(PROG())
+		printf("Syntax OK\n");
+	else
+		printf("Syntax ERROR\n");
+}

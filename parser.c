@@ -21,6 +21,8 @@
 #include "galloc.h"
 #include "enums.h"
 #include "error.h"
+#include "stack.h"
+#include "ial.h"
 #include "shared.h"
 
 TToken* token;
@@ -655,11 +657,9 @@ bool RETURN()
 
 void parse()
 {
-	TConstTab *ConstTab = gmalloc(sizeof(TConstTab));
-	TGlobalTab *GlobalTab = gmalloc(sizeof(TGlobalTab));
-	
-	initConstTab(ConstTab);
-	initGlobalTab(GlobalTab);
+	htab_t *g_constTab = htab_init(CONSTTAB_INITIAL_SIZE);
+	htab_t *g_globalTab = htab_init(GLOBALTAB_INITIAL_SIZE);
+	stack_t *g_frameStack = stack_init();
 
 	token = get_token();
 	if(PROG())

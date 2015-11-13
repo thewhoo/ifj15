@@ -17,38 +17,19 @@
 #define SHARED_H
 
 #include "adt.h"
+#include "stack.h"
 #include "galloc.h"
 
-// TODO: documentation, motherfucker!
-// Structure for global table of constants
-typedef struct s_consttab
-{
-	TVariable **data;
-	int size;
-	int used;
-
-} TConstTab;
-
-// TODO: documentation, motherfucker!
-// Structure for global table of global symbols (a.k.a. functions)
-typedef struct s_globals
-{
-	TFunction **data;
-	int size;
-	int used;
-
-} TGlobalTab;
+#define CONSTTAB_INITIAL_SIZE 20
+#define GLOBALTAB_INITIAL_SIZE 20
 
 // Global ConstTab
-extern TConstTab *ConstTab;
+extern htab_t *g_constTab;
 
 // Global GlobalTab
-extern TGlobalTab *GlobalTab;
+extern htab_t *g_globalTab;
 
-// Functions
-void initConstTab();
-void insertIntoConstTab();
-void initGlobalTab();
-void insertIntoGlobalTab();
+// Global FrameStack
+extern TStack *g_frameStack;  
 
 #endif // SHARED_H

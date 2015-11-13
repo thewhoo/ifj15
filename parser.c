@@ -21,6 +21,7 @@
 #include "galloc.h"
 #include "enums.h"
 #include "error.h"
+#include "shared.h"
 
 TToken* token;
 
@@ -131,6 +132,7 @@ bool FUNC_DECL_PARAMS()
 	{
 		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
 		{
+			token = get_token();
 			ret = FUNC_DECL_PARAMS_NEXT();
 		}
 	}
@@ -259,7 +261,10 @@ bool DECL_OR_ASSIGN()
 			midway = false;
 		
 		if (token->type == TOKEN_ASSIGN)
+		{
+			token = get_token();
 			CALL_EXPR();
+		}
 		else
 			midway = false;
 
@@ -650,6 +655,12 @@ bool RETURN()
 
 void parse()
 {
+	TConstTab *ConstTab = gmalloc(sizeof(TConstTab));
+	TGlobalTab *GlobalTab = gmalloc(sizeof(TGlobalTab));
+	
+	initConstTab(ConstTab);
+	initGlobalTab(GlobalTab);
+
 	token = get_token();
 	if(PROG())
 		printf("Syntax OK\n");

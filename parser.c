@@ -25,7 +25,11 @@
 #include "ial.h"
 #include "shared.h"
 
+#define LOCALTAB_DEFAULT_SIZE 20
+
 TToken* token;
+TFunction currentFunction;
+TVariable currentVariable;
 
 // Forward declarations of "rule" functions
 bool PROG();
@@ -58,6 +62,28 @@ bool FOR_EXPR();
 bool FOR_ASSIGN();
 bool RETURN();
 void CALL_EXPR();
+void initializeCurrentFunction();
+void initializeCurrentVariable();
+
+enum
+{
+	T_FUNC,
+	T_VAR
+};
+
+void initializeCurrentFunction()
+{
+	currentFunction.name = NULL;
+	currentFunction.return_type = 0;
+	currentFunction.defined = 0;
+	currentFunction.ins_list = NULL;
+	currentFunction.local_tab = htab_init(LOCALTAB_DEFAULT_SIZE); 
+	currentFunction.params_stack = stack_init();
+}
+
+void initializeCurrentVariable()
+{
+}
 
 void CALL_EXPR()
 {
@@ -81,49 +107,74 @@ bool PROG()
 }
 
 bool FUNCTION_DECL()
-{
-	bool ret = false;
-	bool midway = true;
-
-	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+{	
+	// No valid data type detected -> Syntax error
+	if(!DATA_TYPE(T_FUNC))
+		return false;
+		
+	if (token->type == TOKEN_IDENTIFIER)
 	{
-		if(DATA_TYPE())
-		{
-			if (token->type == TOKEN_IDENTIFIER)
-				token = get_token();
-			else
-				midway = false;
+		currentFunction.name = token->data; 
+		token = get_token();
+	}
+	// Syntax error
+	else
+		return false;
 			
-			if (token->type == TOKEN_LROUND_BRACKET)
-				token = get_token();
-			else
-				midway = false;
+	if (token->type == TOKEN_LROUND_BRACKET)
+		token = get_token();
+	// Syntax error
+	else
+		return false;
 
-			if(FUNC_DECL_PARAMS())
-			{
-				if (token->type == TOKEN_RROUND_BRACKET)
-				{
-					token = get_token();
-					ret = NESTED_BLOCK();
-				}
-			}
+	if(FUNC_DECL_PARAMS())
+	{
+		if (token->type == TOKEN_RROUND_BRACKET)
+		{
+			token = get_token();
+			ret = NESTED_BLOCK();
 		}
 	}
+		
 
 	return ret && midway;
 }
 
-bool DATA_TYPE()
+// Detect and store the data type of the new function/variable
+bool DATA_TYPE(int type)
 {
-	bool ret = false;
-
-	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+	// Add the data type to the currently processed function/variable
+	switch(token->type)
 	{
-		token = get_token();
-		ret = true;
+		case TOKEN_INT:
+			if (type == T_VAR)
+				currentVariable.var_type = TYPE_INT;
+			else
+				currentFunction.return_type = TYPE_INT;
+			break;
+
+		case TOKEN_DOUBLE:
+			if (type == T_VAR)
+				currentVariable.var_type = TYPE_DOUBLE;
+			else
+				currentFunction.return_type = TYPE_DOUBLE;
+			break;
+
+		case TOKEN_STRING:
+			if (type == T_VAR)
+				currentVariable.var_type = TYPE_STRING;
+			else
+				currentFunction.return_type = TYPE_STRING;
+			break;
+
+		// Syntax error
+		default:
+			return false;
 	}
 
-	return ret;
+	token = get_token();
+
+	return true;
 }
 
 bool FUNC_DECL_PARAMS()

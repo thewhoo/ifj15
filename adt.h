@@ -48,7 +48,7 @@ typedef struct s_variable
 typedef struct s_function
 {
     char *name;
-int return_type;
+    int return_type;
     int defined;  
     Tins_list *ins_list;  
     struct hash_tab *local_tab;
@@ -67,17 +67,14 @@ typedef struct token
   * @brief Create TVar representation for local/constant
   *        symbol table from token.
   *
-  * For identifier - create TVar named by var identifier, set as NOT initialized
-  *                  var_type is NOT set(isn't in token).
-  *                  ADD var type, then it's ready for storing in symbol table.
   * For int/double/string value - create TVar named by string value, set
   *                               as initialized, value and type is set,
-  *                               ready for storing to constant table
+  *                               stored in const table
   *
   * @param *token ptr to token from lexer
   * @return TVariable new initialized TVar
   */
-TVariable* token_to_var(TToken* token);
+TVariable* token_to_const(TToken* token);
 
 /**
  * @brief Creates TFunction representation for global symbol table from token.

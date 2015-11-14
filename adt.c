@@ -22,25 +22,26 @@
 #include "ilist.h"
 #include "ial.h"
 #include "stack.h"
+#include "shared.h"
 
-TVariable* token_to_var(TToken *token)
+TVariable* token_to_const(TToken *token)
 {
     TVariable* var = gmalloc(sizeof(TVariable));
-
+    htab_item *tmp;
     
-    if (token->type == TOKEN_IDENTIFIER)
-    {
-        var->initialized = 0;
-        var->name = gmalloc(strlen(token->data) + 1);
-        strcpy(var->name, token->data);   
-    }
-    else if(token->type == TOKEN_STRING_VALUE)
+    if(token->type == TOKEN_STRING_VALUE)
     {
         var->initialized = 1;
         var->name = gmalloc(strlen(token->data) + 1);
         strcpy(var->name, token->data);
         var->var_type = TYPE_STRING;
         var->data.str = var->name;
+        
+        if(htab_lookup(g_constTab, var->name) == NULL)
+        {
+            tmp = htab_insert(g_constTab, var->name);
+            tmp->data.variable = var;
+        }
     }
     else if(token->type == TOKEN_DOUBLE_VALUE)
     {
@@ -49,6 +50,12 @@ TVariable* token_to_var(TToken *token)
         strcpy(var->name, token->data);
         var->var_type = TYPE_DOUBLE;
         var->data.d = strtod(token->data, NULL);
+     
+        if(htab_lookup(g_constTab, var->name) == NULL)
+        {
+            tmp = htab_insert(g_constTab, var->name);
+            tmp->data.variable = var;
+        }
     }
     else if(token->type == TOKEN_INT_VALUE)
     {
@@ -57,6 +64,12 @@ TVariable* token_to_var(TToken *token)
         strcpy(var->name, token->data);
         var->var_type = TYPE_INT;
         var->data.i = strtod(token->data, NULL);
+        
+        if(htab_lookup(g_constTab, var->name) == NULL)
+        {
+            tmp = htab_insert(g_constTab, var->name);
+            tmp->data.variable = var;
+        }
     }
     
     return var;
@@ -72,6 +85,7 @@ TFunction* token_to_function(TToken *token)
     func->ins_list = list_init();
     func->local_tab = htab_init(HTAB_SIZE);
     func->params_stack = stack_init();
+    
 
     return func;
 }

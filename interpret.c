@@ -13,20 +13,22 @@
  *
  */
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
-#include "interpret.h"
-#include "galloc.h"
+#include "adt.h"
 #include "builtin.h"
 #include "error.h"
-#include "adt.h"
+#include "galloc.h"
+#include "interpret.h"
 #include "ial.h"
 #include "stack.h"
-
+#include "shared.h"
 
 TStack *gStack;
 TStack *active_frame;
+TStack *fparams_stack;
+
 
 TVariable* get_var(char *address)
 {
@@ -42,6 +44,13 @@ TVariable* get_var(char *address)
     fprintf(stderr,"Var not found, should not happen!\n");
     exit_error(99);
     return NULL;
+}
+
+void clean_active_frame()
+{
+    for(int i = active_frame->used - 1; i>=0; i--)
+        htab_free(active_frame[i]);
+    gfree(active_frame);
 }
 
 void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
@@ -172,15 +181,34 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
     dest->initialized = 1;
 }
 
+
+void map_params(htab_t *tab, TStack* decl_params)
+{
+    if(decl_params->used != fparams_stack->used)
+    {
+        fprintf(stderr, "Wrong number of parameters!\n");
+        exit_error(10); 
+    } //delete later
+
+    htab_item *param;
+
+    for(int i=0; i<decl_params->used; i++)
+    {
+        param = htab_lookup(tab, decl_params[i]->name);
+        memcpy(param, fparams_stack[i], sizeof(TVariable));
+    }
+}
+
 void interpret_loop(Tins_list *ins_list)
 {
     int ret_int;
     char* ret_str;
     char* str;
     TVariable *var1, *var2, *var3;
+    htab_item *func;
+    htab_t *new_tab;
 
     TList_item *ins = ins_list->first;
-    active_frame = stack_top(gStack);
 
     while(ins != NULL)
     {
@@ -206,20 +234,58 @@ void interpret_loop(Tins_list *ins_list)
 
             case(INS_PUSH_TAB):
                 stack_push(active_frame, ins->addr1);
+                break;
+
             case(INS_POP_TAB):
-                htab_free(stack_top(active_frame));
+                htab_free((htab_t*)stack_top(active_frame));
                 stack_pop(active_frame);
                 break;
+
             case(INS_JMP):
                 ins = (TList_item *) ins->addr1;
-                continue; // OR BREAK
+                continue; //or break
+
             case(INS_CJMP):
                 //sth
                 break;
+
             case(INS_LAB):
                 break;
+
+            case(INS_PUSH):
+                if(!ins-addr1->initialized)
+                    exit_exrror(E_UNINITIALIZED);
+                //pushnem premennu, ale z mojich tabuliek symbolov
+                //v parametri ins je z originalnych tab. premenna
+                stack_push(fparams_stack, get_var(ins->addr1->name);
+                break;
+
             case(INS_CALL):
-                
+                stack_push(gStack, active_frame);
+                stack_push(gStack, ins);
+
+                func = (htab_item*)ins->addr1;
+                ins = func->ins_list->first;
+                active_frame = gmalloc(sizeof(TStack));
+                htab_t *new_tab = htab_copy(func->data.function->local_tab);
+                stack_push(active_frame, new_tab);
+                map_params(new_tab, func->params_stack);
+                //map pushed f arguments to f parameters
+                continue; //after break, continue with new isntr, we want to
+                          //begin with first one
+            case(INS_RET):
+                if(stack_empty(gStack) //end of main func
+                    exit(0); //maybe some cleaning?
+                clean_active_frame();
+                ins = (TList_item*) stack_top(gStack);
+                stack_pop(gStack);
+                active_frame = (TStack*) stack_top(gStack);
+                stack_pop(gStack);
+                //returned value assigned by INS_ASSIGN from "return" var?
+                break;
+            
+            case(INS_ASSIGN):
+                    //assign value from "return" variable..
                 break;
 
             //built-in
@@ -287,18 +353,23 @@ void interpret_loop(Tins_list *ins_list)
         }
         ins = ins->next;
         if(ins == NULL)
-            exit_error(E_RUNTIME_OTHERS);
+        {
+            fprintf(stderr, "End of insructions");
+            exit(0);
+        }
+
     }
 }
 
 void interpret()
 {
 
-htab_t *global_tab = NULL;
     //init global stack for interpret
-    gStack = stack_init();    
+    gStack = stack_init();   
+    fparams_stack = stack_init();
+
     //find main function in global symbol table
-    htab_item *func_main = htab_lookup(global_tab, "main");
+    htab_item *func_main = htab_lookup(g_globalTab, "main");
     if(func_main == NULL)
         exit_error(3);
     
@@ -306,9 +377,7 @@ htab_t *global_tab = NULL;
     htab_t *main_tab = htab_copy(func_main->data.function->local_tab);
     TStack *func_main_frame = stack_init();
     stack_push(func_main_frame, main_tab);
-    
+    active_frame = func_main_frame;
 
-    stack_push(gStack, func_main_frame);
-    
     interpret_loop(func_main->data.function->ins_list);
 }

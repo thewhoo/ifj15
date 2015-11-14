@@ -40,7 +40,7 @@ enum instructions
     INS_LAB,        //
     INS_PUSH,       //src1
     INS_CALL,       //
-    INS_RET,        //
+    INS_RET,        //dest
     INS_PUSH_TAB,   //htab_t*
     INS_POP_TAB,    //htab_t*
     //built-int functions

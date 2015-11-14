@@ -80,7 +80,7 @@ htab_t *htab_init(unsigned int size);
 htab_t *htab_copy(htab_t *old_tab);
 
 /**
- * @brief vyhlada prvok v tabulke, ak tam nie je tak ho prida 
+ * @brief vyhlada prvok v tabulke 
  * @param tab hash tabulka
  * @param key prvok, ktory hladame
  * @return ukazatel na hladany prvok tabulky, ak nie je tak null         

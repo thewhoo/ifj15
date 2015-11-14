@@ -29,47 +29,30 @@ TVariable* token_to_const(TToken *token)
     TVariable* var = gmalloc(sizeof(TVariable));
     htab_item *tmp;
     
+    var->initialized = 1;
+    var->name = gmalloc(strlen(token->data) + 1);
+    strcpy(var->name, token->data);
+    
     if(token->type == TOKEN_STRING_VALUE)
     {
-        var->initialized = 1;
-        var->name = gmalloc(strlen(token->data) + 1);
-        strcpy(var->name, token->data);
         var->var_type = TYPE_STRING;
         var->data.str = var->name;
-        
-        if(htab_lookup(g_constTab, var->name) == NULL)
-        {
-            tmp = htab_insert(g_constTab, var->name);
-            tmp->data.variable = var;
-        }
     }
     else if(token->type == TOKEN_DOUBLE_VALUE)
     {
-        var->initialized = 1;
-        var->name = gmalloc(strlen(token->data) + 1);
-        strcpy(var->name, token->data);
         var->var_type = TYPE_DOUBLE;
         var->data.d = strtod(token->data, NULL);
-     
-        if(htab_lookup(g_constTab, var->name) == NULL)
-        {
-            tmp = htab_insert(g_constTab, var->name);
-            tmp->data.variable = var;
-        }
     }
     else if(token->type == TOKEN_INT_VALUE)
     {
-        var->initialized = 1;
-        var->name = gmalloc(strlen(token->data) + 1);
-        strcpy(var->name, token->data);
         var->var_type = TYPE_INT;
-        var->data.i = strtod(token->data, NULL);
-        
-        if(htab_lookup(g_constTab, var->name) == NULL)
-        {
-            tmp = htab_insert(g_constTab, var->name);
-            tmp->data.variable = var;
-        }
+        var->data.i = strtol(token->data, NULL);
+    }
+    
+    if(htab_lookup(g_constTab, var->name) == NULL)
+    {
+        tmp = htab_insert(g_constTab, var->name);
+        tmp->data.variable = var;
     }
     
     return var;

@@ -27,7 +27,7 @@
 
 typedef struct Stack
 {
-    void **data; 
+    void **data;
     int capacity;
     int used;
 } TStack;
@@ -37,7 +37,7 @@ typedef struct Stack
   *
   * Initializes an empty stack on heap with default size.
   *
-  * @return Pointer to initialized stack 
+  * @return Pointer to initialized stack
   */
 TStack* stack_init();
 
@@ -78,4 +78,12 @@ void* stack_top(TStack* stack);
   */
 int stack_empty(TStack* stack);
 
-#endif //STACk_H
+/**
+  * @brief Copy (duplicate) a stack
+  *
+  * @param *stack Pointer to the stack which you want to duplicate
+  * @return Pointer to the duplicate of the stack
+  */
+TStack *stack_copy(TStack *stack);
+
+#endif //STACK_H

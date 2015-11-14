@@ -70,6 +70,7 @@ void storeFuncName();
 void storeVarName();
 void storeFunction();
 void storeVariable();
+TVariable *findVariable();
 
 enum
 {
@@ -97,6 +98,28 @@ void storeNewVariable(TFunction *f, TVariable *v)
   htab_item *newVar = htab_insert(f->local_tab, v->name);
   newVar->data.variable = v;
 
+}
+
+// This will search the frame stack for the var and return it (returns NULL if the var is not found)
+TVariable *findVariable(char *name)
+{
+  // Create a copy of the global frame stack
+  TStack *fs = stack_copy(g_frameStack);
+
+  // Search all the frames for the variable
+  while(!stack_empty(fs))
+  {
+    TFunction *f = stack_top(fs);
+
+    htab_item *found = htab_lookup(f->local_tab, name);
+
+    if(found)
+      return found->data.variable;
+
+    stack_pop(fs);
+  }
+
+  return NULL;
 }
 
 TFunction *getNewFunction()
@@ -171,7 +194,7 @@ bool FUNCTION_DECL()
 
   TFunction *currentFunc = getNewFunction();
 
-  // Tell everyone we are currently in a new function
+  // Tell everyone we are currently in a new function (block)
   stack_push(g_frameStack, currentFunc);
 
 	// No valid data type detected --> Syntax error
@@ -202,7 +225,7 @@ bool FUNCTION_DECL()
 			token = get_token();
 
       // Process function block
-			if(!NESTED_BLOCK(func))
+			if(!NESTED_BLOCK())
         return false;
 
       // Store the complete function "object" in the global table
@@ -210,6 +233,8 @@ bool FUNCTION_DECL()
 		}
 	}
 
+  // Function has been processed, jump out of block
+	stack_pop(g_frameStack);
 
 	return true;
 }
@@ -259,7 +284,7 @@ bool DATA_TYPE(void *object, int type)
 	return true;
 }
 
-// NOTE: This function could be called with indirect recursion from FUNC_DECL_PARAMS_NEXT
+// NOTE: This function can and will be called with indirect recursion from FUNC_DECL_PARAMS_NEXT
 bool FUNC_DECL_PARAMS(TFunction *func)
 {
   // If an identifier arrives, we must create and store a new param variable
@@ -274,13 +299,12 @@ bool FUNC_DECL_PARAMS(TFunction *func)
       storeVarName(param);
 			token = get_token();
 
+      // Push param on stack
+      pushParam(func, param);
+
       // Process next param
 			if(!FUNC_DECL_PARAMS_NEXT(func))
         return false;
-
-      // Push the param on stack
-      // FUNC_DECL_PARAMS is called recursively, so the last param will be pushed first
-      pushParam(func, param);
 		}
     else
       return false;
@@ -311,14 +335,14 @@ bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
     return false;
 }
 
-bool NESTED_BLOCK(TFunction *func)
+bool NESTED_BLOCK()
 {
 	bool ret = false;
 
 	if (token->type == TOKEN_LCURLY_BRACKET)
 	{
 		token = get_token();
-		if(NBC(func))
+		if(NBC())
 		{
 			ret = (token->type == TOKEN_RCURLY_BRACKET);
 			token = get_token();
@@ -328,8 +352,8 @@ bool NESTED_BLOCK(TFunction *func)
 	return ret;
 }
 
-// TODO: FIX
-bool NBC(TFunction *func)
+// TODO: FIX THIS SHIT
+bool NBC()
 {
 
 	switch(token->type)
@@ -384,10 +408,8 @@ bool NBC(TFunction *func)
 	return ret;
 }
 
-bool DECL_OR_ASSIGN(TFunction *func)
+bool DECL_OR_ASSIGN()
 {
-	bool ret = false;
-	bool midway = true;
 
   // Received identifier, expecting declaration or declaration with assignment
 	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
@@ -407,6 +429,9 @@ bool DECL_OR_ASSIGN(TFunction *func)
         // Syntax error
         return false;
 
+      // The variable belongs to the function or block on top of the frame stack
+      TFunction *func = stack_top(g_frameStack);
+
       // Store variable in function symbol table
       storeNewVariable(func, var);
 
@@ -415,29 +440,55 @@ bool DECL_OR_ASSIGN(TFunction *func)
     // Syntax error
     else
       return false;
+
+    return true;
 	}
+
+  // Received auto, declaration must contain an assignment
 	else if (token->type == TOKEN_AUTO)
 	{
-		token = get_token();
-		if (token->type == TOKEN_IDENTIFIER)
-			token = get_token();
-		else
-			midway = false;
+    // Create new variable "object"
+    TVariable *var = getNewVariable();
 
+		token = get_token();
+
+		if (token->type == TOKEN_IDENTIFIER)
+    {
+      storeVarName(var);
+      token = get_token();
+    }
+    // Syntax error
+		else
+			return false;
+
+    // There must be an assignment
 		if (token->type == TOKEN_ASSIGN)
 		{
 			token = get_token();
 			CALL_EXPR();
 		}
+    // Syntax error
 		else
-			midway = false;
+			return false;
 
-		ret = (token->type == TOKEN_SEMICOLON);
-		token = get_token();
+    // Syntax error
+		if(!(token->type == TOKEN_SEMICOLON))
+      return false;
 
+    // The variable belongs to the function or block on top of the frame stack
+    TFunction *func = stack_top(g_frameStack);
+
+    // Store variable in function symbol table
+    storeNewVariable(func, var);
+
+    token = get_token();
+
+    return true;
 	}
 
-	return ret && midway;
+  // Received unexpected token, syntax error
+	return false;
+
 }
 
 bool DECL_ASSIGN(TVariable *v)
@@ -462,26 +513,36 @@ bool DECL_ASSIGN(TVariable *v)
 
 bool FCALL_OR_ASSIGN()
 {
-	bool ret = false;
 
 	if(token->type == TOKEN_IDENTIFIER)
 	{
-		token = get_token();
-		ret = FOA_PART2();
-	}
+    // We have to store the identifier value, but we dont know if it belongs to a variable or a function yet
+    char *tmp = token->data;
 
-	return ret;
+		token = get_token();
+		ret = FOA_PART2(tmp);
+	}
+  else
+  // Syntax error
+	return false;
+
 }
 
-bool FOA_PART2()
+bool FOA_PART2(char *name)
 {
-	bool ret = false;
 
+  // This means we will be calling a function
 	if(token->type == TOKEN_LROUND_BRACKET)
 	{
 		token = get_token();
-		if(FUNCTION_CALL_PARAMS() && token->type == TOKEN_RROUND_BRACKET)
+
+    // Declare a new param stack
+    TStack *passedParams = stack_init();
+
+    // FUNCTION_CALL_PARAMS will push calling params on the stack
+		if(FUNCTION_CALL_PARAMS(passedParams) && token->type == TOKEN_RROUND_BRACKET)
 		{
+
 			token = get_token();
 			ret = (token->type == TOKEN_SEMICOLON);
 			token = get_token();
@@ -507,8 +568,13 @@ bool HARD_VALUE()
 
 bool FUNCTION_CALL_PARAMS()
 {
-	bool ret = false;
 
+  // If the param is an identifier, find the corresponding variable
+  if(token->type == TOKEN_IDENTIFIER)
+  {
+    TVariable *var =
+  }
+  //
 	if(token->type == TOKEN_IDENTIFIER || token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE)
 	{
 		ret = FUNCTION_CALL_PARAM() && FUNCTION_CALL_PARAMS_NEXT();

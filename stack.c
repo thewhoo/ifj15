@@ -27,17 +27,28 @@ TStack* stack_init()
 {
     TStack *stack = gmalloc(sizeof(TStack));
     stack->data = gmalloc(DEFAULT_STACK_SIZE * sizeof(void *));
-    
+
     stack->capacity = DEFAULT_STACK_SIZE;
     stack->used = 0;
 
     return stack;
 }
 
+TStack* stack_copy(TStack *s)
+{
+  TStack *sNew = gmalloc(sizeof(TStack));
+  sNew->data = gmalloc(sizeof(void *) * s->capacity);
+
+  for(int i = 0; i < s->used; i++)
+    sNew->data[i] = s->data[i];
+
+  return sNew;
+}
+
 void stack_free(TStack* stack)
 {
-    gfree(stack->data); 
-    gfree(stack);   
+    gfree(stack->data);
+    gfree(stack);
 }
 
 int stack_push(TStack* stack, void* item)
@@ -45,12 +56,12 @@ int stack_push(TStack* stack, void* item)
     if(stack->capacity <= stack->used)
     {
         stack->data = grealloc(stack->data,
-                 sizeof(void *) * stack->capacity * AUTORESIZE_COEF);    
+                 sizeof(void *) * stack->capacity * AUTORESIZE_COEF);
         stack->capacity = stack->capacity * AUTORESIZE_COEF;
     }
 
     stack->data[stack->used] = item;
-    (stack->used)++;             
+    (stack->used)++;
 
     return 0;
 }
@@ -66,7 +77,7 @@ void* stack_top(TStack *stack)
     if(stack->used > 0)
         return stack->data[stack->used - 1];
     else
-        return NULL; 
+        return NULL;
 }
 
 int stack_empty(TStack *stack)

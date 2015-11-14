@@ -27,12 +27,12 @@ TVariable* token_to_var(TToken *token)
 {
     TVariable* var = gmalloc(sizeof(TVariable));
 
-    
+
     if (token->type == TOKEN_IDENTIFIER)
     {
         var->initialized = 0;
         var->name = gmalloc(strlen(token->data) + 1);
-        strcpy(var->name, token->data);   
+        strcpy(var->name, token->data);
     }
     else if(token->type == TOKEN_STRING_VALUE)
     {
@@ -58,7 +58,7 @@ TVariable* token_to_var(TToken *token)
         var->var_type = TYPE_INT;
         var->data.i = strtod(token->data, NULL);
     }
-    
+
     return var;
 }
 

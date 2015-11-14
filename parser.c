@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "parser.h"
 #include "adt.h"
 #include "lex.h"
@@ -23,13 +24,13 @@
 #include "error.h"
 #include "stack.h"
 #include "ial.h"
+#include "ilist.h"
 #include "shared.h"
+#include "interpret.h"
 
 #define LOCALTAB_DEFAULT_SIZE 20
 
 TToken* token;
-TFunction currentFunction;
-TVariable currentVariable;
 
 // Forward declarations of "rule" functions
 bool PROG();
@@ -62,8 +63,13 @@ bool FOR_EXPR();
 bool FOR_ASSIGN();
 bool RETURN();
 void CALL_EXPR();
-void initializeCurrentFunction();
-void initializeCurrentVariable();
+TFunction *getNewFunction();
+TVariable *getNewVariable();
+void pushParam();
+void storeFuncName();
+void storeVarName();
+void storeFunction();
+void storeVariable();
 
 enum
 {
@@ -71,18 +77,73 @@ enum
 	T_VAR
 };
 
-void initializeCurrentFunction()
+void storeFunction(TFunction *f)
 {
-	currentFunction.name = NULL;
-	currentFunction.return_type = 0;
-	currentFunction.defined = 0;
-	currentFunction.ins_list = NULL;
-	currentFunction.local_tab = htab_init(LOCALTAB_DEFAULT_SIZE); 
-	currentFunction.params_stack = stack_init();
+  // Check for redeclaration of function
+  if(htab_lookup(g_globalTab, f->name))
+     exit_error(E_SEMANTIC_DEF);
+
+  htab_item *newFunc = htab_insert(g_globalTab, f->name);
+  newFunc->data.function = f;
+
 }
 
-void initializeCurrentVariable()
+void storeNewVariable(TFunction *f, TVariable *v)
 {
+  // Check for redeclaration
+  if(htab_lookup(f->local_tab, v->name))
+    exit_error(E_SEMANTIC_DEF);
+
+  htab_item *newVar = htab_insert(f->local_tab, v->name);
+  newVar->data.variable = v;
+
+}
+
+TFunction *getNewFunction()
+{
+  TFunction *f = gmalloc(sizeof(TFunction));
+
+	f->name = NULL;
+	f->return_type = 0;
+	f->defined = 0;
+	f->ins_list = list_init();
+	f->local_tab = htab_init(LOCALTAB_DEFAULT_SIZE);
+	f->params_stack = stack_init();
+
+  return f;
+}
+
+TVariable *getNewVariable()
+{
+  TVariable *v = gmalloc(sizeof(TVariable));
+
+  v->var_type = 0;
+  v->name = NULL;
+  v->initialized = 0;
+
+  return v;
+}
+
+void pushParam(TFunction *f, TVariable *p)
+{
+  stack_push(f->params_stack, p);
+}
+
+void storeVarValue(TVariable *v)
+{
+
+}
+
+void storeFuncName(TFunction *f)
+{
+  f->name = gmalloc(strlen(token->data) + 1);
+  strcpy(f->name, token->data);
+}
+
+void storeVarName(TVariable *v)
+{
+  v->name = gmalloc(strlen(token->data) + 1);
+  strcpy(v->name, token->data);
 }
 
 void CALL_EXPR()
@@ -92,79 +153,100 @@ void CALL_EXPR()
 // Definitions of "rule" functions
 bool PROG()
 {
-	bool ret = false;
 
+  // We need a function declaration or nothing
 	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
-	{
-		ret = FUNCTION_DECL() && PROG();
-	}
-	else if (token->type == TOKEN_EOF)
-	{
-		ret = true;
-	}
+		return FUNCTION_DECL() && PROG();
 
-	return ret;
+	else if (token->type == TOKEN_EOF)
+		return true;
+
+  // Syntax error
+	return false;
+
 }
 
 bool FUNCTION_DECL()
-{	
-	// No valid data type detected -> Syntax error
-	if(!DATA_TYPE(T_FUNC))
+{
+
+  TFunction *currentFunc = getNewFunction();
+
+  // Tell everyone we are currently in a new function
+  stack_push(g_frameStack, currentFunc);
+
+	// No valid data type detected --> Syntax error
+	if(!DATA_TYPE(currentFunc, T_FUNC))
 		return false;
-		
+
+  // Store the name
 	if (token->type == TOKEN_IDENTIFIER)
 	{
-		currentFunction.name = token->data; 
+		storeFuncName(currentFunc);
 		token = get_token();
 	}
 	// Syntax error
 	else
 		return false;
-			
+
 	if (token->type == TOKEN_LROUND_BRACKET)
 		token = get_token();
 	// Syntax error
 	else
 		return false;
 
-	if(FUNC_DECL_PARAMS())
+  // If all params were processed, process the function block
+	if(FUNC_DECL_PARAMS(currentFunc))
 	{
 		if (token->type == TOKEN_RROUND_BRACKET)
 		{
 			token = get_token();
-			ret = NESTED_BLOCK();
+
+      // Process function block
+			if(!NESTED_BLOCK(func))
+        return false;
+
+      // Store the complete function "object" in the global table
+      storeFunction(currentFunc);
 		}
 	}
-		
 
-	return ret && midway;
+
+	return true;
 }
 
 // Detect and store the data type of the new function/variable
-bool DATA_TYPE(int type)
+bool DATA_TYPE(void *object, int type)
 {
+  TFunction *f = NULL;
+  TVariable *v = NULL;
+
+  if(type == T_VAR)
+    v = object;
+  else
+    f = object;
+
 	// Add the data type to the currently processed function/variable
 	switch(token->type)
 	{
 		case TOKEN_INT:
 			if (type == T_VAR)
-				currentVariable.var_type = TYPE_INT;
+				v->var_type = TYPE_INT;
 			else
-				currentFunction.return_type = TYPE_INT;
+				f->return_type = TYPE_INT;
 			break;
 
 		case TOKEN_DOUBLE:
 			if (type == T_VAR)
-				currentVariable.var_type = TYPE_DOUBLE;
+				v->var_type = TYPE_DOUBLE;
 			else
-				currentFunction.return_type = TYPE_DOUBLE;
+				f->return_type = TYPE_DOUBLE;
 			break;
 
 		case TOKEN_STRING:
 			if (type == T_VAR)
-				currentVariable.var_type = TYPE_STRING;
+				v->var_type = TYPE_STRING;
 			else
-				currentFunction.return_type = TYPE_STRING;
+				f->return_type = TYPE_STRING;
 			break;
 
 		// Syntax error
@@ -177,51 +259,66 @@ bool DATA_TYPE(int type)
 	return true;
 }
 
-bool FUNC_DECL_PARAMS()
+// NOTE: This function could be called with indirect recursion from FUNC_DECL_PARAMS_NEXT
+bool FUNC_DECL_PARAMS(TFunction *func)
 {
-	bool ret = false;
-
-	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
+  // If an identifier arrives, we must create and store a new param variable
+	if(token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
 	{
-		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
+    TVariable *param = getNewVariable();
+
+    // Record the data type of the new param, then proceed
+		if(DATA_TYPE(param, T_VAR) && token->type == TOKEN_IDENTIFIER)
 		{
+      // Record the name of the param
+      storeVarName(param);
 			token = get_token();
-			ret = FUNC_DECL_PARAMS_NEXT();
-		}
-	}
-	else if (token->type == TOKEN_RROUND_BRACKET)
-	{
-		ret = true;
-	}
 
-	return ret;
+      // Process next param
+			if(!FUNC_DECL_PARAMS_NEXT(func))
+        return false;
+
+      // Push the param on stack
+      // FUNC_DECL_PARAMS is called recursively, so the last param will be pushed first
+      pushParam(func, param);
+		}
+    else
+      return false;
+
+  }
+
+  // No more params, all good
+  else if(token->type == TOKEN_RROUND_BRACKET)
+    return true;
+
+  return false;
+
 }
 
-bool FUNC_DECL_PARAMS_NEXT()
+bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
 {
-	bool ret = false;
-
+  // Next param must start with comma if it exists
 	if (token->type == TOKEN_COMMA)
 	{
 		token = get_token();
-		ret = FUNC_DECL_PARAMS();
-	}
-	else if (token->type == TOKEN_RROUND_BRACKET)
-	{
-		ret = true;
+		return FUNC_DECL_PARAMS(func);
 	}
 
-	return ret;
+	else if (token->type == TOKEN_RROUND_BRACKET)
+		return true;
+
+  else
+    return false;
 }
 
-bool NESTED_BLOCK()
+bool NESTED_BLOCK(TFunction *func)
 {
 	bool ret = false;
 
 	if (token->type == TOKEN_LCURLY_BRACKET)
 	{
 		token = get_token();
-		if(NBC())
+		if(NBC(func))
 		{
 			ret = (token->type == TOKEN_RCURLY_BRACKET);
 			token = get_token();
@@ -231,19 +328,18 @@ bool NESTED_BLOCK()
 	return ret;
 }
 
-bool NBC()
+// TODO: FIX
+bool NBC(TFunction *func)
 {
-	bool ret = false;
-	
+
 	switch(token->type)
 	{
 		case TOKEN_AUTO:
 		case TOKEN_INT:
 		case TOKEN_DOUBLE:
 		case TOKEN_STRING:
-			ret = DECL_OR_ASSIGN() && NBC();
-			break;
-		
+			return DECL_OR_ASSIGN(func) && NBC(func);
+
 		case TOKEN_IDENTIFIER:
 			ret = FCALL_OR_ASSIGN() && NBC();
 			break;
@@ -288,22 +384,37 @@ bool NBC()
 	return ret;
 }
 
-bool DECL_OR_ASSIGN()
+bool DECL_OR_ASSIGN(TFunction *func)
 {
 	bool ret = false;
 	bool midway = true;
 
+  // Received identifier, expecting declaration or declaration with assignment
 	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
 	{
-		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
+    // Create new variable "object"
+    TVairable *var = getNewVariable();
+
+    // Store data type in variable object
+		if(DATA_TYPE(var, T_VAR) && token->type == TOKEN_IDENTIFIER)
 		{
+      // Store variable name
+      storeVarName(var);
 			token = get_token();
-			if(DECL_ASSIGN())
-			{
-				ret = (token->type == TOKEN_SEMICOLON);
-				token = get_token();
-			}
+
+      // Process assignment
+			if(!(DECL_ASSIGN(var) && token->type == TOKEN_SEMICOLON))
+        // Syntax error
+        return false;
+
+      // Store variable in function symbol table
+      storeNewVariable(func, var);
+
+      token = get_token();
 		}
+    // Syntax error
+    else
+      return false;
 	}
 	else if (token->type == TOKEN_AUTO)
 	{
@@ -312,7 +423,7 @@ bool DECL_OR_ASSIGN()
 			token = get_token();
 		else
 			midway = false;
-		
+
 		if (token->type == TOKEN_ASSIGN)
 		{
 			token = get_token();
@@ -329,22 +440,24 @@ bool DECL_OR_ASSIGN()
 	return ret && midway;
 }
 
-bool DECL_ASSIGN()
+bool DECL_ASSIGN(TVariable *v)
 {
-	bool ret = false;
-
+  // We must initialize the variable
 	if(token->type == TOKEN_ASSIGN)
 	{
 		token = get_token();
 		CALL_EXPR();
 		ret = true;
 	}
+
+  // Variable was only declared, not initialized
 	else if(token->type == TOKEN_SEMICOLON)
 	{
-		ret = true;
+		v->initialized = false;
+    return true;
 	}
 
-	return ret;
+	return false;
 }
 
 bool FCALL_OR_ASSIGN()
@@ -489,14 +602,14 @@ bool IF_STATEMENT()
 bool ELSE_STATEMENT()
 {
 	bool ret = false;
-	
+
 	switch(token->type)
 	{
 		case TOKEN_ELSE:
 			token = get_token();
 			ret = NESTED_BLOCK();
 			break;
-		
+
 		case TOKEN_AUTO:
 		case TOKEN_INT:
 		case TOKEN_DOUBLE:
@@ -573,12 +686,12 @@ bool CIN()
 {
 	bool ret = false;
 	bool midway = true;
-	
+
 	if(token->type == TOKEN_CIN)
 		token = get_token();
 	else
 		midway = false;
-	
+
 	if(token->type == TOKEN_CIN_BRACKET)
 		token = get_token();
 	else
@@ -634,7 +747,7 @@ bool FOR_STATEMENT()
 bool FOR_DECLARATION()
 {
 	bool ret = false;
-	
+
 	if(token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
 	{
 		if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
@@ -710,7 +823,7 @@ void parse()
 {
 	htab_t *g_constTab = htab_init(CONSTTAB_INITIAL_SIZE);
 	htab_t *g_globalTab = htab_init(GLOBALTAB_INITIAL_SIZE);
-	stack_t *g_frameStack = stack_init();
+	TStack *g_frameStack = stack_init();
 
 	token = get_token();
 	if(PROG())

@@ -227,11 +227,6 @@ void test_lex_escape()
     do
     {
        token = get_token();
-       var = token_to_var(token);
-       printf("double var: %d, %s, %d, %g\n", var->var_type, var->name, var->initialized,
-               var->data.d);
-       f = token_to_function(token); 
-       printf("func: %s, %d\n", f->name, f->defined);
        printf("token: %s\n", token->data);
 
     } while(token->type != TOKEN_EOF);

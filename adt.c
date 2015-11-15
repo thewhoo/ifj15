@@ -46,7 +46,7 @@ TVariable* token_to_const(TToken *token)
     else if(token->type == TOKEN_INT_VALUE)
     {
         var->var_type = TYPE_INT;
-        var->data.i = strtol(token->data, NULL);
+        var->data.i = strtol(token->data, NULL, 10);
     }
     
     if(htab_lookup(g_constTab, var->name) == NULL)

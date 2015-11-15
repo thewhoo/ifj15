@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "adt.h"
 #include "builtin.h"
@@ -49,7 +50,8 @@ TVariable* get_var(char *address)
 void clean_active_frame()
 {
     for(int i = active_frame->used - 1; i>=0; i--)
-        htab_free(active_frame[i]);
+        htab_free((htab_t*)active_frame->data[i]);
+    gfree(active_frame->data);
     gfree(active_frame);
 }
 
@@ -194,8 +196,8 @@ void map_params(htab_t *tab, TStack* decl_params)
 
     for(int i=0; i<decl_params->used; i++)
     {
-        param = htab_lookup(tab, decl_params[i]->name);
-        memcpy(param, fparams_stack[i], sizeof(TVariable));
+        param = htab_lookup(tab, ((TVariable*) decl_params->data[i])->name);
+        memcpy(param, fparams_stack->data[i], sizeof(TVariable));
     }
 }
 
@@ -206,7 +208,7 @@ void interpret_loop(Tins_list *ins_list)
     char* str;
     TVariable *var1, *var2, *var3;
     htab_item *func;
-    htab_t *new_tab;
+    htab_t *new_tab = NULL;
 
     TList_item *ins = ins_list->first;
 
@@ -253,11 +255,11 @@ void interpret_loop(Tins_list *ins_list)
                 break;
 
             case(INS_PUSH):
-                if(!ins-addr1->initialized)
-                    exit_exrror(E_UNINITIALIZED);
+                if(!((TVariable *)ins->addr1)->initialized)
+                    exit_error(E_UNINITIALIZED);
                 //pushnem premennu, ale z mojich tabuliek symbolov
                 //v parametri ins je z originalnych tab. premenna
-                stack_push(fparams_stack, get_var(ins->addr1->name);
+                stack_push(fparams_stack, get_var(((TVariable*)ins->addr1)->name));
                 break;
 
             case(INS_CALL):
@@ -265,17 +267,18 @@ void interpret_loop(Tins_list *ins_list)
                 stack_push(gStack, ins);
 
                 func = (htab_item*)ins->addr1;
-                ins = func->ins_list->first;
+                ins = func->data.function->ins_list->first;
                 active_frame = gmalloc(sizeof(TStack));
                 htab_t *new_tab = htab_copy(func->data.function->local_tab);
                 stack_push(active_frame, new_tab);
-                map_params(new_tab, func->params_stack);
+                map_params(new_tab, func->data.function->params_stack);
                 //map pushed f arguments to f parameters
                 continue; //after break, continue with new isntr, we want to
                           //begin with first one
             case(INS_RET):
-                if(stack_empty(gStack) //end of main func
-                    exit(0); //maybe some cleaning?
+                if(stack_empty(gStack))  //end of main func
+                    exit(0);            //maybe some cleaning?
+                
                 clean_active_frame();
                 ins = (TList_item*) stack_top(gStack);
                 stack_pop(gStack);

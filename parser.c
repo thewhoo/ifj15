@@ -32,6 +32,8 @@
 
 TToken* token;
 
+// TODO: Clean this up!
+
 // Forward declarations of "rule" functions
 bool PROG();
 bool FUNCTION_DECL();
@@ -62,7 +64,9 @@ bool FOR_DECLARATION();
 bool FOR_EXPR();
 bool FOR_ASSIGN();
 bool RETURN();
+//TEMP:
 void CALL_EXPR();
+
 TFunction *getNewFunction();
 TVariable *getNewVariable();
 void pushParam();
@@ -71,12 +75,65 @@ void storeVarName();
 void storeFunction();
 void storeVariable();
 TVariable *findVariable();
+void storeNewConstant();
+void insFunctionCall();
 
 enum
 {
 	T_FUNC,
 	T_VAR
 };
+
+// Instruction functions
+
+void insFunctionCall(char *name, TStack *callParams)
+{
+  // The instruction will be added to the currently processed function
+  TFunction *fCurrent = stack_top(g_frameStack);
+
+  // Get the pointer to the function being called
+  TFunction *fCalled = htab_lookup(g_globalTab, name);
+
+  if(fCalled == NULL)
+    // Semantic error - called function has not been defined
+    exit_error(E_SEMANTIC_DEF);
+
+  // Duplicate param stack of fCalled
+  TStack *expectParams = stack_copy(fCalled->params_stack);
+
+  // Do a semantic check of the call params
+  TVariable *paramPassed;
+  TVariable *paramExpected;
+
+  while(!stack_empty(callParams) && !stack_empty(expectParams))
+  {
+    paramPassed = stack_top(params);
+    paramExpected = stack_top(fCalled->params_stack);
+
+    if((paramPassed->var_type == paramExpected->var_type) && paramPassed->initialized)
+    {
+      stack_pop(callParams);
+      stack_pop(expectParams);
+    }
+    else if (!(paramPassed->initialized))
+      // Semantic error - param is not initialized
+      exit_error(E_UNINITIALIZED);
+    else
+      // Semantic error - param type mismatch
+      exit_error(E_SEMANTIC_TYPES);
+  }
+
+  // If both stacks are empty, the correct number of params has been passed
+  if(stack_empty(callParams) && stack_empty(expectParams))
+  {
+    // TODO: add jmp instruction to current func
+  }
+  else
+    // Semantic error - incorrect number of params passed
+    exit_error(E_SEMANTIC_OTHERS);
+}
+
+// End of instruction functions
 
 void storeFunction(TFunction *f)
 {
@@ -97,6 +154,17 @@ void storeNewVariable(TFunction *f, TVariable *v)
 
   htab_item *newVar = htab_insert(f->local_tab, v->name);
   newVar->data.variable = v;
+
+}
+
+void storeNewConstant(TVariable *c)
+{
+  // Check if the constant already has an entry
+  if(htab_lookup(g_constTab, c->name)
+     return;
+
+  htab_item *newConst = htab_insert(g_constTab, c->name);
+  newConst->data.variable = c;
 
 }
 
@@ -530,7 +598,6 @@ bool FCALL_OR_ASSIGN()
 
 bool FOA_PART2(char *name)
 {
-
   // This means we will be calling a function
 	if(token->type == TOKEN_LROUND_BRACKET)
 	{
@@ -542,10 +609,19 @@ bool FOA_PART2(char *name)
     // FUNCTION_CALL_PARAMS will push calling params on the stack
 		if(FUNCTION_CALL_PARAMS(passedParams) && token->type == TOKEN_RROUND_BRACKET)
 		{
+      // Generate 3AC for the function call
+      insFunctionCall(name, passedParams);
 
 			token = get_token();
-			ret = (token->type == TOKEN_SEMICOLON);
-			token = get_token();
+
+			if(token->type == TOKEN_SEMICOLON)
+      {
+        token = get_token();
+        return true;
+      }
+      // Syntax error
+      else
+        return false;
 		}
 	}
 	else if (token->type == TOKEN_ASSIGN)
@@ -559,66 +635,118 @@ bool FOA_PART2(char *name)
 	return ret;
 }
 
-bool HARD_VALUE()
+bool HARD_VALUE(TVariable **v)
 {
-	bool ret = (token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE);
-	token = get_token();
-	return ret;
+  // If we get a magic value, add to constants table if its not already there
+	if (token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE)
+  {
+    // New constant
+    TVariable *var = getNewVariable();
+
+    // Set constant properties
+    switch(token->type)
+    {
+      case TOKEN_INT_VALUE:
+        var->var_type = TYPE_INT;
+        var->name = gmalloc(strlen(token->data) + 1);
+        strcpy(var->name, token->data);
+        var->data.i = strtod(token->data, NULL);
+        break;
+      case TOKEN_DOUBLE_VALUE:
+        var->var_type = TYPE_DOUBLE;
+        var->name = gmalloc(strlen(token->data) + 1);
+        strcpy(var->name, token->data);
+        var->data.d = strtod(token->data, NULL);
+        break;
+      case TOKEN_STRING_VALUE:
+        var->var_type = TYPE_STRING;
+        var->name = gmalloc(strlen(token->data) + 1);
+        strcpy(var->name, token->data);
+        var->data.str = var->name;
+        break;
+    }
+    var->initialized = true;
+
+    // Add constant to constant table
+    storeNewConstant(var);
+
+    // Pass pointer to constant to caller
+    v = var;
+
+    token = get_token();
+
+    return true;
+
+  }
+  // Syntax error
+  else
+    return false;
+
 }
 
-bool FUNCTION_CALL_PARAMS()
+bool FUNCTION_CALL_PARAMS(TStack *params)
 {
-
-  // If the param is an identifier, find the corresponding variable
-  if(token->type == TOKEN_IDENTIFIER)
-  {
-    TVariable *var =
-  }
-  //
+  // If there are any params, process them
 	if(token->type == TOKEN_IDENTIFIER || token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE)
 	{
-		ret = FUNCTION_CALL_PARAM() && FUNCTION_CALL_PARAMS_NEXT();
+		return FUNCTION_CALL_PARAM(params) && FUNCTION_CALL_PARAMS_NEXT(params);
 	}
+
+  // No params, all good
 	else if (token->type == TOKEN_RROUND_BRACKET)
 	{
-		ret = true;
+		return true;
 	}
 
-	return ret;
+  // Syntax error
+	return false;
 }
 
-bool FUNCTION_CALL_PARAM()
+bool FUNCTION_CALL_PARAM(TStack *params)
 {
-	bool ret = false;
+	// If the param is an identifier, fetch the corresponding variable
+  if(token->type == TOKEN_IDENTIFIER)
+  {
+    TVariable *var = findVariable(token->data);
+    // If the variable was not found, a semantic error has occured
+    if(var == NULL)
+      exit_error(E_SEMANTIC_DEF);
+    // If we found the variable, push it on the call param stack
+    stack_push(params, var);
+  }
 
-	if(token->type == TOKEN_IDENTIFIER)
-	{
-		token = get_token();
-		ret = true;
-	}
+  // If the param is a magic value, add it to constants table and get a pointer to it
 	else
 	{
-		ret = HARD_VALUE();
+		TVariable **value;
+
+    if(HARD_VALUE(value))
+    {
+      // Push the constant on the call param stack
+      stack_push(params, *value);
+      return true;
+    }
+    // Syntax error
+    else
+      return false;
 	}
 
-	return ret;
 }
 
-bool FUNCTION_CALL_PARAMS_NEXT()
+bool FUNCTION_CALL_PARAMS_NEXT(TStack *params)
 {
-	bool ret = false;
-
+  // Get rid of the comma, process next param
 	if(token->type == TOKEN_COMMA)
 	{
 		token = get_token();
-		ret = FUNCTION_CALL_PARAMS();
+		return FUNCTION_CALL_PARAMS(params);
 	}
+  // No more params, all good
 	else if (token->type == TOKEN_RROUND_BRACKET)
-	{
-		ret = true;
-	}
+    return true;
 
-	return ret;
+  // Syntax error
+	return false;
 }
 
 bool BUILTIN_CALL()

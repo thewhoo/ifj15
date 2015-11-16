@@ -88,15 +88,20 @@ enum
 
 void insFunctionCall(char *name, TStack *callParams)
 {
+/* this will not be used
   // The instruction will be added to the currently processed function
-  TFunction *fCurrent = stack_top(g_frameStack);
+  TFunction *fCurrent;
+  fCurrent = stack_top(g_frameStack);
 
   // Get the pointer to the function being called
-  TFunction *fCalled = htab_lookup(g_globalTab, name);
+  TFunction *fCalled;
+  htab_item *calledItem = htab_lookup(g_globalTab, name);
 
-  if(fCalled == NULL)
+  if(calledItem == NULL)
     // Semantic error - called function has not been defined
     exit_error(E_SEMANTIC_DEF);
+
+  fCalled = calledItem->data.function;
 
   // Duplicate param stack of fCalled
   TStack *expectParams = stack_copy(fCalled->params_stack);
@@ -107,7 +112,7 @@ void insFunctionCall(char *name, TStack *callParams)
 
   while(!stack_empty(callParams) && !stack_empty(expectParams))
   {
-    paramPassed = stack_top(params);
+    paramPassed = stack_top(callParams);
     paramExpected = stack_top(fCalled->params_stack);
 
     if((paramPassed->var_type == paramExpected->var_type) && paramPassed->initialized)
@@ -131,6 +136,7 @@ void insFunctionCall(char *name, TStack *callParams)
   else
     // Semantic error - incorrect number of params passed
     exit_error(E_SEMANTIC_OTHERS);
+    */
 }
 
 // End of instruction functions
@@ -160,7 +166,7 @@ void storeNewVariable(TFunction *f, TVariable *v)
 void storeNewConstant(TVariable *c)
 {
   // Check if the constant already has an entry
-  if(htab_lookup(g_constTab, c->name)
+  if(htab_lookup(g_constTab, c->name))
      return;
 
   htab_item *newConst = htab_insert(g_constTab, c->name);

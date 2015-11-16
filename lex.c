@@ -425,10 +425,12 @@ TToken* get_token()
 			{
 				state = S_ESCAPE;
 			}
-			else
+			else if(c > 31)
 			{
 				insertIntoString(&buffer, c);
 			}
+            else
+                state = S_ERROR
 		   break;
 
 //****************************************************

@@ -434,7 +434,7 @@ TToken* get_token()
 				insertIntoString(&buffer, c);
 			}
             else
-                state = S_ERROR
+                state = S_ERROR;
 		   break;
 
 //****************************************************

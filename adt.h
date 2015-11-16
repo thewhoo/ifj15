@@ -37,6 +37,7 @@ typedef struct s_variable
     int var_type;
     char *name;
     int initialized;
+    int constant;
     union 
     {
         int i;

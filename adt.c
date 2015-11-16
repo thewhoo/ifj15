@@ -30,6 +30,7 @@ TVariable* token_to_const(TToken *token)
     htab_item *tmp;
     
     var->initialized = 1;
+    var->constant = 1;
     var->name = gmalloc(strlen(token->data) + 1);
     strcpy(var->name, token->data);
     

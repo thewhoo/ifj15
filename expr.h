@@ -16,9 +16,6 @@
 /**
   * @file expr.h
   * @brief Expression library
-  *
-  * Tadlenc vìc je pro vyhodnocování výrazù
-  *
   */
 
 #ifndef EXPR_H
@@ -41,10 +38,14 @@ typedef enum {
 } ex_operator;
 
 /**
-  * @brief Funkce pro vyhodnocovani vyrazu
+  * @brief Zpracovani vyrazu
   *
-  *  Bude mit dva parametry, navratovou promennou a aktualniho instrukcniho listu
+  * Funkce pro zpracovani vyrazu, generuje instrukce a vraci rizeni
+  *
+  * @param variable_toilet Ukazatel na promennou pro prirazeni vysledku vyrazu
+  * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
-void expression();
+void expression(TVariable* variable_toilet, Tins_list* list_toilet);
 
 #endif //EXPR_H
+

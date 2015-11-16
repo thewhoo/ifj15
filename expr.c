@@ -29,7 +29,7 @@
 #define HI 2
 #define ER 3
 
-void expression();
+void expression(TVariable* variable_toilet, Tins_list* list_toilet);
 void generate_code(TToken* tok);
 int expr_end(TToken* tok);
 int token_to_pos(int n);
@@ -61,7 +61,7 @@ const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 TStack* expr_stack; /* INFIX->POSTFIX stack*/
 TStack* gene_stack; /* Stack for instruction generating */
 
-void expression()
+void expression(TVariable* variable_toilet, Tins_list* list_toilet)
 {
 	TToken* token_act; /* Token from lexer */
 	TToken* token_top; /* Token from expr_stack */
@@ -196,7 +196,7 @@ int expr_end(TToken* tok)
 	return stoper;
 }
 
-/* vrcho zásobníku menší prioritu než vstupní token */
+/* vrchol zásobníku menší prioritu než vstupní token */
 /* x_type vstupní token, y_type vrchol zásobníku*/
 int stack_lower_prio(int x_type, int y_type)
 {

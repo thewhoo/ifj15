@@ -1,16 +1,31 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -g -std=c99
-TARGET=ifj
+PROJECT=ifj
 TEST=ifj_test
 
-all: clean $(TARGET)
+TEST_FILE = main_test.c
+TEST_OBJ_FILES = $(filter-out main.o, $(patsubst %.c, %.o, $(wildcard *.c)))
+
+SRC_FILES = $(filter-out $(TEST_FILE), $(wildcard *.c))
+HEADER_FILES = $($(wildcard *.h))
+OBJ_FILES = $(patsubst %.c, %.o, $(SRC_FILES))
+
+.PHONY: all test pack clean
+
+all: clean $(PROJECT)
 test: clean $(TEST)
 
-$(TARGET): *.c *.h
-	$(CC) $(CFLAGS) -o $(TARGET) adt.c lex.c error.c galloc.c ial.c ilist.c interpret.c main.c parser.c stack.c string.c builtin.c
+$(PROJECT): $(OBJ_FILES)
+	$(CC) $(CFLAGS) $^ -o $(PROJECT)
 
-$(TEST): *.c *.h
-	$(CC) $(CFLAGS) -o $(TEST)  adt.c lex.c error.c galloc.c ial.c ilist.c interpret.c main_test.c parser.c stack.c string.c builtin.c
+$(TEST): $(TEST_OBJ_FILES)
+	$(CC) $(CFLAGS) $^ -o $(TEST)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+pack:
+	tar -czf xposto02.tgz $(SRC_FILES) $(HEADER_FILES) Makefile
 
 clean:
-	$(RM) $(TARGET) $(TEST)
+	$(RM) $(PROJECT) $(TEST) $(OBJ_FILES) $(TEST_OBJ_FILES)

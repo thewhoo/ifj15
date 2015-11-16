@@ -659,7 +659,7 @@ void parse()
 {
 	htab_t *g_constTab = htab_init(CONSTTAB_INITIAL_SIZE);
 	htab_t *g_globalTab = htab_init(GLOBALTAB_INITIAL_SIZE);
-	stack_t *g_frameStack = stack_init();
+	TStack *g_frameStack = stack_init();
 
 	token = get_token();
 	if(PROG())

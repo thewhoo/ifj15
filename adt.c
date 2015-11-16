@@ -54,7 +54,7 @@ TVariable* token_to_const(TToken *token)
         tmp = htab_insert(g_constTab, var->name);
         tmp->data.variable = var;
     }
-    
+
     return var;
 }
 

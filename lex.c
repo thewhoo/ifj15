@@ -203,6 +203,7 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_INT_VALUE;
+	            token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -241,6 +242,7 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_DOUBLE_VALUE;
+	            token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -285,6 +287,7 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				ungetc(c,fp);
 				token->type = TOKEN_DOUBLE_VALUE;
+	            token->data = buffer.data;
 				return token;
 			}
 		    break;
@@ -299,6 +302,7 @@ TToken* get_token()
 			{
 				insertIntoString(&buffer, 0);
 				token->type = TOKEN_IDENTIFIER;
+	            token->data = buffer.data;
 				keyword_check(token);
 				ungetc(c,fp);
 				return token;
@@ -308,7 +312,6 @@ TToken* get_token()
 		case S_DIV: // DIVIDE
 			if (c == '/')
 				state = S_LCOM;
-
 			else if (c == '*')
 				state = S_LBC;			
 			else
@@ -415,6 +418,7 @@ TToken* get_token()
 			{ 
 				insertIntoString(&buffer, 0); 
 				token->type = TOKEN_STRING_VALUE;
+	            token->data = buffer.data;
 				return token;
 			}
 			else if(c == EOF)

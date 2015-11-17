@@ -1,0 +1,8 @@
+int main()
+{
+	double a=5;
+	double b=7;
+	double c;
+	c=7/5; 
+	return 1;
+}

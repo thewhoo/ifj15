@@ -240,7 +240,7 @@ void interpret_loop(Tins_list *ins_list)
                 break;
 
             case(INS_PUSH_TAB):
-                htab_t *new_tab = htab_copy(ins->addr1);
+                new_tab = htab_copy(ins->addr1);
                 stack_push(active_frame, new_tab);
                 break;
 
@@ -265,7 +265,7 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 //pushnem premennu, ale z mojich tabuliek symbolov
                 //v parametri ins je z originalnych tab. premenna
-                stack_push(fparams_stack, get_var(((TVariable*)ins->addr1)->name));
+                stack_push(fparams_stack, get_var(ins->addr1));
                 break;
 
             case(INS_CALL):
@@ -275,7 +275,7 @@ void interpret_loop(Tins_list *ins_list)
                 func = (htab_item*)ins->addr1;
                 ins = func->data.function->ins_list->first;
                 active_frame = stack_init();
-                htab_t *new_tab = htab_copy(func->data.function->local_tab);
+                new_tab = htab_copy(func->data.function->local_tab);
                 stack_push(active_frame, new_tab);
                 map_params(new_tab, func->data.function->params_stack);
                 //map pushed f arguments to f parameters

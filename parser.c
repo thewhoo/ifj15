@@ -67,6 +67,8 @@ void storeVarName();
 void storeFunction();
 void storeVariable();
 TVariable *findVariable();
+TList_item *createInstruction();
+void createPseudoFrame();
 
 enum
 {
@@ -108,6 +110,33 @@ void storeFunction(TFunction *f)
     newFunc->data.function = f;
   }
 
+}
+
+void createPseudoFrame()
+{
+  // Get current function
+  TFunction *current = stack_top(G.g_frameStack);
+
+  // Create and push a pseudo-function which represents a nested block
+  TFunction *f = gmalloc(sizeof(TFunction));
+	f->name = NULL;
+	f->return_type = 0;
+	f->defined = 1;
+	f->ins_list = current->ins_list;
+	f->local_tab = htab_init(HTAB_SIZE);
+	f->params_stack = NULL;
+
+  // Push this on the frameStack
+  stack_push(G.g_frameStack, f);
+
+  // Create the instruction
+  TList_item *ins = createInstruction(INS_PUSH_TAB, f->local_tab, NULL, NULL);
+  list_insert(f->ins_list, ins);
+}
+
+void destroyPseudoFrame()
+{
+  stack_pop(G.g_frameStack);
 }
 
 void storeNewVariable(TFunction *f, TVariable *v)
@@ -371,6 +400,9 @@ bool NESTED_BLOCK()
 		token = get_token();
 		if(NBC() && token->type == TOKEN_RCURLY_BRACKET)
 		{
+      // Pop current function from frame stack
+      stack_pop(G.g_frameStack);
+
       token = get_token();
 			return true;
 		}
@@ -405,6 +437,7 @@ bool NBC()
 			return FOR_STATEMENT() && NBC();
 
 		case TOKEN_LCURLY_BRACKET:
+      createPseudoFrame();
 			return NESTED_BLOCK() && NBC();
 
 		case TOKEN_RETURN:
@@ -896,20 +929,30 @@ bool FOR_ASSIGN()
 
 bool RETURN()
 {
-  /*
-	bool ret = false;
+  // Currently processed function
+  TFunction *func = stack_top(G.g_frameStack);
 
 	if(token->type == TOKEN_RETURN)
 	{
-		token = get_token();
-		CALL_EXPR();
-		ret = (token->type == TOKEN_SEMICOLON);
-		token = get_token();
+    token = get_token();
+
+    G.g_return->var_type = func->return_type;
+		expression(G.g_return, func->ins_list);
+
+    // Generate return instructions
+    TList_item *ins = createInstruction(INS_RET, NULL, NULL, NULL);
+    list_insert(func->ins_list, ins);
+
+		if(token->type == TOKEN_SEMICOLON)
+    {
+      token = get_token();
+      return true;
+    }
+
 	}
 
-	return ret;
-  */
-  return true;
+  // Syntax error
+  return false;
 }
 
 void parse()

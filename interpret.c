@@ -14,8 +14,8 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "adt.h"
 #include "builtin.h"
@@ -202,6 +202,8 @@ void map_params(htab_t *tab, TStack* decl_params)
         param = htab_lookup(tab, ((TVariable*) decl_params->data[i])->name);
         memcpy(param, fparams_stack->data[i], sizeof(TVariable));
     }
+
+    stack_clear(fparams_stack);
 }
 
 void interpret_loop(Tins_list *ins_list)

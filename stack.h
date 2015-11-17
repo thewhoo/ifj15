@@ -42,6 +42,15 @@ typedef struct Stack
 TStack* stack_init();
 
 /**
+  * @brief  Makes stack empty.
+  *         Clear do not free memory allocated by items
+  *         on stack before clearing
+  *
+  * @param *stack Pointer to the stack structure
+  */
+void stack_clear(TStack* stack);
+
+/**
   * @brief  deallocate memory
   *
   * @param *stack Pointer to the stack structure

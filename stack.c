@@ -46,6 +46,11 @@ TStack* stack_copy(TStack *s)
   return sNew;
 }
 
+void stack_clear(TStack *stack)
+{
+    stack->used = 0;
+}
+
 void stack_free(TStack* stack)
 {
     gfree(stack->data);

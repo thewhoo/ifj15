@@ -22,12 +22,9 @@
 #include "lex.h"
 #include "enums.h"
 #include "error.h"
-<<<<<<< HEAD
 #include "ilist.h"
-=======
 #include "adt.h"
 #include "ial.h"
->>>>>>> df74593d99be7c50c08bb17f253d4b7d686acf44
 
 #define RULE_COUNTER 13
 #define EQ 0
@@ -288,16 +285,13 @@ void stack_flush()
 
 void type_checker(TToken *var1, TToken *var2)
 {
-<<<<<<< HEAD
 	int problem = 0;;	
 	
 	/* TODO Najdi promennou v tabulkach, porovnej typy */
-=======
 	int problem = 0;;
 
 	if (var1->type == 99) problem = 1;
 	if (var2->type == 99) problem = 1;
->>>>>>> df74593d99be7c50c08bb17f253d4b7d686acf44
 
 	if (problem) {
 		exit_error(4);

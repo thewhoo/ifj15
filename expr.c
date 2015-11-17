@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * Course IFJ @ FIT VUT Brno, 2015
  * IFJ15 Interpreter Project

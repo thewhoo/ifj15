@@ -134,7 +134,7 @@ void createPseudoFrame()
     // Create and push a pseudo-function which represents a nested block
     TFunction *f = gmalloc(sizeof(TFunction));
     f->name = NULL;
-    f->return_type = 0;
+    f->return_type = TYPE_PSEUDO;
     f->defined = 1;
     f->ins_list = current->ins_list;
     f->local_tab = htab_init(HTAB_SIZE);
@@ -411,11 +411,17 @@ bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
 
 bool NESTED_BLOCK()
 {
+    TFunction *func = stack_top(G.g_frameStack);
+
     if (token->type == TOKEN_LCURLY_BRACKET)
     {
         token = get_token();
         if(NBC() && token->type == TOKEN_RCURLY_BRACKET)
         {
+            // If this is not a function but just a block, kill the pseudo frame
+            if(func->return_type == TYPE_PSEUDO)
+                killPseudoFrame();
+
             // Pop current function from frame stack
             stack_pop(G.g_frameStack);
 
@@ -454,13 +460,7 @@ bool NBC()
 
     case TOKEN_LCURLY_BRACKET:
         createPseudoFrame();
-        if(NESTED_BLOCK() && NBC())
-        {
-            killPseudoFrame();
-            return true;
-        }
-        else
-            return false;
+        return NESTED_BLOCK() && NBC();
 
     case TOKEN_RETURN:
         return RETURN();

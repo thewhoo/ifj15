@@ -384,8 +384,7 @@ void interpret_loop(Tins_list *ins_list)
         ins = ins->next;
         if(ins == NULL)
         {
-            fprintf(stderr, "End of insructions");
-            exit(0);
+            exit_error(E_UNINITIALIZED); //missing return at the end of function
         }
 
     }

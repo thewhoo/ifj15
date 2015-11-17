@@ -1,0 +1,34 @@
+int main()
+{
+    string c;
+    cin >> c;
+    cout << c << "\n";
+
+    {
+        string c;
+        cin >> c;
+        cout << c << "\n";
+        {
+            string c;
+            cin >> c;
+            cout << c << "\n";
+            {
+                string c;
+                cin >> c;
+                cout << c << "\n";
+                {
+                    string c;
+                    cin >> c;
+                    cout << c << "\n";
+                }
+                cout << c << "\n";
+            }
+            cout << c << "\n";
+        }
+        cout << c << "\n";
+    }
+    
+    cout << c << "\n";
+
+    return 1;
+}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Course IFJ @ FIT VUT Brno, 2015
  * IFJ15 Interpreter Project
@@ -285,4 +286,3 @@ void type_checker(TToken* var1, TToken* var2)
 		exit_error(4);
 	}
 }
-

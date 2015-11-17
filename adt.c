@@ -28,7 +28,7 @@ TVariable* token_to_const(TToken *token)
 {
     htab_item *tmp;
 
-    tmp = htab_lookup(G.g_constTab, token->data)
+    tmp = htab_lookup(G.g_constTab, token->data);
     if(tmp != NULL)
         return tmp->data.variable;
     

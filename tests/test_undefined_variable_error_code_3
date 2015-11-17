@@ -1,0 +1,11 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	cout << func(a); // a is not defined
+	return 1;
+}

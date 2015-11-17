@@ -1,0 +1,6 @@
+int main()
+{
+	int a;
+	cout >> a; // wrong operator
+	return a;
+}

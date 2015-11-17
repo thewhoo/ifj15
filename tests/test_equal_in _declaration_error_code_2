@@ -1,0 +1,12 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	int a==1; 			// equal not assignment
+	cout << func(a); 
+	return 1;
+}

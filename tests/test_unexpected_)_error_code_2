@@ -1,0 +1,6 @@
+int main()) 	// double )
+{
+	int a=5;
+	cout << a;
+	return a;
+}

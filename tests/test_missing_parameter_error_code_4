@@ -1,0 +1,12 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	int a=5;
+	cout << func(); // missing argument 
+	return 1;
+}

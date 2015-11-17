@@ -1,0 +1,7 @@
+int main()
+{
+	int a=1; 
+	9=a; // wrong assignemnt
+	cout << a; 
+	return 1;
+}

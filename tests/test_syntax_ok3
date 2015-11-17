@@ -1,0 +1,9 @@
+int main()
+{
+	string s;
+	s="sadasdadsd";
+	cout << "string:" << s << "\n";
+	cin >> s;
+	cout << "string:" << s << "\n";
+	return 1;
+}

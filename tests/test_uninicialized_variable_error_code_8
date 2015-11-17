@@ -1,0 +1,12 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	auto a;
+	cout << func(a);  // a is not initialized
+	return 1;
+}

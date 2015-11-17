@@ -1,0 +1,6 @@
+int main) // missing (
+{
+	int a=5;
+	cout << a;
+	return a;
+}

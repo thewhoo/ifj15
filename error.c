@@ -45,7 +45,7 @@ void exit_error(int err)
             fprintf(stderr, "Cin: Fail to read number from stdin!\n");
             break;
         case(E_UNINITIALIZED):
-            fprintf(stderr, "Math operation with unitialized var!\n");
+            fprintf(stderr, "Some operation with unitialized var!\n");
             break;
         case(E_ZERO_DIVISION):
             fprintf(stderr, "Math error: Zero division!\n");

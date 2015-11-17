@@ -29,7 +29,8 @@ enum vars
 {
     TYPE_INT,
     TYPE_DOUBLE,
-    TYPE_STRING
+    TYPE_STRING,
+    TYPE_PSEUDO
 };
 
 typedef struct s_variable
@@ -38,7 +39,7 @@ typedef struct s_variable
     char *name;
     int initialized;
     int constant;
-    union 
+    union
     {
         int i;
         double d;
@@ -50,8 +51,8 @@ typedef struct s_function
 {
     char *name;
     int return_type;
-    int defined;  
-    Tins_list *ins_list;  
+    int defined;
+    Tins_list *ins_list;
     struct hash_tab *local_tab;
     TStack *params_stack;
 } TFunction;
@@ -80,7 +81,7 @@ TVariable* token_to_const(TToken* token);
 /**
  * @brief Creates TFunction representation for global symbol table from token.
  *
- * Sets funciton name. 
+ * Sets funciton name.
  * Function "defined" is FALSE (no idea if it's * definition/declaration,
  *                               set it manually later)
  * Instruction list for function is initialized and ready for use.

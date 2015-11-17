@@ -77,6 +77,8 @@ void cin(TVariable* in)
     TString buffer;
 
     initString(&buffer, STR_SIZE);
+    
+    in->initialized = 1;
 
     if(in->var_type == TYPE_STRING)
     {
@@ -231,8 +233,6 @@ void cin(TVariable* in)
         fprintf(stderr, "Cin: No idea about data type!\n");
         exit_error(99);
     }
-
-    in->initialized = 1;
 }
 
 

@@ -56,7 +56,7 @@ void cout(TVariable* output)
 {
     if(output->var_type == TYPE_INT)
         printf("%d", output->data.i);
-    else if(output->var_type == TYPE_INT)
+    else if(output->var_type == TYPE_DOUBLE)
         printf("%g", output->data.d);
     else if(output->var_type == TYPE_STRING)
         printf("%s", output->data.str);

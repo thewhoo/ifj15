@@ -26,8 +26,14 @@
 
 TVariable* token_to_const(TToken *token)
 {
-    TVariable* var = gmalloc(sizeof(TVariable));
     htab_item *tmp;
+
+    tmp = htab_lookup(G.g_constTab, token->data)
+    if(tmp != NULL)
+        return tmp->data.variable;
+    
+    
+    TVariable* var = gmalloc(sizeof(TVariable));
 
     var->initialized = 1;
     var->constant = 1;
@@ -50,11 +56,8 @@ TVariable* token_to_const(TToken *token)
         var->data.i = strtol(token->data, NULL, 10);
     }
 
-    if(htab_lookup(G.g_constTab, var->name) == NULL)
-    {
-        tmp = htab_insert(G.g_constTab, var->name);
-        tmp->data.variable = var;
-    }
+    tmp = htab_insert(G.g_constTab, var->name);
+    tmp->data.variable = var;
 
     return var;
 }

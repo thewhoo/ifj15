@@ -85,16 +85,17 @@ TVariable *expr_var;
 /*
 ***	TODO
 	Zpracovani IF
-	Zpracovani funkci (na dvě části vestavěné přes token_XXXXX, ostatní hledat)
+	Zpracovani funkci
 	Kontrola exit_error navratovych hodnot
 	Uklízet po sobě
 	Proměnné hledat v aktuálním stacu, ne v globálu
 	Generování_instrukcí
 	Typová kontrola
 
-***	MYSLENKY
+***	POZNAMKY
 	globální ret pro používání ok X co když mi ji matěj předhodí??
 	u ifu sežrat prvni zavorku
+	G.g_return do globalni tabulky X ins_stack plnit TVariable
 */
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
@@ -214,7 +215,7 @@ int stack_lower_prio(TToken *token_in, TToken *token_stack)
 			val = 1;
 			break;
 		case ER:
-			exit_error(3);
+			exit_error(E_SYNTAX);
 	}
 
 	return val;
@@ -271,17 +272,29 @@ int tok_prece_pos(int n)
 
 int its_function()
 {
-	int yes_it_is = 0;
+	int yes_it_is;
 	TToken *tok;
+	htab_item *item;
 
 	tok = get_token();
-	if (tok->type == TOKEN_IDENTIFIER) {
-		htab_item *item = htab_lookup(G.g_globalTab, tok->data);
-		if (item == NULL) {
-			exit_error(E_SEMANTIC_DEF);
-		} else {
+	switch (tok->type) {
+		case TOKEN_IDENTIFIER:
+			item = htab_lookup(G.g_globalTab, tok->data);
+			if (item == NULL) {
+				exit_error(E_SEMANTIC_DEF);
+			} else {
+				yes_it_is = 1;
+			}
+			break;
+		case TOKEN_BF_LENGTH:
+		case TOKEN_BF_SUBSTR:
+		case TOKEN_BF_CONCAT:
+		case TOKEN_BF_FIND:
+		case TOKEN_BF_SORT:
 			yes_it_is = 1;
-		}
+			break;
+		default:
+			yes_it_is = 0;			
 	}
 	unget_token(tok);
 
@@ -290,6 +303,7 @@ int its_function()
 
 void function_elaboration()
 {
+	/*  */
 	printf("Prijata funkce!\n");
 }
 
@@ -329,6 +343,7 @@ void generate_code()
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
 		if (token_is_operand(tok)) {
+			
 			stack_push(ins_stack, tok);
 		} else {
 			id_tok_1 = stack_top(gene_stack);
@@ -338,11 +353,13 @@ void generate_code()
 			var_1 = find_var(id_tok_1);
 			var_2 = find_var(id_tok_2);
 			operand_type_checker(tok->type, var_1, var_2);
-			actual_ins = create_ins(ope_type_2_ins_type(tok->type), expr_var, var_2, var_1); /* Poradi? */
+			actual_ins = create_ins(ope_type_2_ins_type(tok->type), G.g_return, var_2, var_1);
 			list_insert(actual_ins_list, actual_ins);
+
 		}
 	}
-	/* assign vysledku */
+	/* INS_ASSIGN? */
+	/* jeden z pripadu i = 10; dojdu az sem s 10 na gene_stack*/
 }
 
 TVariable *find_var(TToken *tok)

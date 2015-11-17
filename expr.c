@@ -32,75 +32,123 @@
 #define LO 1
 #define HI 2
 #define ER 3
+#define DEB_STACK_PRINT 0
+#define DEB_EXPR_START 0
+#define DEB_ERROR_PRINT 0
 
+/* External functions */
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
-void generate_code(TToken *tok);
-int token_is_mine(TToken *tok);
-int token_to_pos(int n);
-int stack_lower_prio(int x_type, int y_type);
-char *type_to_text(int type);
-void stack_flush();
-void type_checker(TToken *var1, TToken *var2);
-TVariable *check_variable(TToken *tok);
+/* Internal functions */
+void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
+void infix_2_postfix();
+void transfer_rest_of_expr_stack();
+int stack_lower_prio(TToken *token_in, TToken *token_stack);
+int tok_prece_pos(int n);
+int its_function();
+void function_elaboration();
+void postfix_count_test();
+int token_is_operator(TToken *tok);
+int token_is_operand(TToken *tok);
+void generate_code();
+void operand_check(TToken *tok);
+int ope_type_2_ins_type(int operator_type);
+TVariable *find_var(TToken *tok);
+void operand_type_checker(int ins_type, TVariable *var_1, TVariable *var_2);
+int var_type_compare(TVariable *var, int type);
+TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3);
+/* Debug functions */
+void stack_print(TStack *st);
 
-/* TODO
-	Zpracovani funkci
-	 na dvě části vestavěné přes token_XXXXX, ostatní hledat
-	Kontrola exit_error navratovych hodnot
-*/
-
+/* Global variables */
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* Sloupce představují vstupní tokeny, řádky představují tokeny na zásobníku */
-/*			 	+		-		*		/		(		)		id		<		>		<=		>=		==		!=		*/
-/*	+	*/	{	HI,	HI,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	-	*/	{	HI,	HI,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	*	*/	{	HI,	HI,	HI,	HI,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	/	*/	{	HI,	HI,	HI,	HI,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	(	*/	{	LO,	LO,	LO,	LO,	LO,	EQ,	LO,	LO,	LO,	LO,	LO,	LO,	LO	},
-/*	)	*/	{	HI,	HI,	HI,	HI,	ER,	HI,	ER,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	id	*/	{	HI,	HI,	HI,	HI,	ER,	HI,	ER,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	<	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	>	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	<=	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	>=	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	==	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
-/*	!=	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
+/*         +   -   *   /   (   )   id  <   >   <=  >=  ==  !=                */
+/* +  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* -  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* *  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* /  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* (  */ { LO, LO, LO, LO, LO, EQ, LO, LO, LO, LO, LO, LO, LO },
+/* )  */ { HI, HI, HI, HI, ER, HI, ER, HI, HI, HI, HI, HI, HI },
+/* id */ { HI, HI, HI, HI, ER, HI, ER, HI, HI, HI, HI, HI, HI },
+/* <  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* >  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* <= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* >= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* == */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* != */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 };
-TStack *expr_stack; /* INFIX->POSTFIX stack*/
-TStack *gene_stack; /* Stack for instruction generating */
+TStack *expr_stack;
+TStack *gene_stack;
 Tins_list *actual_ins_list;
 TVariable *expr_var;
 
+/* TODO
+    - Zpracovani IF
+    - Zpracovani funkci
+        na dvě části vestavěné přes token_XXXXX, ostatní hledat
+	Kontrola exit_error navratovych hodnot
+	Uklízet po sobě
+	Proměnné hledat v aktuálním stacu, ne v globálu
+	Typová kontrola
+
+   OTÁZKY
+    globální ret pro používání ok X co když mi ji matěj předhodí??
+*/
+
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 {
-	TToken *token_act; /* Token from lexer */
-	TToken *token_top; /* Token from expr_stack */
+	if (DEB_EXPR_START) {
+		printf("Expr_start!\n");
+	}
+	expr_init(var_from_parser, ins_list_to_fill);
+	if (its_function()) {
+		function_elaboration();
+	} else {
+		infix_2_postfix();
+		generate_code();
+	}
+	if (DEB_EXPR_START) {
+		printf("Expr_end!\n");
+	}
+}
 
-	actual_ins_list = ins_list_to_fill;
+void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
+{
 	expr_var = var_from_parser;
+	actual_ins_list = ins_list_to_fill;
 	expr_stack = stack_init();
 	gene_stack = stack_init();
-	token_act = get_token();
+}
 
-	while (token_is_mine(token_act)) {
-		switch (token_act->type) {
+void infix_2_postfix()
+{
+	TToken *tok_in;
+	TToken *tok_stack;
+	//int bracket_counter;
+
+	//bracket_counter = 0;
+	tok_in = get_token();
+	while ((tok_in->type != TOKEN_SEMICOLON)/* && (bracket_counter >= 0)*/) {
+		switch (tok_in->type) {
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
 			case TOKEN_STRING_VALUE:
 			case TOKEN_IDENTIFIER:
-				generate_code(token_act);
+				stack_push(gene_stack, tok_in);
 				break;
 			case TOKEN_LROUND_BRACKET:
-				stack_push(expr_stack, token_act);
+				stack_push(expr_stack, tok_in);
+				//bracket_counter++;
 				break;
 			case TOKEN_RROUND_BRACKET:
-				token_top = stack_top(expr_stack);
-				while (token_top->type != TOKEN_LROUND_BRACKET) {
-					generate_code(token_top);
-					stack_pop(expr_stack);
-					token_top = stack_top(expr_stack);
-				}
+				tok_stack = stack_top(expr_stack);
 				stack_pop(expr_stack);
+				while (tok_stack->type != TOKEN_LROUND_BRACKET) {
+					stack_push(gene_stack, tok_stack);
+					tok_stack = stack_top(expr_stack);
+					stack_pop(expr_stack);
+				}
+				//bracket_counter--;
 				break;
 			case TOKEN_MUL:
 			case TOKEN_DIV:
@@ -112,165 +160,51 @@ void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 			case TOKEN_GREATER_EQUAL:
 			case TOKEN_LESS:
 			case TOKEN_LESS_EQUAL:
-				token_top = stack_top(expr_stack);
-				if (stack_empty(expr_stack) || stack_lower_prio(token_act->type, token_top->type)) {
-					stack_push(expr_stack, token_act);
+                tok_stack = stack_top(expr_stack);
+				if (stack_empty(expr_stack) || stack_lower_prio(tok_in, tok_stack)) {
+					stack_push(expr_stack, tok_in);
 				} else {
-					while (!stack_empty(expr_stack) && !stack_lower_prio(token_act->type, token_top->type)) {
-						generate_code(token_top);
+
+					while (!stack_empty(expr_stack) && !stack_lower_prio(tok_in, tok_stack)) {
+						stack_push(gene_stack, tok_stack);
 						stack_pop(expr_stack);
-						token_top = stack_top(expr_stack);
+						tok_stack = stack_top(expr_stack);
 					}
-					stack_push(expr_stack, token_act);
+					stack_push(expr_stack, tok_in);
 				}
 				break;
 		}
-		token_act = get_token();
+		tok_in = get_token();
 	}
-	int navrat = token_act->type;
-	stack_flush(expr_stack);
-	token_act->type = TOKEN_EOF; /* Killing token */
-	generate_code(token_act);
-	token_act->type = navrat;
-	unget_token(token_act);
-	stack_free(expr_stack);
-	stack_free(gene_stack);
-}
+	transfer_rest_of_expr_stack();
+	if (DEB_STACK_PRINT) {
 
-void generate_code(TToken *tok)
-{
-	 TToken *tok1;
-	 TToken *tok2;
-	 TVariable *var1;
-	 TVariable *var2;
-
-	if ((tok->type >= TOKEN_MUL) || (tok->type == TOKEN_EOF)) {
-		tok1 = stack_top(gene_stack);
-		var1 = check_variable(tok1);
-		stack_pop(gene_stack);
-	/*	if (tok->type == TOKEN_EOF){
-			printf("INS_RET %s\n", tok->data);
-		}*/
-		tok2 = stack_top(gene_stack);
-		var2 = check_variable(tok2);
-		stack_pop(gene_stack);
-		type_checker(tok1, tok2);
-		TList_item *list_item = gmalloc(sizeof(TList_item));
-		list_item->addr1 = expr_var;
-		list_item->addr2 = var1;
-		list_item->addr3 = var2;
-		switch (tok->type) {
-			/* TODO tvorba instrukci */
-			case TOKEN_MUL:
-				list_item->ins_type = INS_MUL;
-				break;
-			case TOKEN_DIV:
-				list_item->ins_type = INS_DIV;
-				break;
-			case TOKEN_ADD:
-				list_item->ins_type = INS_ADD;
-				break;
-			case TOKEN_SUB:
-				list_item->ins_type = INS_SUB;
-				break;
-			case TOKEN_EQUAL:
-				list_item->ins_type = INS_EQ;
-				break;
-			case TOKEN_NOT_EQUAL:
-				list_item->ins_type = INS_NEQ;
-				break;
-			case TOKEN_GREATER:
-				list_item->ins_type = INS_GREATER;
-				break;
-			case TOKEN_GREATER_EQUAL:
-				list_item->ins_type = INS_GREATEQ;
-				break;
-			case TOKEN_LESS:
-				list_item->ins_type = INS_LESSER;
-				break;
-			case TOKEN_LESS_EQUAL:
-				list_item->ins_type = INS_LESSEQ;
-				break;
-		  }
-	//	  strcat(tok2->data, tok1->data);
-		  stack_push(gene_stack, var2);
-	 } else {
-		  stack_push(gene_stack, tok);
-	 }
-}
-
-int token_is_mine(TToken *tok)
-{
-	int is_mine = 1;
-
-	switch (tok->type) {
-		case TOKEN_AUTO:
-		case TOKEN_CIN:
-		case TOKEN_COUT:
-		case TOKEN_DOUBLE:
-		case TOKEN_ELSE:
-		case TOKEN_FOR:
-		case TOKEN_IF:
-		case TOKEN_INT:
-		case TOKEN_RETURN:
-		case TOKEN_STRING:
-		case TOKEN_LENGTH:
-		case TOKEN_SUBSTR:
-		case TOKEN_CONCAT:
-		case TOKEN_FIND:
-		case TOKEN_SORT:
-		case TOKEN_EOF:
-		case TOKEN_ASSIGN:
-		case TOKEN_COMMA:
-		case TOKEN_COUT_BRACKET:
-		case TOKEN_CIN_BRACKET:
-		case TOKEN_LCURLY_BRACKET:
-		case TOKEN_RCURLY_BRACKET:
-			exit_error(3);
-			break;
-		case TOKEN_BF_LENGTH:
-		case TOKEN_BF_SUBSTR:
-		case TOKEN_BF_CONCAT:
-		case TOKEN_BF_FIND:
-		case TOKEN_BF_SORT:
-			exit_error(3); /* TODO Zatim */
-			break;
-		case TOKEN_IDENTIFIER:
-		case TOKEN_STRING_VALUE:
-		case TOKEN_INT_VALUE:
-		case TOKEN_DOUBLE_VALUE:
-		case TOKEN_LROUND_BRACKET:
-		case TOKEN_RROUND_BRACKET:
-		case TOKEN_MUL:
-		case TOKEN_DIV:
-		case TOKEN_ADD:
-		case TOKEN_SUB:
-		case TOKEN_EQUAL:
-		case TOKEN_NOT_EQUAL:
-		case TOKEN_GREATER:
-		case TOKEN_GREATER_EQUAL:
-		case TOKEN_LESS:
-		case TOKEN_LESS_EQUAL:
-			is_mine = 1;
-			break;
-		case TOKEN_SEMICOLON:
-			is_mine = 0;
-			break;
+		printf("**EXPR STACK\n");
+		stack_print(expr_stack);
+		printf("**GENE STACK\n");
+		stack_print(gene_stack);
+		printf("Unget %d %s\n", tok_in->type, tok_in->data);
+		printf("**END\n");
 	}
-
-	return is_mine;
+	unget_token(tok_in);
 }
 
-/* vrchol zásobníku menší prioritu než vstupní token */
-/* x_type vstupní token, y_type vrchol zásobníku*/
-int stack_lower_prio(int x_type, int y_type)
+void transfer_rest_of_expr_stack()
+{
+	while (!stack_empty(expr_stack)) {
+		stack_push(gene_stack, stack_top(expr_stack));
+		stack_pop(expr_stack);
+	}
+}
+
+int stack_lower_prio(TToken *token_in, TToken *token_stack)
 {
 	int x;
 	int y;
 	int val;
 
-	x = token_to_pos(x_type);
-	y = token_to_pos(y_type);
+	x = tok_prece_pos(token_in->type);
+	y = tok_prece_pos(token_stack->type);
 	switch (prece_table[y][x]) {
 		case HI:
 		case EQ:
@@ -281,81 +215,287 @@ int stack_lower_prio(int x_type, int y_type)
 			break;
 		case ER:
 			exit_error(3);
-	 }
+	}
 
 	return val;
 }
 
-/* hledání typu tokenu v precedenční tabulce */
-int token_to_pos(int n)
+int tok_prece_pos(int n)
 {
+	int val;
+
 	switch (n) {
 		case TOKEN_ADD:
-			return oper_add;
+			val = oper_add;
+			break;
 		case TOKEN_SUB:
-			return oper_sub;
+			val = oper_sub;
+			break;
 		case TOKEN_MUL:
-			return oper_mul;
+			val = oper_mul;
+			break;
 		case TOKEN_DIV:
-			return oper_div;
+			val = oper_div;
+			break;
 		case TOKEN_LROUND_BRACKET:
-			return oper_lr_bracket;
+			val = oper_lr_bracket;
+			break;
 		case TOKEN_RROUND_BRACKET:
-			return oper_rr_bracket;
+			val = oper_rr_bracket;
+			break;
 		case TOKEN_IDENTIFIER:
-			return oper_id;
+			val = oper_id;
+			break;
 		case TOKEN_LESS:
-			return oper_less;
+			val = oper_less;
+			break;
 		case TOKEN_GREATER:
-			return oper_greater;
+			val = oper_greater;
+			break;
 		case TOKEN_LESS_EQUAL:
-			return oper_less_e;
+			val = oper_less_e;
+			break;
 		case TOKEN_GREATER_EQUAL:
-			return oper_greater_e;
+			val = oper_greater_e;
+			break;
 		case TOKEN_EQUAL:
-			return oper_equal;
+			val = oper_equal;
+			break;
 		case TOKEN_NOT_EQUAL:
-			return oper_not_equal;
+			val = oper_not_equal;
+			break;
 	}
 
-	return 99; /* TODO vraceni 99? */
+	return val;
 }
 
-/* vysypání zbytků ze zásobníku */
-void stack_flush()
+int its_function()
 {
-	 TToken *tok;
+	int yes_it_is = 0;
+	TToken *tok;
 
-	 while (!stack_empty(expr_stack)) {
-		  tok = stack_top(expr_stack);
-		  generate_code(tok);
-		  stack_pop(expr_stack);
-	 }
+	tok = get_token();
+	if (tok->type == TOKEN_IDENTIFIER) {
+		htab_item *item = htab_lookup(G.g_globalTab, tok->data);
+		if (item == NULL) {
+			exit_error(E_SEMANTIC_DEF);
+		} else {
+			yes_it_is = 1;
+		}
+	}
+	unget_token(tok);
+
+	return yes_it_is;
 }
 
-void type_checker(TToken *var1, TToken *var2)
+void function_elaboration()
 {
-	/* TODO Najdi promennou v tabulkach, porovnej typy */
-	int problem = 0;
-
-	if ((var1->type == TOKEN_STRING) && (var2->type != TOKEN_STRING)) {
-		problem = 1;
-	}
-
-	if (problem) {
-		exit_error(4);
-	}
+	printf("Prijata funkce!\n");
 }
 
-
-TVariable *check_variable(TToken *tok)
+void stack_print(TStack *st)
 {
+	TToken *tok;
+	TStack *cache_stack;
 
-	htab_item *looked = htab_lookup(g_constTab, tok->data);
-	if (looked == NULL) {
-		exit_error(3);
-
+    cache_stack = stack_init();
+	while (!stack_empty(st)) {
+		tok = stack_top(st);
+		printf("Token %d %s\n", tok->type, tok->data);
+		stack_push(cache_stack, tok);
+		stack_pop(st);
 	}
-	return looked->data.variable;
+	while (!stack_empty(cache_stack)) {
+        tok = stack_top(cache_stack);
+        stack_push(st, tok);
+        stack_pop(cache_stack);
+	}
+	stack_free(cache_stack);
 }
 
+void generate_code()
+{
+	TToken *tok;
+	TToken *id_tok_1;
+	TToken *id_tok_2;
+	TStack *ins_stack;
+	TList_item *actual_ins;
+	TVariable *var_1;
+	TVariable *var_2;
+
+	postfix_count_test();
+	ins_stack = stack_init();
+	while (gene_stack->capacity > 1) {
+		tok = stack_top(gene_stack);
+		stack_pop(gene_stack);
+        if (token_is_operand(tok)) {
+            stack_push(ins_stack, tok);
+        } else {
+            id_tok_1 = stack_top(gene_stack);
+            stack_pop(gene_stack);
+            id_tok_2 = stack_top(gene_stack);
+            stack_pop(gene_stack);
+            var_1 = find_var(id_tok_1);
+            var_2 = find_var(id_tok_2);
+            operand_type_checker(tok->type, var_1, var_2);
+            actual_ins = create_ins(ope_type_2_ins_type(tok->type), expr_var, var_2, var_1); /* Poradi? */
+            list_insert(actual_ins_list, actual_ins);
+        }
+	}
+	/* assign vysledku */
+}
+
+TVariable *find_var(TToken *tok)
+{
+    TVariable *new_var;
+
+    if (tok->type == TOKEN_IDENTIFIER) {
+        if (htab_lookup(G.g_globalTab, tok->data) == NULL) {
+            exit_error(E_SEMANTIC_DEF);
+        }
+    } else {
+        if (htab_lookup(G.g_constTab, tok->data) == NULL) {
+            htab_item *new_const = htab_insert(G.g_constTab, tok->data);
+            new_const->data.variable = token_to_const(tok);
+        }
+    }
+
+    return new_var;
+}
+
+void postfix_count_test()
+{
+	int operator_counter;
+	int operand_counter;
+	TToken *tok;
+	TStack *cache_stack;
+
+	operator_counter = 0;
+	operand_counter = 0;
+	while (!stack_empty(gene_stack)) {
+		tok = stack_top(gene_stack);
+		operator_counter += token_is_operator(tok);
+		operand_counter += token_is_operand(tok);
+		stack_pop(gene_stack);
+		stack_push(expr_stack, tok);
+
+	}
+	cache_stack = gene_stack;
+	gene_stack = expr_stack;	/* Yummy! Yummy! */
+	expr_stack = cache_stack;
+	if (++operator_counter != operand_counter) {
+		if (DEB_ERROR_PRINT) printf("postfix_count_test ERROR!\n");
+		exit_error(E_SEMANTIC_DEF);
+	}
+}
+
+int token_is_operator(TToken *tok)
+{
+	switch (tok->type) {
+		case TOKEN_MUL:
+		case TOKEN_DIV:
+		case TOKEN_ADD:
+		case TOKEN_SUB:
+		case TOKEN_EQUAL:
+		case TOKEN_NOT_EQUAL:
+		case TOKEN_GREATER:
+		case TOKEN_GREATER_EQUAL:
+		case TOKEN_LESS:
+		case TOKEN_LESS_EQUAL:
+			return 1;
+			break;
+	}
+
+	return 0;
+}
+
+int token_is_operand(TToken *tok)
+{
+	switch (tok->type) {
+		case TOKEN_IDENTIFIER:
+		case TOKEN_STRING_VALUE:
+		case TOKEN_INT_VALUE:
+		case TOKEN_DOUBLE_VALUE:
+			return 1;
+			break;
+	}
+
+	return 0;
+}
+
+int ope_type_2_ins_type(int operator_type)
+{
+    int val;
+
+    switch (operator_type) {
+        case TOKEN_MUL:
+            val = INS_MUL;
+            break;
+		case TOKEN_DIV:
+            val = INS_DIV;
+            break;
+		case TOKEN_ADD:
+            val = INS_ADD;
+            break;
+		case TOKEN_SUB:
+            val = INS_SUB;
+            break;
+		case TOKEN_EQUAL:
+            val = INS_EQ;
+            break;
+		case TOKEN_NOT_EQUAL:
+            val = INS_NEQ;
+            break;
+		case TOKEN_GREATER:
+            val = INS_GREATER;
+            break;
+		case TOKEN_GREATER_EQUAL:
+            val = INS_GREATEQ;
+            break;
+		case TOKEN_LESS:
+            val = INS_LESSER;
+            break;
+		case TOKEN_LESS_EQUAL:
+            val = INS_LESSEQ;
+            break;
+    }
+
+    return val;
+}
+
+void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
+{
+    /* Operace mezi retezcem a neretezcem */
+    if ((var_1->var_type == TYPE_STRING) && (var_2->var_type != TYPE_STRING)) {
+        exit_error(E_SEMANTIC_TYPES);
+    }
+
+    switch (operator_type) {
+        case TOKEN_MUL:
+		case TOKEN_DIV:
+		case TOKEN_ADD:
+		case TOKEN_SUB:
+            /* Aritmeticke operace nad retezci */
+            if (var_type_compare(var_1, TYPE_STRING) || var_type_compare(var_2, TYPE_STRING)) {
+                exit_error(E_SEMANTIC_TYPES);
+            }
+    }
+}
+
+int var_type_compare(TVariable *var, int type)
+{
+    return (var->var_type == type);
+}
+
+TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
+{
+    TList_item *ins;
+
+    ins = gmalloc(sizeof(TList_item));
+    ins->ins_type = type;
+    ins->addr1 = addr1;
+    ins->addr2 = addr2;
+    ins->addr3 = addr3;
+
+    return ins;
+}

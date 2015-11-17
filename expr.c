@@ -32,9 +32,9 @@
 #define LO 1
 #define HI 2
 #define ER 3
-#define DEB_STACK_PRINT 1
-#define DEB_EXPR_START 1
-#define DEB_ERROR_PRINT 1
+#define DEB_STACK_PRINT 0
+#define DEB_EXPR_START 0
+#define DEB_ERROR_PRINT 0
 
 /* External functions */
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
@@ -60,9 +60,8 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 void stack_print(TStack *st);
 
 /* Global variables */
-const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
-/* Sloupce představují vstupní tokeny, řádky představují tokeny na zásobníku */
-/*         +   -   *   /   (   )   id  <   >   <=  >=  ==  !=                */
+const char prece_table[RULE_COUNTER][RULE_COUNTER] = {/* Sloupec tok_in, řádek tok_stack */
+/*         +   -   *   /   (   )   id  <   >   <=  >=  ==  !=      */
 /* +  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* -  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* *  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI },
@@ -84,18 +83,14 @@ TVariable *expr_var;
 
 /*
 ***	TODO
-	Zpracovani IF
 	Zpracovani funkci
-	Kontrola exit_error navratovych hodnot
-	Uklízet po sobě
+	Zkontrolovat konstanty vracenych exit_error
 	Proměnné hledat v aktuálním stacu, ne v globálu
-	Generování_instrukcí
-	Typová kontrola
+	Uklízet po sobě
 
 ***	POZNAMKY
-	globální ret pro používání ok X co když mi ji matěj předhodí??
+	globální ret pro používání  VS  co když mi ji matěj předhodí??
 	u ifu sežrat prvni zavorku
-	G.g_return do globalni tabulky X ins_stack plnit TVariable
 */
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
@@ -125,11 +120,11 @@ void infix_2_postfix()
 {
 	TToken *tok_in;
 	TToken *tok_stack;
-	//int bracket_counter;
+	int bracket_counter;
 
-	//bracket_counter = 0;
+	bracket_counter = 0;
 	tok_in = get_token();
-	while ((tok_in->type != TOKEN_SEMICOLON)/* && (bracket_counter >= 0)*/) {
+	while ((tok_in->type != TOKEN_SEMICOLON) && (bracket_counter >= 0)) {
 		switch (tok_in->type) {
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
@@ -139,7 +134,7 @@ void infix_2_postfix()
 				break;
 			case TOKEN_LROUND_BRACKET:
 				stack_push(expr_stack, tok_in);
-				//bracket_counter++;
+				bracket_counter++;
 				break;
 			case TOKEN_RROUND_BRACKET:
 				tok_stack = stack_top(expr_stack);
@@ -149,7 +144,7 @@ void infix_2_postfix()
 					tok_stack = stack_top(expr_stack);
 					stack_pop(expr_stack);
 				}
-				//bracket_counter--;
+				bracket_counter--;
 				break;
 			case TOKEN_MUL:
 			case TOKEN_DIV:
@@ -303,7 +298,6 @@ int its_function()
 
 void function_elaboration()
 {
-	/*  */
 	printf("Prijata funkce!\n");
 }
 
@@ -330,12 +324,11 @@ void stack_print(TStack *st)
 void generate_code()
 {
 	TToken *tok;
-	TToken *id_tok_1;
-	TToken *id_tok_2;
 	TStack *ins_stack;
 	TList_item *actual_ins;
 	TVariable *var_1;
 	TVariable *var_2;
+	TVariable *var_to_push;
 
 	postfix_count_test();
 	ins_stack = stack_init();
@@ -343,37 +336,44 @@ void generate_code()
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
 		if (token_is_operand(tok)) {
-			
-			stack_push(ins_stack, tok);
+			var_to_push = find_var(tok);			
+			stack_push(ins_stack, var_to_push);
 		} else {
-			id_tok_1 = stack_top(gene_stack);
-			stack_pop(gene_stack);
-			id_tok_2 = stack_top(gene_stack);
-			stack_pop(gene_stack);
-			var_1 = find_var(id_tok_1);
-			var_2 = find_var(id_tok_2);
+			var_1 = stack_top(ins_stack);
+			stack_pop(ins_stack);
+			var_2 = stack_top(ins_stack);
+			stack_pop(ins_stack);
 			operand_type_checker(tok->type, var_1, var_2);
 			actual_ins = create_ins(ope_type_2_ins_type(tok->type), G.g_return, var_2, var_1);
 			list_insert(actual_ins_list, actual_ins);
-
+			stack_push(ins_stack, G.g_return);
 		}
 	}
-	/* INS_ASSIGN? */
-	/* jeden z pripadu i = 10; dojdu az sem s 10 na gene_stack*/
+	/* INS_ASSIGN */
+	actual_ins = create_ins(INS_ASSIGN, expr_var, G.g_return, NULL);
+	list_insert(actual_ins_list, actual_ins);
 }
 
 TVariable *find_var(TToken *tok)
 {
 	TVariable *new_var;
+	htab_item *h_item;
 
 	if (tok->type == TOKEN_IDENTIFIER) {
-		if (htab_lookup(G.g_globalTab, tok->data) == NULL) {
+		h_item = htab_lookup(G.g_globalTab, tok->data);
+		if (h_item == NULL) {
 			exit_error(E_SEMANTIC_DEF);
+		} else {
+			new_var = h_item->data.variable;
 		}
 	} else {
-		if (htab_lookup(G.g_constTab, tok->data) == NULL) {
+		h_item = htab_lookup(G.g_constTab, tok->data);
+		if (h_item == NULL) {
 			htab_item *new_const = htab_insert(G.g_constTab, tok->data);
 			new_const->data.variable = token_to_const(tok);
+			new_var = new_const->data.variable;
+		} else {
+			new_var = h_item->data.variable;
 		}
 	}
 

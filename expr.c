@@ -32,9 +32,9 @@
 #define LO 1
 #define HI 2
 #define ER 3
-#define DEB_STACK_PRINT 0
-#define DEB_EXPR_START 0
-#define DEB_ERROR_PRINT 0
+#define DEB_STACK_PRINT 1
+#define DEB_EXPR_START 1
+#define DEB_ERROR_PRINT 1
 
 /* External functions */
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
@@ -54,7 +54,7 @@ void operand_check(TToken *tok);
 int ope_type_2_ins_type(int operator_type);
 TVariable *find_var(TToken *tok);
 void operand_type_checker(int ins_type, TVariable *var_1, TVariable *var_2);
-int var_type_compare(TVariable *var, int type);
+int t_compare(TVariable *var, int type);
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3);
 /* Debug functions */
 void stack_print(TStack *st);
@@ -82,24 +82,25 @@ TStack *gene_stack;
 Tins_list *actual_ins_list;
 TVariable *expr_var;
 
-/* TODO
-    - Zpracovani IF
-    - Zpracovani funkci
-        na dvě části vestavěné přes token_XXXXX, ostatní hledat
+/*
+***	TODO
+	Zpracovani IF
+	Zpracovani funkci (na dvě části vestavěné přes token_XXXXX, ostatní hledat)
 	Kontrola exit_error navratovych hodnot
 	Uklízet po sobě
 	Proměnné hledat v aktuálním stacu, ne v globálu
+	Generování_instrukcí
 	Typová kontrola
 
-   OTÁZKY
-    globální ret pro používání ok X co když mi ji matěj předhodí??
+***	MYSLENKY
+	globální ret pro používání ok X co když mi ji matěj předhodí??
+	u ifu sežrat prvni zavorku
 */
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 {
-	if (DEB_EXPR_START) {
-		printf("Expr_start!\n");
-	}
+	if (DEB_EXPR_START) printf("Expr_start!\n");
+
 	expr_init(var_from_parser, ins_list_to_fill);
 	if (its_function()) {
 		function_elaboration();
@@ -107,9 +108,8 @@ void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 		infix_2_postfix();
 		generate_code();
 	}
-	if (DEB_EXPR_START) {
-		printf("Expr_end!\n");
-	}
+
+	if (DEB_EXPR_START) printf("Expr_end!\n");
 }
 
 void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
@@ -160,7 +160,7 @@ void infix_2_postfix()
 			case TOKEN_GREATER_EQUAL:
 			case TOKEN_LESS:
 			case TOKEN_LESS_EQUAL:
-                tok_stack = stack_top(expr_stack);
+			tok_stack = stack_top(expr_stack);
 				if (stack_empty(expr_stack) || stack_lower_prio(tok_in, tok_stack)) {
 					stack_push(expr_stack, tok_in);
 				} else {
@@ -298,7 +298,7 @@ void stack_print(TStack *st)
 	TToken *tok;
 	TStack *cache_stack;
 
-    cache_stack = stack_init();
+	cache_stack = stack_init();
 	while (!stack_empty(st)) {
 		tok = stack_top(st);
 		printf("Token %d %s\n", tok->type, tok->data);
@@ -306,9 +306,9 @@ void stack_print(TStack *st)
 		stack_pop(st);
 	}
 	while (!stack_empty(cache_stack)) {
-        tok = stack_top(cache_stack);
-        stack_push(st, tok);
-        stack_pop(cache_stack);
+		tok = stack_top(cache_stack);
+		stack_push(st, tok);
+		stack_pop(cache_stack);
 	}
 	stack_free(cache_stack);
 }
@@ -328,39 +328,39 @@ void generate_code()
 	while (gene_stack->capacity > 1) {
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
-        if (token_is_operand(tok)) {
-            stack_push(ins_stack, tok);
-        } else {
-            id_tok_1 = stack_top(gene_stack);
-            stack_pop(gene_stack);
-            id_tok_2 = stack_top(gene_stack);
-            stack_pop(gene_stack);
-            var_1 = find_var(id_tok_1);
-            var_2 = find_var(id_tok_2);
-            operand_type_checker(tok->type, var_1, var_2);
-            actual_ins = create_ins(ope_type_2_ins_type(tok->type), expr_var, var_2, var_1); /* Poradi? */
-            list_insert(actual_ins_list, actual_ins);
-        }
+		if (token_is_operand(tok)) {
+			stack_push(ins_stack, tok);
+		} else {
+			id_tok_1 = stack_top(gene_stack);
+			stack_pop(gene_stack);
+			id_tok_2 = stack_top(gene_stack);
+			stack_pop(gene_stack);
+			var_1 = find_var(id_tok_1);
+			var_2 = find_var(id_tok_2);
+			operand_type_checker(tok->type, var_1, var_2);
+			actual_ins = create_ins(ope_type_2_ins_type(tok->type), expr_var, var_2, var_1); /* Poradi? */
+			list_insert(actual_ins_list, actual_ins);
+		}
 	}
 	/* assign vysledku */
 }
 
 TVariable *find_var(TToken *tok)
 {
-    TVariable *new_var;
+	TVariable *new_var;
 
-    if (tok->type == TOKEN_IDENTIFIER) {
-        if (htab_lookup(G.g_globalTab, tok->data) == NULL) {
-            exit_error(E_SEMANTIC_DEF);
-        }
-    } else {
-        if (htab_lookup(G.g_constTab, tok->data) == NULL) {
-            htab_item *new_const = htab_insert(G.g_constTab, tok->data);
-            new_const->data.variable = token_to_const(tok);
-        }
-    }
+	if (tok->type == TOKEN_IDENTIFIER) {
+		if (htab_lookup(G.g_globalTab, tok->data) == NULL) {
+			exit_error(E_SEMANTIC_DEF);
+		}
+	} else {
+		if (htab_lookup(G.g_constTab, tok->data) == NULL) {
+			htab_item *new_const = htab_insert(G.g_constTab, tok->data);
+			new_const->data.variable = token_to_const(tok);
+		}
+	}
 
-    return new_var;
+	return new_var;
 }
 
 void postfix_count_test()
@@ -425,77 +425,78 @@ int token_is_operand(TToken *tok)
 
 int ope_type_2_ins_type(int operator_type)
 {
-    int val;
+	int val;
 
-    switch (operator_type) {
-        case TOKEN_MUL:
-            val = INS_MUL;
-            break;
+	switch (operator_type) {
+		case TOKEN_MUL:
+			val = INS_MUL;
+			break;
 		case TOKEN_DIV:
-            val = INS_DIV;
-            break;
+			val = INS_DIV;
+			break;
 		case TOKEN_ADD:
-            val = INS_ADD;
-            break;
+			val = INS_ADD;
+			break;
 		case TOKEN_SUB:
-            val = INS_SUB;
-            break;
+			val = INS_SUB;
+			break;
 		case TOKEN_EQUAL:
-            val = INS_EQ;
-            break;
+			val = INS_EQ;
+			break;
 		case TOKEN_NOT_EQUAL:
-            val = INS_NEQ;
-            break;
+			val = INS_NEQ;
+			break;
 		case TOKEN_GREATER:
-            val = INS_GREATER;
-            break;
+			val = INS_GREATER;
+			break;
 		case TOKEN_GREATER_EQUAL:
-            val = INS_GREATEQ;
-            break;
+			val = INS_GREATEQ;
+			break;
 		case TOKEN_LESS:
-            val = INS_LESSER;
-            break;
+			val = INS_LESSER;
+			break;
 		case TOKEN_LESS_EQUAL:
-            val = INS_LESSEQ;
-            break;
-    }
+			val = INS_LESSEQ;
+			break;
+	}
 
-    return val;
+	return val;
 }
 
 void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 {
-    /* Operace mezi retezcem a neretezcem */
-    if ((var_1->var_type == TYPE_STRING) && (var_2->var_type != TYPE_STRING)) {
-        exit_error(E_SEMANTIC_TYPES);
-    }
+	/* Operace mezi retezcem a neretezcem */
+	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
+		exit_error(E_SEMANTIC_TYPES);
+	}
 
-    switch (operator_type) {
-        case TOKEN_MUL:
+	switch (operator_type) {
+		case TOKEN_MUL:
 		case TOKEN_DIV:
 		case TOKEN_ADD:
 		case TOKEN_SUB:
-            /* Aritmeticke operace nad retezci */
-            if (var_type_compare(var_1, TYPE_STRING) || var_type_compare(var_2, TYPE_STRING)) {
-                exit_error(E_SEMANTIC_TYPES);
-            }
-    }
+			/* Aritmeticke operace nad retezci */
+			if (t_compare(var_1, TYPE_STRING) || t_compare(var_2, TYPE_STRING)) {
+				exit_error(E_SEMANTIC_TYPES);
+			}
+	}
 }
 
-int var_type_compare(TVariable *var, int type)
+int t_compare(TVariable *var, int type)
 {
-    return (var->var_type == type);
+	return (var->var_type == type);
 }
 
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
 {
-    TList_item *ins;
+	TList_item *ins;
 
-    ins = gmalloc(sizeof(TList_item));
-    ins->ins_type = type;
-    ins->addr1 = addr1;
-    ins->addr2 = addr2;
-    ins->addr3 = addr3;
+	ins = gmalloc(sizeof(TList_item));
+	ins->ins_type = type;
+	ins->addr1 = addr1;
+	ins->addr2 = addr2;
+	ins->addr3 = addr3;
 
-    return ins;
+	return ins;
 }
+

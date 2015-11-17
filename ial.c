@@ -74,43 +74,47 @@ int find(TVariable *s, TVariable *search)
 
 void siftDown(char *str, int left, int right)
 {
-    int i, j, tmp;
+    int root, child, tmp;
     bool cont; //continue   
 
-    i = left;
-    j = 2*i;
-    tmp = str[i];
-    cont = j <= right;
+    root = left;
+    child = 2*root + 1;
+    tmp = str[root];
+    cont = child <= right;
 
     while (cont)
     {
-        if (j < right)
-            if (str[j] < str[j+1])
-                j++;
+        if (child < right)
+            if (str[child] < str[child+1])
+                child++;
 
-            if (tmp >= str[j])
+            if (tmp >= str[child])
                 cont = false;
             else
             {
-                str[i] = str[j];
-                i = j;
-                j = 2 * i;
-                cont = j <= right;
+                str[root] = str[child];
+                root = child;
+                child = 2*root + 1;
+                cont = child <= right;
             }
     }
 
-    str[i] = tmp;
+    str[root] = tmp;
 }
 
-char *sort(char * str)
+char *sort(char * orig_str)
 {
-    int right = strlen(str) - 1;
-    int left = right / 2;
+    int s_len = strlen(orig_str);
+    char *str = gmalloc(s_len + 1);
+    strcpy(str, orig_str);   
+
+    int right = s_len - 1;
+    int left = s_len / 2 - 1;
 
     for (int i = left; i >= 0; i--)
         siftDown(str, i, right);
 
-    for ( ; right >= 1; right--)
+    for (right; right > 0; right--)
     {
         str[0] ^= str[right]; //xor swap
         str[right] ^= str[0];

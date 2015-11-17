@@ -25,6 +25,8 @@
 #include "ilist.h"
 #include "adt.h"
 #include "ial.h"
+#include "interpret.h"
+#include "shared.h"
 
 #define RULE_COUNTER 13
 #define EQ 0
@@ -44,6 +46,7 @@ TVariable *check_variable(TToken *tok);
 
 /* TODO
 	Zpracovani funkci
+	 na dvě části
 	Kontrola exit_error navratovych hodnot
 */
 
@@ -142,7 +145,7 @@ void generate_code(TToken *tok)
 	 TVariable *var1;
 	 TVariable *var2;
 
-	if ((tok->type >= TOKEN_MUL) || (tok->type == TOKEN_EOF) {
+	if ((tok->type >= TOKEN_MUL) || (tok->type == TOKEN_EOF)) {
 		tok1 = stack_top(gene_stack);
 		var1 = check_variable(tok1);
 		stack_pop(gene_stack);
@@ -152,11 +155,11 @@ void generate_code(TToken *tok)
 		tok2 = stack_top(gene_stack);
 		var2 = check_variable(tok2);
 		stack_pop(gene_stack);
-		type_checker(var1, var2);
-		TList_item list_item = gmalloc(sizoof(TList_item));
+		type_checker(tok1, tok2);
+		TList_item *list_item = gmalloc(sizeof(TList_item));
 		list_item->addr1 = var_from_matej;
 		list_item->addr2 = var1;
-		list_item->addr3 = var3
+		list_item->addr3 = var2;
 		switch (tok->type) {
 			/* TODO tvorba instrukci */
 			case TOKEN_MUL:
@@ -165,7 +168,7 @@ void generate_code(TToken *tok)
 			case TOKEN_DIV:
 				list_item->ins_type = INS_DIV;
 				break;
-			case TOKEN_TOKEN_ADD:
+			case TOKEN_ADD:
 				list_item->ins_type = INS_ADD;				
 				break;
 			case TOKEN_SUB:
@@ -190,7 +193,7 @@ void generate_code(TToken *tok)
 				list_item->ins_type = INS_LESSEQ;			
 				break;
 		  }
-		  strcat(var2->data, var1->data);
+		  strcat(tok2->data, tok1->data);
 		  stack_push(gene_stack, var2);
 	 } else {
 		  stack_push(gene_stack, tok);
@@ -285,8 +288,6 @@ void stack_flush()
 
 void type_checker(TToken *var1, TToken *var2)
 {
-	int problem = 0;;	
-	
 	/* TODO Najdi promennou v tabulkach, porovnej typy */
 	int problem = 0;;
 
@@ -302,11 +303,11 @@ void type_checker(TToken *var1, TToken *var2)
 TVariable *check_variable(TToken *tok)
 {
 	
-	htab_item *looked = htab_lookup(g_constTab, token->data);
+	htab_item *looked = htab_lookup(g_constTab, tok->data);
 	if (looked == NULL) {
-		error_exit(3);
+		exit_error(3);
 
 	}
-	return looked->variable;
+	return looked->data.variable;
 }
 

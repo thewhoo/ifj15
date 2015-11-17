@@ -22,8 +22,11 @@
 #include "lex.h"
 #include "enums.h"
 #include "error.h"
+#include "ilist.h"
 #include "adt.h"
 #include "ial.h"
+#include "interpret.h"
+#include "shared.h"
 
 #define RULE_COUNTER 13
 #define EQ 0
@@ -31,16 +34,21 @@
 #define HI 2
 #define ER 3
 
-void expression(TVariable* variable_toilet, Tins_list* list_toilet);
-void generate_code(TToken* tok);
-int expr_end(TToken* tok);
+void expression(TVariable *variable_toilet, Tins_list *list_toilet);
+void generate_code(TToken *tok);
+int expr_end(TToken *tok);
 int token_to_pos(int n);
 int stack_lower_prio(int x_type, int y_type);
 char *type_to_text(int type);
 void stack_flush();
-void type_checker(TToken* var1, TToken* var2);
+void type_checker(TToken *var1, TToken *var2);
+TVariable *check_variable(TToken *tok);
 
-/* TODO Zpracovani funkci  */
+/* TODO
+	Zpracovani funkci
+	 na dvě části
+	Kontrola exit_error navratovych hodnot
+*/
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* Sloupce představují vstupní tokeny, řádky představují tokeny na zásobníku */
@@ -60,14 +68,19 @@ const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /*	==	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
 /*	!=	*/	{	LO,	LO,	LO,	LO,	LO,	HI,	LO,	HI,	HI,	HI,	HI,	HI,	HI	},
 };
-TStack* expr_stack; /* INFIX->POSTFIX stack*/
-TStack* gene_stack; /* Stack for instruction generating */
+TStack *expr_stack; /* INFIX->POSTFIX stack*/
+TStack *gene_stack; /* Stack for instruction generating */
+Tins_list *my_ins_list;
+TVariable *var_from_matej;
 
-void expression(TVariable* variable_toilet, Tins_list* list_toilet)
+void expression(TVariable *variable_toilet, Tins_list *list_toilet)
 {
-	TToken* token_act; /* Token from lexer */
-	TToken* token_top; /* Token from expr_stack */
 
+	TToken *token_act; /* Token from lexer */
+	TToken *token_top; /* Token from expr_stack */
+	
+	my_ins_list = list_toilet;
+	var_from_matej = variable_toilet;
 	expr_stack = stack_init();
 	gene_stack = stack_init();
 	token_act = get_token();
@@ -76,9 +89,8 @@ void expression(TVariable* variable_toilet, Tins_list* list_toilet)
 		switch (token_act->type) {
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
+			case TOKEN_STRING_VALUE:
 			case TOKEN_IDENTIFIER:
-				/* TODO kontrola existence promennych a konstant, pripadne jejich tvorba */
-				/* TODO nejedna se o funkci?! */
 				generate_code(token_act);
 				break;
 			case TOKEN_LROUND_BRACKET:
@@ -120,75 +132,75 @@ void expression(TVariable* variable_toilet, Tins_list* list_toilet)
 	}
 
 	stack_flush(expr_stack);
-int navrat =token_act->type;
-  token_act->type = TOKEN_EOF; /* Killing token */
+	token_act->type = TOKEN_EOF; /* Killing token */
 	generate_code(token_act);
-
-token_act->type = navrat;
-unget_token(token_act);
 	stack_free(expr_stack);
 	stack_free(gene_stack);
 }
 
-void generate_code(TToken* tok)
+void generate_code(TToken *tok)
 {
-	 TToken* var1;
-	 TToken* var2;
+	 TToken *tok1;
+	 TToken *tok2;
+	 TVariable *var1;
+	 TVariable *var2;
 
-	if (tok->type == TOKEN_EOF) {
-		tok = stack_top(gene_stack); /* INS_RET */
+	if ((tok->type >= TOKEN_MUL) || (tok->type == TOKEN_EOF)) {
+		tok1 = stack_top(gene_stack);
+		var1 = check_variable(tok1);
 		stack_pop(gene_stack);
-		printf("INS_RET %s\n", tok->data);
-		return;
-	}
-
-	if (tok->type >= 34) {
-		var1 = stack_top(gene_stack);
+		if (tok->type == TOKEN_EOF){
+			printf("INS_RET %s\n", tok->data);
+		}
+		tok2 = stack_top(gene_stack);
+		var2 = check_variable(tok2);
 		stack_pop(gene_stack);
-		var2 = stack_top(gene_stack);
-		stack_pop(gene_stack);
-		type_checker(var1, var2);
+		type_checker(tok1, tok2);
+		TList_item *list_item = gmalloc(sizeof(TList_item));
+		list_item->addr1 = var_from_matej;
+		list_item->addr2 = var1;
+		list_item->addr3 = var2;
 		switch (tok->type) {
 			/* TODO tvorba instrukci */
-			case 34:
-				printf("INS_MUL XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_MUL:
+				list_item->ins_type = INS_MUL;				
 				break;
-			case 35:
-				printf("INS_DIV XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_DIV:
+				list_item->ins_type = INS_DIV;
 				break;
-			case 36:
-				printf("INS_ADD XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_ADD:
+				list_item->ins_type = INS_ADD;				
 				break;
-			case 37:
-				printf("INS_SUB XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_SUB:
+				list_item->ins_type = INS_SUB;				
 				break;
-			case 38:
-				printf("INS_EQ XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_EQUAL:
+				list_item->ins_type = INS_EQ;				
 				break;
-			case 39:
-				printf("INS_NEQ XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_NOT_EQUAL:
+				list_item->ins_type = INS_NEQ;				
 				break;
-			case 40:
-				printf("INS_GREATER XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_GREATER:
+				list_item->ins_type = INS_GREATER;				
 				break;
-			case 41:
-				printf("INS_GREATEQ XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_GREATER_EQUAL:
+				list_item->ins_type = INS_GREATEQ;
 				break;
-			case 42:
-				printf("INS_LESSER XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_LESS:
+				list_item->ins_type = INS_LESSER;			
 				break;
-			case 43:
-				printf("INS_LESSEQ XX, %s, %s\n", var2->data, var1->data);
+			case TOKEN_LESS_EQUAL:
+				list_item->ins_type = INS_LESSEQ;			
 				break;
 		  }
-		  strcat(var2->data, var1->data);
+		  strcat(tok2->data, tok1->data);
 		  stack_push(gene_stack, var2);
 	 } else {
 		  stack_push(gene_stack, tok);
 	 }
 }
 
-int expr_end(TToken* tok)
+int expr_end(TToken *tok)
 {
 	int stoper= 1;
 
@@ -265,7 +277,7 @@ int token_to_pos(int n)
 /* vysypání zbytků ze zásobníku */
 void stack_flush()
 {
-	 TToken* tok;
+	 TToken *tok;
 
 	 while (!stack_empty(expr_stack)) {
 		  tok = stack_top(expr_stack);
@@ -274,8 +286,9 @@ void stack_flush()
 	 }
 }
 
-void type_checker(TToken* var1, TToken* var2)
+void type_checker(TToken *var1, TToken *var2)
 {
+	/* TODO Najdi promennou v tabulkach, porovnej typy */
 	int problem = 0;;
 
 	if (var1->type == 99) problem = 1;
@@ -285,3 +298,16 @@ void type_checker(TToken* var1, TToken* var2)
 		exit_error(4);
 	}
 }
+
+
+TVariable *check_variable(TToken *tok)
+{
+	
+	htab_item *looked = htab_lookup(G.g_constTab, tok->data);
+	if (looked == NULL) {
+		exit_error(3);
+
+	}
+	return looked->data.variable;
+}
+

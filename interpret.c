@@ -31,13 +31,16 @@ TStack *active_frame;
 TStack *fparams_stack;
 
 
-TVariable* get_var(char *address)
+TVariable* get_var(TVariable *var)
 {
+    if(var->constant)
+        return var;
+
     htab_item *item = NULL;
-    // what abou constants???
+
     for(int i = active_frame->used - 1; i>=0; i--)
     {
-        item = htab_lookup((htab_t *)active_frame->data[i], address);
+        item = htab_lookup((htab_t *)active_frame->data[i], var->name);
         if(item != NULL)
             return item->data.variable;
     }
@@ -235,7 +238,8 @@ void interpret_loop(Tins_list *ins_list)
                 break;
 
             case(INS_PUSH_TAB):
-                stack_push(active_frame, ins->addr1);
+                htab_t *new_tab = htab_copy(ins->addr1);
+                stack_push(active_frame, new_tab);
                 break;
 
             case(INS_POP_TAB):
@@ -268,7 +272,7 @@ void interpret_loop(Tins_list *ins_list)
 
                 func = (htab_item*)ins->addr1;
                 ins = func->data.function->ins_list->first;
-                active_frame = gmalloc(sizeof(TStack));
+                active_frame = stack_init();
                 htab_t *new_tab = htab_copy(func->data.function->local_tab);
                 stack_push(active_frame, new_tab);
                 map_params(new_tab, func->data.function->params_stack);
@@ -288,7 +292,28 @@ void interpret_loop(Tins_list *ins_list)
                 break;
 
             case(INS_ASSIGN):
-                    //assign value from "return" variable..
+                var1 = get_var(ins->addr1);
+                var2 = get_var(ins->addr2);
+                if(!var2->initialized)
+                    exit_error(E_UNINITIALIZED);
+                if(var1->var_type == TYPE_INT)
+                {
+                    if(var2->var_type == TYPE_DOUBLE)
+                        var1->data.i = var2->data.d;
+                    else
+                        var1->data.i = var2->data.i;
+                }
+                else if (var1->var_type == TYPE_DOUBLE)
+                {
+                    if(var2->var_type == TYPE_DOUBLE)
+                        var1->data.d = var2->data.d;
+                    else
+                        var1->data.d = var2->data.i;
+                }
+                else
+                    var1->data.str = var2->data.str;
+
+                var1->initialized = 1;
                 break;
 
             //built-in

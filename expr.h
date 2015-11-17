@@ -48,7 +48,7 @@ typedef enum {
   * @param variable_toilet Ukazatel na promennou pro prirazeni vysledku vyrazu
   * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
-void expression(TVariable* variable_toilet, Tins_list* list_toilet);
+void expression(TVariable *variable_toilet, Tins_list *list_toilet);
 
 #endif //EXPR_H
 

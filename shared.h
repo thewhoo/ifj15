@@ -26,6 +26,8 @@ extern htab_t *g_constTab;
 extern htab_t *g_globalTab;
 
 // Global FrameStack
-extern TStack *g_frameStack;  
+extern TStack *g_frameStack;
+
+void global_init();
 
 #endif // SHARED_H

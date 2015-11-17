@@ -114,7 +114,7 @@ char *sort(char * orig_str)
     for (int i = left; i >= 0; i--)
         siftDown(str, i, right);
 
-    for (right; right > 0; right--)
+    for (; right > 0; right--)
     {
         str[0] ^= str[right]; //xor swap
         str[right] ^= str[0];

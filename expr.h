@@ -21,6 +21,9 @@
 #ifndef EXPR_H
 #define EXPR_H
 
+#include "adt.h"
+#include "ilist.h"
+
 typedef enum {
 	 oper_add,
 	 oper_sub,

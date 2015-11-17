@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "parser.h"
 #include "adt.h"
 #include "lex.h"
@@ -27,12 +28,9 @@
 #include "ilist.h"
 #include "shared.h"
 #include "interpret.h"
-
-#define LOCALTAB_DEFAULT_SIZE 20
+#include "expr.h"
 
 TToken* token;
-
-// TODO: Clean this up!
 
 // Forward declarations of state functions
 bool PROG();
@@ -69,13 +67,24 @@ void storeVarName();
 void storeFunction();
 void storeVariable();
 TVariable *findVariable();
-void storeNewConstant();
 
 enum
 {
 	T_FUNC,
 	T_VAR
 };
+
+
+TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)
+{
+  TList_item *ins = gmalloc(sizeof(TList_item));
+  ins->ins_type = type;
+  ins->addr1 = addr1;
+  ins->addr2 = addr2;
+  ins->addr3 = addr3;
+
+  return ins;
+}
 
 // ============== Control functions start here ==============
 
@@ -89,7 +98,7 @@ void storeFunction(TFunction *f)
     if(!(result->data.function->return_type == f->return_type))
      exit_error(E_SEMANTIC_DEF);
     // Replace forward declaration with definition
-    gfree(result->data);
+    gfree(result->data.function);
     result->data.function = f;
   }
   else
@@ -153,7 +162,7 @@ TFunction *getNewFunction()
 	f->return_type = 0;
 	f->defined = 0;
 	f->ins_list = list_init();
-	f->local_tab = htab_init(LOCALTAB_DEFAULT_SIZE);
+	f->local_tab = htab_init(HTAB_SIZE);
 	f->params_stack = stack_init();
 
   return f;
@@ -378,7 +387,6 @@ bool NESTED_BLOCK()
 
 bool NBC()
 {
-
 	switch(token->type)
 	{
 		case TOKEN_AUTO:
@@ -410,9 +418,10 @@ bool NBC()
 
 		case TOKEN_RCURLY_BRACKET:
 			return true;
-	}
 
-	return ret;
+		default:
+			return false;
+	}
 }
 
 bool DECL_OR_ASSIGN()
@@ -478,7 +487,6 @@ bool DECL_OR_ASSIGN()
       return false;
 
     // TODO: Set init and type
-    var->initialized = true;
 
 
     // Store variable in function symbol table
@@ -502,15 +510,13 @@ bool DECL_ASSIGN(TVariable *var)
   // We must initialize the variable
 	if(token->type == TOKEN_ASSIGN)
 	{
-    var->initialized = true;
-		expression(var, func);
+		expression(var, func->ins_list);
 		return true;
 	}
 
   // Variable was only declared, not initialized
 	else if(token->type == TOKEN_SEMICOLON)
 	{
-		v->initialized = false;
     return true;
 	}
   // Syntax error
@@ -531,7 +537,7 @@ bool ASSIGN()
       exit_error(E_SEMANTIC_OTHERS);
 
     if(token->type == TOKEN_ASSIGN)
-      expression(var, func);
+      expression(var, func->ins_list);
     // Syntax error
     else
       return false;
@@ -575,11 +581,8 @@ bool HARD_VALUE(TVariable **v)
     }
     var->initialized = true;
 
-    // Add constant to constant table
-    storeNewConstant(var);
-
     // Pass pointer to constant to caller
-    v = var;
+    *v = var;
 
     token = get_token();
 
@@ -594,6 +597,7 @@ bool HARD_VALUE(TVariable **v)
 
 bool IF_STATEMENT()
 {
+  /*
 	bool ret = false;
 
 	if(token->type == TOKEN_IF)
@@ -601,17 +605,20 @@ bool IF_STATEMENT()
 		token = get_token();
 		if(token->type == TOKEN_LROUND_BRACKET)
 		{
-			CALL_EXPR();
+			//CALL_EXPR();
 			if(token->type == TOKEN_RROUND_BRACKET)
 				ret = NESTED_BLOCK() && ELSE_STATEMENT();
 		}
 	}
 
 	return ret;
+  */
+  return true;
 }
 
 bool ELSE_STATEMENT()
 {
+  /*
 	bool ret = false;
 
 	switch(token->type)
@@ -643,102 +650,168 @@ bool ELSE_STATEMENT()
 	}
 
 	return ret;
+  */
+  return true;
 }
 
 bool COUT()
 {
-	bool ret = false;
-
 	if(token->type == TOKEN_COUT)
 	{
 		token = get_token();
 		if(token->type == TOKEN_COUT_BRACKET)
 		{
 			token = get_token();
-			ret = COUT_OUTPUT() && COUT_NEXT() && token->type == TOKEN_SEMICOLON;
-			token = get_token();
+			if(COUT_OUTPUT() && COUT_NEXT() && token->type == TOKEN_SEMICOLON)
+      {
+			  token = get_token();
+        return true;
+      }
 		}
-	}
+  }
 
-	return ret;
+  return false;
 }
 
 bool COUT_OUTPUT()
 {
-	bool ret = false;
+  // Get current function
+  TFunction *func = stack_top(g_frameStack);
 
+  // Print a variable
 	if(token->type == TOKEN_IDENTIFIER)
 	{
-		token = get_token();
-		ret = true;
-	}
-	else
-		ret = HARD_VALUE();
+    // Find the variable
+    TVariable *var = findVariable(token->data);
 
-	return ret;
+    // Undefined var, semnatic error
+    if(var == NULL)
+      exit_error(E_SEMANTIC_DEF);
+
+    // Create instruction
+    TList_item *ins = createInstruction(INS_COUT, var, NULL, NULL);
+
+    // Append instruction to current ins list
+    list_insert(func->ins_list, ins);
+
+		token = get_token();
+		return true;
+	}
+  // Print a literal
+	else
+  {
+		// Store the constant here
+    TVariable **con = NULL;
+
+    if(!HARD_VALUE(con))
+      // Syntax error
+      return false;
+
+    TList_item *ins = createInstruction(INS_COUT, con, NULL, NULL);
+
+    list_insert(func->ins_list, ins);
+
+    return true;
+  }
+
+  // Syntax error
+	return false;
 }
 
 bool COUT_NEXT()
 {
-	bool ret = false;
-
 	if(token->type == TOKEN_COUT_BRACKET)
 	{
 		token = get_token();
-		ret = COUT_OUTPUT() && COUT_NEXT();
+		return COUT_OUTPUT() && COUT_NEXT();
 	}
 	else if (token->type == TOKEN_SEMICOLON)
-		ret = true;
+		return true;
 
-	return ret;
+  // Syntax error
+	return false;
 }
 
 bool CIN()
 {
-	bool ret = false;
-	bool midway = true;
+  // Current function
+  TFunction *func = stack_top(g_frameStack);
 
 	if(token->type == TOKEN_CIN)
+  {
 		token = get_token();
-	else
-		midway = false;
 
-	if(token->type == TOKEN_CIN_BRACKET)
-		token = get_token();
-	else
-		midway = false;
+	  if(token->type == TOKEN_CIN_BRACKET)
+    {
+		  token = get_token();
 
-	if(token->type == TOKEN_IDENTIFIER)
-	{
-		token = get_token();
-		ret = CIN_NEXT() && (token->type == TOKEN_SEMICOLON);
-		token = get_token();
-	}
+	    if(token->type == TOKEN_IDENTIFIER)
+	    {
+        // Find the variable
+        TVariable *var = findVariable(token->data);
+        if(var == NULL)
+          // Semantic error
+          exit_error(E_SEMANTIC_DEF);
 
-	return ret && midway;
+        // Generate insert instruction
+        TList_item *ins = createInstruction(INS_CIN, var, NULL, NULL);
+        // Append instruction to current function
+        list_insert(func->ins_list, ins);
+
+		    token = get_token();
+		    if(CIN_NEXT() && (token->type == TOKEN_SEMICOLON))
+        {
+		      token = get_token();
+          return true;
+        }
+	    }
+    }
+  }
+
+	// Syntax error
+  return false;
 }
 
 bool CIN_NEXT()
 {
-	bool ret = false;
+	// Current function
+  TFunction *func = stack_top(g_frameStack);
 
 	if(token->type == TOKEN_CIN_BRACKET)
-	{
-		token = get_token();
-		if(token->type == TOKEN_IDENTIFIER)
-		{
-			token = get_token();
-			ret = CIN_NEXT();
-		}
-	}
-	else if(token->type == TOKEN_SEMICOLON)
-		ret = true;
+  {
+	  token = get_token();
 
-	return ret;
+    if(token->type == TOKEN_IDENTIFIER)
+    {
+      // Find the variable
+      TVariable *var = findVariable(token->data);
+      if(var == NULL)
+        // Semantic error
+        exit_error(E_SEMANTIC_DEF);
+
+      // Generate insert instruction
+      TList_item *ins = createInstruction(INS_CIN, var, NULL, NULL);
+      // Append instruction to current function
+      list_insert(func->ins_list, ins);
+
+	    token = get_token();
+	    if(CIN_NEXT() && (token->type == TOKEN_SEMICOLON))
+      {
+	      token = get_token();
+        return true;
+      }
+    }
+  }
+	else if(token->type == TOKEN_SEMICOLON)
+		return true;
+
+	// Syntax error
+  return false;
 }
 
 bool FOR_STATEMENT()
 {
+  /*
 	bool ret = false;
 
 	if(token->type == TOKEN_FOR)
@@ -753,10 +826,13 @@ bool FOR_STATEMENT()
 	}
 
 	return ret;
+  */
+  return true;
 }
 
 bool FOR_DECLARATION()
 {
+  /*
 	bool ret = false;
 
 	if(token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
@@ -785,20 +861,26 @@ bool FOR_DECLARATION()
 	}
 
 	return ret;
+  */
+  return true;
 }
 
 bool FOR_EXPR()
 {
+  /*
 	bool ret = false;
 
 	ret = (token->type == TOKEN_SEMICOLON);
 	token = get_token();
 
 	return ret;
+  */
+  return true;
 }
 
 bool FOR_ASSIGN()
 {
+  /*
 	bool ret = false;
 
 	if(token->type == TOKEN_IDENTIFIER)
@@ -813,10 +895,13 @@ bool FOR_ASSIGN()
 	}
 
 	return ret;
+  */
+  return true;
 }
 
 bool RETURN()
 {
+  /*
 	bool ret = false;
 
 	if(token->type == TOKEN_RETURN)
@@ -828,14 +913,12 @@ bool RETURN()
 	}
 
 	return ret;
+  */
+  return true;
 }
 
 void parse()
 {
-	htab_t *g_constTab = htab_init(CONSTTAB_INITIAL_SIZE);
-	htab_t *g_globalTab = htab_init(GLOBALTAB_INITIAL_SIZE);
-	TStack *g_frameStack = stack_init();
-
 	token = get_token();
 	if(PROG())
 		printf("Syntax OK\n");

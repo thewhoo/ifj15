@@ -42,7 +42,7 @@ enum instructions
     INS_CALL,       //
     INS_RET,        //dest
     INS_PUSH_TAB,   //htab_t*
-    INS_POP_TAB,    //htab_t*
+    INS_POP_TAB,    //
     //built-int functions
     INS_LENGTH,     //dest, src1
     INS_SUBSTR,

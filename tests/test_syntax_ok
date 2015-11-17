@@ -1,6 +1,5 @@
 int main()
 {
-	int a=5;
-	cout << a; 
-	return a;
+	cout << "fuck this shit!\n" << "really!\n"; 
+	return 1;
 }

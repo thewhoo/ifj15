@@ -69,6 +69,7 @@ void storeVariable();
 TVariable *findVariable();
 TList_item *createInstruction();
 void createPseudoFrame();
+void checkFunctionDefinitions();
 
 enum
 {
@@ -88,6 +89,18 @@ TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)
   return ins;
 }
 
+void checkFunctionDefinitions()
+{
+
+  for(unsigned int i = 0; i < G.g_globalTab->htab_size; i++)
+  {
+        for(htab_item *item = G.g_globalTab->list[i]; item != NULL; item = item->next)
+        {
+          if(!item->data.function->defined)
+            exit_error(E_SEMANTIC_DEF);
+        }
+  }
+}
 // ============== Control functions start here ==============
 
 void storeFunction(TFunction *f)
@@ -290,9 +303,6 @@ bool FUNCTION_DECL()
       storeFunction(currentFunc);
 		}
 	}
-
-  // Function has been processed, jump out of block
-	stack_pop(G.g_frameStack);
 
 	return true;
 }
@@ -607,6 +617,7 @@ bool HARD_VALUE(TVariable **v)
         var->data.str = var->name;
         break;
     }
+    var->constant = true;
     var->initialized = true;
 
     // Pass pointer to constant to caller
@@ -729,9 +740,9 @@ bool COUT_OUTPUT()
 	else
   {
 		// Store the constant here
-    TVariable **con = NULL;
+    TVariable *con = getNewVariable();
 
-    if(!HARD_VALUE(con))
+    if(!HARD_VALUE(&con))
       // Syntax error
       return false;
 
@@ -937,7 +948,8 @@ bool RETURN()
     token = get_token();
 
     G.g_return->var_type = func->return_type;
-		expression(G.g_return, func->ins_list);
+		//expression(G.g_return, func->ins_list);
+		token = get_token();
 
     // Generate return instructions
     TList_item *ins = createInstruction(INS_RET, NULL, NULL, NULL);
@@ -962,4 +974,7 @@ void parse()
 		printf("Syntax OK\n");
 	else
 		printf("Syntax ERROR\n");
+
+  checkFunctionDefinitions();
+
 }

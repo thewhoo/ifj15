@@ -91,7 +91,7 @@ TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)
 void storeFunction(TFunction *f)
 {
   // Check if the function has already been declared
-  htab_item *result = htab_lookup(g_globalTab, f->name);
+  htab_item *result = htab_lookup(G.g_globalTab, f->name);
   if(result)
   {
     // Check if return type matches
@@ -104,7 +104,7 @@ void storeFunction(TFunction *f)
   else
   {
     // Function has not been declared before
-    htab_item *newFunc = htab_insert(g_globalTab, f->name);
+    htab_item *newFunc = htab_insert(G.g_globalTab, f->name);
     newFunc->data.function = f;
   }
 
@@ -124,10 +124,10 @@ void storeNewVariable(TFunction *f, TVariable *v)
 void storeNewConstant(TVariable *c)
 {
   // Check if the constant already has an entry
-  if(htab_lookup(g_constTab, c->name))
+  if(htab_lookup(G.g_constTab, c->name))
      return;
 
-  htab_item *newConst = htab_insert(g_constTab, c->name);
+  htab_item *newConst = htab_insert(G.g_constTab, c->name);
   newConst->data.variable = c;
 
 }
@@ -135,20 +135,14 @@ void storeNewConstant(TVariable *c)
 // This will search the frame stack for the var and return it (returns NULL if the var is not found)
 TVariable *findVariable(char *name)
 {
-  // Create a copy of the global frame stack
-  TStack *fs = stack_copy(g_frameStack);
-
   // Search all the frames for the variable
-  while(!stack_empty(fs))
+  for(int i=G.g_frameStack->used-1; i >= 0; i--)
   {
-    TFunction *f = stack_top(fs);
-
+    TFunction *f = G.g_frameStack->data[i];
     htab_item *found = htab_lookup(f->local_tab, name);
 
     if(found)
       return found->data.variable;
-
-    stack_pop(fs);
   }
 
   return NULL;
@@ -220,7 +214,7 @@ bool FUNCTION_DECL()
   TFunction *currentFunc = getNewFunction();
 
   // Tell everyone we are currently in a new function (block)
-  stack_push(g_frameStack, currentFunc);
+  stack_push(G.g_frameStack, currentFunc);
 
 	// No valid data type detected --> Syntax error
 	if(!DATA_TYPE(currentFunc, T_FUNC))
@@ -269,7 +263,7 @@ bool FUNCTION_DECL()
 	}
 
   // Function has been processed, jump out of block
-	stack_pop(g_frameStack);
+	stack_pop(G.g_frameStack);
 
 	return true;
 }
@@ -429,7 +423,7 @@ bool DECL_OR_ASSIGN()
   // Create new variable "object"
   TVariable *var = getNewVariable();
   // The variable belongs to the function or block on top of the frame stack
-  TFunction *func = stack_top(g_frameStack);
+  TFunction *func = stack_top(G.g_frameStack);
 
   // Received identifier, expecting declaration or declaration with assignment
 	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
@@ -505,12 +499,13 @@ bool DECL_OR_ASSIGN()
 bool DECL_ASSIGN(TVariable *var)
 {
   // Current function
-  TFunction *func = stack_top(g_frameStack);
+  TFunction *func = stack_top(G.g_frameStack);
 
   // We must initialize the variable
 	if(token->type == TOKEN_ASSIGN)
 	{
 		expression(var, func->ins_list);
+    token = get_token();
 		return true;
 	}
 
@@ -526,7 +521,7 @@ bool DECL_ASSIGN(TVariable *var)
 bool ASSIGN()
 {
   // Current function
-  TFunction *func = stack_top(g_frameStack);
+  TFunction *func = stack_top(G.g_frameStack);
 
 	if(token->type == TOKEN_IDENTIFIER)
 	{
@@ -676,7 +671,7 @@ bool COUT()
 bool COUT_OUTPUT()
 {
   // Get current function
-  TFunction *func = stack_top(g_frameStack);
+  TFunction *func = stack_top(G.g_frameStack);
 
   // Print a variable
 	if(token->type == TOKEN_IDENTIFIER)
@@ -735,7 +730,7 @@ bool COUT_NEXT()
 bool CIN()
 {
   // Current function
-  TFunction *func = stack_top(g_frameStack);
+  TFunction *func = stack_top(G.g_frameStack);
 
 	if(token->type == TOKEN_CIN)
   {
@@ -775,7 +770,7 @@ bool CIN()
 bool CIN_NEXT()
 {
 	// Current function
-  TFunction *func = stack_top(g_frameStack);
+  TFunction *func = stack_top(G.g_frameStack);
 
 	if(token->type == TOKEN_CIN_BRACKET)
   {

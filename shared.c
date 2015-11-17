@@ -15,20 +15,14 @@
 
 #include "ial.h"
 #include "stack.h"
+#include "shared.h"
 
-// Global ConstTab
-htab_t *g_constTab;
 
-// Global GlobalTab
-htab_t *g_globalTab;
-
-// Global FrameStack
-TStack *g_frameStack;  
-	
+struct TGlobal G;
 
 void global_init()
 {
-    htab_t *g_constTab = htab_init(HTAB_SIZE);
-	htab_t *g_globalTab = htab_init(HTAB_SIZE);
-	TStack *g_frameStack = stack_init();
+  G.g_constTab = htab_init(HTAB_SIZE);
+	G.g_globalTab = htab_init(HTAB_SIZE);
+	G.g_frameStack = stack_init();
 }

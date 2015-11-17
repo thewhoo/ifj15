@@ -34,7 +34,7 @@ int main(int argc, char **argv)
         exit_error(E_INTERNAL);
 
     gcInit();
-    
+
     lex_init(fp);
 
     global_init();

@@ -41,7 +41,7 @@ TVariable* get_var(char *address)
         if(item != NULL)
             return item->data.variable;
     }
-    
+
     fprintf(stderr,"Var not found, should not happen!\n");
     exit_error(99);
     return NULL;
@@ -79,19 +79,19 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
             if(dest->var_type == TYPE_DOUBLE)
                 dest->data.d = a+b;
             else
-                dest->data.i = a+b;       
+                dest->data.i = a+b;
             break;
         case('-'):
             if(dest->var_type == TYPE_DOUBLE)
                 dest->data.d = a-b;
             else
-                dest->data.i = a-b;        
+                dest->data.i = a-b;
             break;
         case('*'):
             if(dest->var_type == TYPE_DOUBLE)
                 dest->data.d = a*b;
             else
-                dest->data.i = a*b;       
+                dest->data.i = a*b;
             break;
         case('/'):
             if(b == 0)
@@ -100,7 +100,7 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
             if(dest->var_type == TYPE_DOUBLE)
                 dest->data.d = a/b;
             else
-                dest->data.i = a/b;       
+                dest->data.i = a/b;
             break;
     }
 
@@ -113,10 +113,10 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
 
     if(!src1->initialized || !src2->initialized)
         exit_error(E_UNINITIALIZED);
-    
+
     //Check for dest type?  double a = 3 > 4 ..but result of comapring must be
     //INT
-    
+
     if(src1->var_type == TYPE_DOUBLE)
         a = src1->data.d;
     else
@@ -126,7 +126,7 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
         b = src2->data.d;
     else
         b = src2->data.i;
-    
+
     if((src1->var_type == TYPE_STRING) && (src2->var_type == TYPE_STRING))
     {
         result = strcmp(src1->data.str, src2->data.str);
@@ -189,7 +189,7 @@ void map_params(htab_t *tab, TStack* decl_params)
     if(decl_params->used != fparams_stack->used)
     {
         fprintf(stderr, "Wrong number of parameters!\n");
-        exit_error(10); 
+        exit_error(10);
     } //delete later
 
     htab_item *param;
@@ -278,7 +278,7 @@ void interpret_loop(Tins_list *ins_list)
             case(INS_RET):
                 if(stack_empty(gStack))  //end of main func
                     exit(0);            //maybe some cleaning?
-                
+
                 clean_active_frame();
                 ins = (TList_item*) stack_top(gStack);
                 stack_pop(gStack);
@@ -286,14 +286,14 @@ void interpret_loop(Tins_list *ins_list)
                 stack_pop(gStack);
                 //returned value assigned by INS_ASSIGN from "return" var?
                 break;
-            
+
             case(INS_ASSIGN):
                     //assign value from "return" variable..
                 break;
 
             //built-in
             case(INS_LENGTH):
-                //CHECK RETURN VAR TYPE? 
+                //CHECK RETURN VAR TYPE?
                 var2 = get_var(ins->addr2);
                 if(!var2->initialized)
                     exit_error(E_UNINITIALIZED);
@@ -304,7 +304,7 @@ void interpret_loop(Tins_list *ins_list)
                 var1->initialized = 1;
                 break;
             case(INS_SUBSTR):
-                //3 agrumenty, 1 return..neda sa ako 1 instrukcia..hm.. 
+                //3 agrumenty, 1 return..neda sa ako 1 instrukcia..hm..
                 break;
             case(INS_CONCAT):
                 var2 = get_var(ins->addr2);
@@ -333,7 +333,7 @@ void interpret_loop(Tins_list *ins_list)
                 var2 = get_var(ins->addr2);
                 if(var2->var_type != TYPE_STRING)
                     exit_error(E_SEMANTIC_TYPES);
-                
+
                 str = gmalloc(strlen(var2->data.str) + 1);
                 strcpy(str, var2->data.str);
                 ret_str = sort(str);
@@ -351,7 +351,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(!var1->initialized)
                     exit_error(E_UNINITIALIZED);
                 cout(var1);
-                break;           
+                break;
 
         }
         ins = ins->next;
@@ -368,14 +368,14 @@ void interpret()
 {
 
     //init global stack for interpret
-    gStack = stack_init();   
+    gStack = stack_init();
     fparams_stack = stack_init();
 
     //find main function in global symbol table
-    htab_item *func_main = htab_lookup(g_globalTab, "main");
+    htab_item *func_main = htab_lookup(G.g_globalTab, "main");
     if(func_main == NULL)
         exit_error(3);
-    
+
     //copy of main symbol table
     htab_t *main_tab = htab_copy(func_main->data.function->local_tab);
     TStack *func_main_frame = stack_init();

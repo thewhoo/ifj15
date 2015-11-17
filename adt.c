@@ -28,12 +28,12 @@ TVariable* token_to_const(TToken *token)
 {
     TVariable* var = gmalloc(sizeof(TVariable));
     htab_item *tmp;
-    
+
     var->initialized = 1;
     var->constant = 1;
     var->name = gmalloc(strlen(token->data) + 1);
     strcpy(var->name, token->data);
-    
+
     if(token->type == TOKEN_STRING_VALUE)
     {
         var->var_type = TYPE_STRING;
@@ -49,10 +49,10 @@ TVariable* token_to_const(TToken *token)
         var->var_type = TYPE_INT;
         var->data.i = strtol(token->data, NULL, 10);
     }
-    
-    if(htab_lookup(g_constTab, var->name) == NULL)
+
+    if(htab_lookup(G.g_constTab, var->name) == NULL)
     {
-        tmp = htab_insert(g_constTab, var->name);
+        tmp = htab_insert(G.g_constTab, var->name);
         tmp->data.variable = var;
     }
 
@@ -69,7 +69,7 @@ TFunction* token_to_function(TToken *token)
     func->ins_list = list_init();
     func->local_tab = htab_init(HTAB_SIZE);
     func->params_stack = stack_init();
-    
+
 
     return func;
 }

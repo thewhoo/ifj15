@@ -19,14 +19,21 @@
 #include "ial.h"
 #include "stack.h"
 
-// Global ConstTab
-extern htab_t *g_constTab;
+#define DEBUG 1
 
-// Global GlobalTab
-extern htab_t *g_globalTab;
+struct TGlobal
+{
+  // Global ConstTab
+  htab_t *g_constTab;
 
-// Global FrameStack
-extern TStack *g_frameStack;
+  // Global GlobalTab
+  htab_t *g_globalTab;
+
+  // Global FrameStack
+  TStack *g_frameStack;
+};
+
+extern struct TGlobal G;
 
 void global_init();
 

@@ -24,7 +24,7 @@
 
 enum instructions
 {
-    INS_ASSIGN,
+    INS_ASSIGN,     //dest, src
     INS_ADD,        //dest, src1, src2
     INS_SUB,        //dest, src1, src2
     INS_MUL,        //dest, src1, src2

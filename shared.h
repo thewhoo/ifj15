@@ -16,12 +16,8 @@
 #ifndef SHARED_H
 #define SHARED_H
 
-#include "adt.h"
+#include "ial.h"
 #include "stack.h"
-#include "galloc.h"
-
-#define CONSTTAB_INITIAL_SIZE 20
-#define GLOBALTAB_INITIAL_SIZE 20
 
 // Global ConstTab
 extern htab_t *g_constTab;

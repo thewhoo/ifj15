@@ -15,11 +15,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "galloc.h"
-#include "parser.h"
+
 #include "error.h"
-#include "lex.h"
+#include "galloc.h"
 #include "interpret.h"
+#include "lex.h"
+#include "parser.h"
+#include "shared.h"
 
 int main(int argc, char **argv)
 {
@@ -32,9 +34,14 @@ int main(int argc, char **argv)
         exit_error(E_INTERNAL);
 
     gcInit();
+    
     lex_init(fp);
 
+    global_init();
+
     parse();
+
+    interpret();
 
     gcDestroy();
 

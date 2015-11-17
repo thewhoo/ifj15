@@ -24,3 +24,11 @@ htab_t *g_globalTab;
 
 // Global FrameStack
 TStack *g_frameStack;  
+	
+
+void global_init()
+{
+    htab_t *g_constTab = htab_init(HTAB_SIZE);
+	htab_t *g_globalTab = htab_init(HTAB_SIZE);
+	TStack *g_frameStack = stack_init();
+}

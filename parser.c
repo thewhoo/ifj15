@@ -34,7 +34,7 @@ TToken* token;
 
 // TODO: Clean this up!
 
-// Forward declarations of "rule" functions
+// Forward declarations of state functions
 bool PROG();
 bool FUNCTION_DECL();
 bool DATA_TYPE();
@@ -44,14 +44,8 @@ bool NESTED_BLOCK();
 bool NBC();
 bool DECL_OR_ASSIGN();
 bool DECL_ASSIGN();
-bool FCALL_OR_ASSIGN();
-bool FOA_PART2();
+bool ASSIGN();
 bool HARD_VALUE();
-bool FUNCTION_CALL_PARAMS();
-bool FUNCTION_CALL_PARAM();
-bool FUNCTION_CALL_PARAMS_NEXT();
-bool BUILTIN_CALL();
-bool BUILTIN_FUNC();
 bool IF_STATEMENT();
 bool ELSE_STATEMENT();
 bool COUT();
@@ -64,9 +58,9 @@ bool FOR_DECLARATION();
 bool FOR_EXPR();
 bool FOR_ASSIGN();
 bool RETURN();
-//TEMP:
-void CALL_EXPR();
 
+
+// Forward declarations of control functions
 TFunction *getNewFunction();
 TVariable *getNewVariable();
 void pushParam();
@@ -76,7 +70,6 @@ void storeFunction();
 void storeVariable();
 TVariable *findVariable();
 void storeNewConstant();
-void insFunctionCall();
 
 enum
 {
@@ -84,71 +77,27 @@ enum
 	T_VAR
 };
 
-// Instruction functions
-
-void insFunctionCall(char *name, TStack *callParams)
-{
-/* this will not be used
-  // The instruction will be added to the currently processed function
-  TFunction *fCurrent;
-  fCurrent = stack_top(g_frameStack);
-
-  // Get the pointer to the function being called
-  TFunction *fCalled;
-  htab_item *calledItem = htab_lookup(g_globalTab, name);
-
-  if(calledItem == NULL)
-    // Semantic error - called function has not been defined
-    exit_error(E_SEMANTIC_DEF);
-
-  fCalled = calledItem->data.function;
-
-  // Duplicate param stack of fCalled
-  TStack *expectParams = stack_copy(fCalled->params_stack);
-
-  // Do a semantic check of the call params
-  TVariable *paramPassed;
-  TVariable *paramExpected;
-
-  while(!stack_empty(callParams) && !stack_empty(expectParams))
-  {
-    paramPassed = stack_top(callParams);
-    paramExpected = stack_top(fCalled->params_stack);
-
-    if((paramPassed->var_type == paramExpected->var_type) && paramPassed->initialized)
-    {
-      stack_pop(callParams);
-      stack_pop(expectParams);
-    }
-    else if (!(paramPassed->initialized))
-      // Semantic error - param is not initialized
-      exit_error(E_UNINITIALIZED);
-    else
-      // Semantic error - param type mismatch
-      exit_error(E_SEMANTIC_TYPES);
-  }
-
-  // If both stacks are empty, the correct number of params has been passed
-  if(stack_empty(callParams) && stack_empty(expectParams))
-  {
-    // TODO: add jmp instruction to current func
-  }
-  else
-    // Semantic error - incorrect number of params passed
-    exit_error(E_SEMANTIC_OTHERS);
-    */
-}
-
-// End of instruction functions
+// ============== Control functions start here ==============
 
 void storeFunction(TFunction *f)
 {
-  // Check for redeclaration of function
-  if(htab_lookup(g_globalTab, f->name))
+  // Check if the function has already been declared
+  htab_item *result = htab_lookup(g_globalTab, f->name);
+  if(result)
+  {
+    // Check if return type matches
+    if(!(result->data.function->return_type == f->return_type))
      exit_error(E_SEMANTIC_DEF);
-
-  htab_item *newFunc = htab_insert(g_globalTab, f->name);
-  newFunc->data.function = f;
+    // Replace forward declaration with definition
+    gfree(result->data);
+    result->data.function = f;
+  }
+  else
+  {
+    // Function has not been declared before
+    htab_item *newFunc = htab_insert(g_globalTab, f->name);
+    newFunc->data.function = f;
+  }
 
 }
 
@@ -226,11 +175,6 @@ void pushParam(TFunction *f, TVariable *p)
   stack_push(f->params_stack, p);
 }
 
-void storeVarValue(TVariable *v)
-{
-
-}
-
 void storeFuncName(TFunction *f)
 {
   f->name = gmalloc(strlen(token->data) + 1);
@@ -243,11 +187,9 @@ void storeVarName(TVariable *v)
   strcpy(v->name, token->data);
 }
 
-void CALL_EXPR()
-{
-}
+// ============== End of control functions ===============
 
-// Definitions of "rule" functions
+// ============== Rule functions start here ==============
 bool PROG()
 {
 
@@ -298,9 +240,19 @@ bool FUNCTION_DECL()
 		{
 			token = get_token();
 
-      // Process function block
-			if(!NESTED_BLOCK())
-        return false;
+      // Function has been declared but not defined
+      if(token->type == TOKEN_SEMICOLON)
+      {
+        currentFunc->defined = false;
+        token = get_token();
+      }
+      // Process function block if the function is defined
+			else
+      {
+        currentFunc->defined = true;
+        if(!NESTED_BLOCK())
+          return false;
+      }
 
       // Store the complete function "object" in the global table
       storeFunction(currentFunc);
@@ -411,22 +363,19 @@ bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
 
 bool NESTED_BLOCK()
 {
-	bool ret = false;
-
 	if (token->type == TOKEN_LCURLY_BRACKET)
 	{
 		token = get_token();
-		if(NBC())
+		if(NBC() && token->type == TOKEN_RCURLY_BRACKET)
 		{
-			ret = (token->type == TOKEN_RCURLY_BRACKET);
-			token = get_token();
+      token = get_token();
+			return true;
 		}
 	}
 
-	return ret;
+	return false;
 }
 
-// TODO: FIX THIS SHIT
 bool NBC()
 {
 
@@ -436,47 +385,31 @@ bool NBC()
 		case TOKEN_INT:
 		case TOKEN_DOUBLE:
 		case TOKEN_STRING:
-			return DECL_OR_ASSIGN(func) && NBC(func);
+			return DECL_OR_ASSIGN() && NBC();
 
 		case TOKEN_IDENTIFIER:
-			ret = FCALL_OR_ASSIGN() && NBC();
-			break;
-
-		case TOKEN_LENGTH:
-		case TOKEN_SUBSTR:
-		case TOKEN_CONCAT:
-		case TOKEN_FIND:
-		case TOKEN_SORT:
-			ret = BUILTIN_CALL() && NBC();
-			break;
+			return ASSIGN() && NBC();
 
 		case TOKEN_IF:
-			ret = IF_STATEMENT() && NBC();
-			break;
+			return IF_STATEMENT() && NBC();
 
 		case TOKEN_COUT:
-			ret = COUT() && NBC();
-			break;
+			return COUT() && NBC();
 
 		case TOKEN_CIN:
-			ret = CIN() && NBC();
-			break;
+			return CIN() && NBC();
 
 		case TOKEN_FOR:
-			ret = FOR_STATEMENT() && NBC();
-			break;
+			return FOR_STATEMENT() && NBC();
 
 		case TOKEN_LCURLY_BRACKET:
-			ret = NESTED_BLOCK() && NBC();
-			break;
+			return NESTED_BLOCK() && NBC();
 
 		case TOKEN_RETURN:
-			ret = RETURN();
-			break;
+			return RETURN();
 
 		case TOKEN_RCURLY_BRACKET:
-			ret = true;
-			break;
+			return true;
 	}
 
 	return ret;
@@ -484,13 +417,14 @@ bool NBC()
 
 bool DECL_OR_ASSIGN()
 {
+  // Create new variable "object"
+  TVariable *var = getNewVariable();
+  // The variable belongs to the function or block on top of the frame stack
+  TFunction *func = stack_top(g_frameStack);
 
   // Received identifier, expecting declaration or declaration with assignment
 	if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
 	{
-    // Create new variable "object"
-    TVairable *var = getNewVariable();
-
     // Store data type in variable object
 		if(DATA_TYPE(var, T_VAR) && token->type == TOKEN_IDENTIFIER)
 		{
@@ -502,9 +436,6 @@ bool DECL_OR_ASSIGN()
 			if(!(DECL_ASSIGN(var) && token->type == TOKEN_SEMICOLON))
         // Syntax error
         return false;
-
-      // The variable belongs to the function or block on top of the frame stack
-      TFunction *func = stack_top(g_frameStack);
 
       // Store variable in function symbol table
       storeNewVariable(func, var);
@@ -521,9 +452,6 @@ bool DECL_OR_ASSIGN()
   // Received auto, declaration must contain an assignment
 	else if (token->type == TOKEN_AUTO)
 	{
-    // Create new variable "object"
-    TVariable *var = getNewVariable();
-
 		token = get_token();
 
 		if (token->type == TOKEN_IDENTIFIER)
@@ -539,7 +467,7 @@ bool DECL_OR_ASSIGN()
 		if (token->type == TOKEN_ASSIGN)
 		{
 			token = get_token();
-			CALL_EXPR();
+			expression(var, func->ins_list);
 		}
     // Syntax error
 		else
@@ -549,8 +477,9 @@ bool DECL_OR_ASSIGN()
 		if(!(token->type == TOKEN_SEMICOLON))
       return false;
 
-    // The variable belongs to the function or block on top of the frame stack
-    TFunction *func = stack_top(g_frameStack);
+    // TODO: Set init and type
+    var->initialized = true;
+
 
     // Store variable in function symbol table
     storeNewVariable(func, var);
@@ -565,14 +494,17 @@ bool DECL_OR_ASSIGN()
 
 }
 
-bool DECL_ASSIGN(TVariable *v)
+bool DECL_ASSIGN(TVariable *var)
 {
+  // Current function
+  TFunction *func = stack_top(g_frameStack);
+
   // We must initialize the variable
 	if(token->type == TOKEN_ASSIGN)
 	{
-		token = get_token();
-		CALL_EXPR();
-		ret = true;
+    var->initialized = true;
+		expression(var, func);
+		return true;
 	}
 
   // Variable was only declared, not initialized
@@ -581,64 +513,34 @@ bool DECL_ASSIGN(TVariable *v)
 		v->initialized = false;
     return true;
 	}
-
+  // Syntax error
 	return false;
 }
 
-bool FCALL_OR_ASSIGN()
+bool ASSIGN()
 {
+  // Current function
+  TFunction *func = stack_top(g_frameStack);
 
 	if(token->type == TOKEN_IDENTIFIER)
 	{
-    // We have to store the identifier value, but we dont know if it belongs to a variable or a function yet
-    char *tmp = token->data;
+    // Retrieve the variable which we will be assigning to
+    TVariable *var = findVariable(token->data);
+    // Cannot assign to an undefined variable
+    if(var == NULL)
+      exit_error(E_SEMANTIC_OTHERS);
 
-		token = get_token();
-		ret = FOA_PART2(tmp);
-	}
-  else
-  // Syntax error
-	return false;
+    if(token->type == TOKEN_ASSIGN)
+      expression(var, func);
+    // Syntax error
+    else
+      return false;
 
-}
-
-bool FOA_PART2(char *name)
-{
-  // This means we will be calling a function
-	if(token->type == TOKEN_LROUND_BRACKET)
-	{
-		token = get_token();
-
-    // Declare a new param stack
-    TStack *passedParams = stack_init();
-
-    // FUNCTION_CALL_PARAMS will push calling params on the stack
-		if(FUNCTION_CALL_PARAMS(passedParams) && token->type == TOKEN_RROUND_BRACKET)
-		{
-      // Generate 3AC for the function call
-      insFunctionCall(name, passedParams);
-
-			token = get_token();
-
-			if(token->type == TOKEN_SEMICOLON)
-      {
-        token = get_token();
-        return true;
-      }
-      // Syntax error
-      else
-        return false;
-		}
-	}
-	else if (token->type == TOKEN_ASSIGN)
-	{
-		token = get_token();
-		CALL_EXPR();
-		ret = (token->type == TOKEN_SEMICOLON);
-		token = get_token();
+    return true;
 	}
 
-	return ret;
+  // Syntax error, unexpected token
+  return false;
 }
 
 bool HARD_VALUE(TVariable **v)
@@ -688,97 +590,6 @@ bool HARD_VALUE(TVariable **v)
   else
     return false;
 
-}
-
-bool FUNCTION_CALL_PARAMS(TStack *params)
-{
-  // If there are any params, process them
-	if(token->type == TOKEN_IDENTIFIER || token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE)
-	{
-		return FUNCTION_CALL_PARAM(params) && FUNCTION_CALL_PARAMS_NEXT(params);
-	}
-
-  // No params, all good
-	else if (token->type == TOKEN_RROUND_BRACKET)
-	{
-		return true;
-	}
-
-  // Syntax error
-	return false;
-}
-
-bool FUNCTION_CALL_PARAM(TStack *params)
-{
-	// If the param is an identifier, fetch the corresponding variable
-  if(token->type == TOKEN_IDENTIFIER)
-  {
-    TVariable *var = findVariable(token->data);
-    // If the variable was not found, a semantic error has occured
-    if(var == NULL)
-      exit_error(E_SEMANTIC_DEF);
-    // If we found the variable, push it on the call param stack
-    stack_push(params, var);
-  }
-
-  // If the param is a magic value, add it to constants table and get a pointer to it
-	else
-	{
-		TVariable **value;
-
-    if(HARD_VALUE(value))
-    {
-      // Push the constant on the call param stack
-      stack_push(params, *value);
-      return true;
-    }
-    // Syntax error
-    else
-      return false;
-	}
-
-}
-
-bool FUNCTION_CALL_PARAMS_NEXT(TStack *params)
-{
-  // Get rid of the comma, process next param
-	if(token->type == TOKEN_COMMA)
-	{
-		token = get_token();
-		return FUNCTION_CALL_PARAMS(params);
-	}
-  // No more params, all good
-	else if (token->type == TOKEN_RROUND_BRACKET)
-    return true;
-
-  // Syntax error
-	return false;
-}
-
-bool BUILTIN_CALL()
-{
-	bool ret = false;
-
-	if(BUILTIN_FUNC() && token->type == TOKEN_LROUND_BRACKET)
-	{
-		token = get_token();
-		if(FUNCTION_CALL_PARAMS() && token->type == TOKEN_RROUND_BRACKET)
-		{
-			token = get_token();
-			ret = (token->type == TOKEN_SEMICOLON);
-			token = get_token();
-		}
-	}
-
-	return ret;
-}
-
-bool BUILTIN_FUNC()
-{
-	bool ret = false;
-	ret = (token->type == TOKEN_LENGTH || token->type == TOKEN_SUBSTR || token->type == TOKEN_CONCAT || token->type == TOKEN_FIND || token->type == TOKEN_SORT);
-	token = get_token();
-	return ret;
 }
 
 bool IF_STATEMENT()

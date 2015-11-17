@@ -22,6 +22,8 @@
 #include "lex.h"
 #include "enums.h"
 #include "error.h"
+#include "adt.h"
+#include "ial.h"
 
 #define RULE_COUNTER 13
 #define EQ 0
@@ -234,7 +236,7 @@ int token_to_pos(int n)
 		case TOKEN_DIV:
 			return oper_div;
 		case TOKEN_LROUND_BRACKET:
-			return oper_lr_bracket;		
+			return oper_lr_bracket;
 		case TOKEN_RROUND_BRACKET:
 			return oper_rr_bracket;
 		case TOKEN_IDENTIFIER:
@@ -270,11 +272,11 @@ void stack_flush()
 
 void type_checker(TToken* var1, TToken* var2)
 {
-	int problem = 0;;	
-	
+	int problem = 0;;
+
 	if (var1->type == 99) problem = 1;
 	if (var2->type == 99) problem = 1;
-	
+
 	if (problem) {
 		exit_error(4);
 	}

@@ -19,8 +19,6 @@
 #include "ial.h"
 #include "stack.h"
 
-#define PARSER_DEBUG
-
 struct TGlobal
 {
   // Global ConstTab

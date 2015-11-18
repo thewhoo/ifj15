@@ -224,6 +224,7 @@ void interpret_loop(Tins_list *ins_list)
         printf("%d\n", ins->ins_type);
         ins = ins->next;
     }
+    printf("End of list\n");
     ins = ins_list->first;
 #endif
 
@@ -261,10 +262,12 @@ void interpret_loop(Tins_list *ins_list)
 
             case(INS_JMP):
                 ins = (TList_item *) ins->addr1;
-                continue; //or break
+                break;
 
             case(INS_CJMP):
-                //sth
+                var1 = get_var(ins->addr1);
+                if(!var1->data.i)
+                    ins = (TList_item *) ins->addr2;
                 break;
 
             case(INS_LAB):

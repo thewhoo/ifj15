@@ -36,7 +36,7 @@ enum instructions
     INS_LESSER,     //dest, src1, src2
     INS_LESSEQ,     //dest, src1, src2
     INS_JMP,        //dest
-    INS_CJMP,       //
+    INS_CJMP,       //TVar, label
     INS_LAB,        //
     INS_PUSH,       //src1
     INS_CALL,       //

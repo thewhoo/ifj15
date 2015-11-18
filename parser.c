@@ -393,7 +393,6 @@ bool DATA_TYPE(void *object, int type)
     return true;
 }
 
-// NOTE: This function can and will be called with indirect recursion from FUNC_DECL_PARAMS_NEXT
 bool FUNC_DECL_PARAMS(TFunction *func)
 {
     logger("enter FUNC_DECL_PARAMS");
@@ -708,7 +707,7 @@ bool IF_STATEMENT()
     // Current function
     TFunction *func = stack_top(G.g_frameStack);
     // We need to store the result of the evaluated expression
-    TVariable *expr = getNewVariable();
+    TVariable *var = getNewVariable();
 
     if(token->type == TOKEN_IF)
     {
@@ -716,38 +715,52 @@ bool IF_STATEMENT()
         if(token->type == TOKEN_LROUND_BRACKET)
         {
             // Evaluate condition
-            expression(expr, func->ins_list);
+            expression(var, func->ins_list);
             token = get_token();
 
             if(token->type == TOKEN_RROUND_BRACKET)
+                token = get_token();
+            else
+                return false;
+
+            // Create the "then" block pseudo frame and get ptr to first instruction
+            TList_item *condIns = createPseudoFrame(T_IF);
+            condIns->addr1 = var;
+
+            if(NESTED_BLOCK())
             {
-                // Create the "then" block pseudo frame and get ptr to first instruction
-                TList_item *condIns = createPseudoFrame(T_IF);
-                condIns->addr1 = expr;
+                // Create "false" label after if block ends
+                TList_item *ifEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
+                list_insert(func->ins_list, ifEnd);
 
-                if(NESTED_BLOCK())
-                {
-                    // Create "false" label after if block ends
-                    TList_item *ifEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
-                    list_insert(func->ins_list, ifEnd);
+                // Ammend initial conditional jump address to ifEnd
+                condIns->addr2 = ifEnd;
 
-                    // Ammend initial conditional jump address to ifEnd
-                    condIns->addr2 = ifEnd;
-
+                if(ELSE_STATEMENT())
                     return true;
-                }
             }
+
         }
     }
 
+    // Syntax error
     return false;
 }
 
 bool ELSE_STATEMENT()
 {
     logger("enter ELSE_STATEMENT");
+
+    if(token->type == TOKEN_ELSE)
+    {
+        // Create pseudo frame for else block
+        createPseudoFrame(T_BLOCK);
+        token = get_token();
+        if(NESTED_BLOCK())
+            return true;
+    }
     /*
-    bool ret = false;
+    We might implement this later as SIMPLE extension
 
     switch(token->type)
     {
@@ -776,10 +789,9 @@ bool ELSE_STATEMENT()
     		ret = true;
     		break;
     }
-
-    return ret;
     */
-    return true;
+
+    return false;
 }
 
 bool COUT()

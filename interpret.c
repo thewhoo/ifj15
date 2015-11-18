@@ -217,12 +217,14 @@ void interpret_loop(Tins_list *ins_list)
 
     TList_item *ins = ins_list->first;
 
-    /*while(ins != NULL)
+#ifdef DEBUG_MODE
+    printf("intruction list in main function:\n");
+    while(ins != NULL)
     {
         printf("%d\n", ins->ins_type);
         ins = ins->next;
     }
-    return;*/  //debug
+#endif
 
     while(ins != NULL)
     {

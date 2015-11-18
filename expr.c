@@ -51,7 +51,7 @@ int token_is_operand(TToken *tok);
 void generate_code();
 void operand_check(TToken *tok);
 int ope_type_2_ins_type(int operator_type);
-TVariable *find_var(TToken *tok);
+TVariable *find_var(char *name);
 void operand_type_checker(int ins_type, TVariable *var_1, TVariable *var_2);
 int t_compare(TVariable *var, int type);
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3);
@@ -340,7 +340,7 @@ void generate_code()
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
 		if (token_is_operand(tok)) {
-			var_to_push = find_var(tok);
+			var_to_push = find_var(tok->data);
 			stack_push(ins_stack, var_to_push);
 		} else {
 			var_1 = stack_top(ins_stack);
@@ -353,35 +353,23 @@ void generate_code()
 			stack_push(ins_stack, G.g_return);
 		}
 	}
+	printf("%d!!!\n", ins_stack->used);
 	actual_ins = create_ins(INS_ASSIGN, expr_var, stack_top(ins_stack), NULL);
 	list_insert(actual_ins_list, actual_ins);
 }
 
-TVariable *find_var(TToken *tok)
+TVariable *find_var(char *name)
 {
-	TVariable *new_var;
-	htab_item *h_item;
+    for(int i=G.g_frameStack->used-1; i >= 0; i--)
+    {
+        TFunction *f = G.g_frameStack->data[i];
+        htab_item *found = htab_lookup(f->local_tab, name);
 
-	if (tok->type == TOKEN_IDENTIFIER) {
-		h_item = htab_lookup(G.g_globalTab, tok->data);
-		if (h_item == NULL) {
-			if (DEB_ERROR_PRINT) printf("EXPR_ERR! Nepouzitelna promenna\n");
-			exit_error(E_SEMANTIC_DEF);
-		} else {
-			new_var = h_item->data.variable;
-		}
-	} else {
-		h_item = htab_lookup(G.g_constTab, tok->data);
-		if (h_item == NULL) {
-			htab_item *new_const = htab_insert(G.g_constTab, tok->data);
-			new_const->data.variable = token_to_const(tok);
-			new_var = new_const->data.variable;
-		} else {
-			new_var = h_item->data.variable;
-		}
-	}
+        if(found)
+            return found->data.variable;
+    }
 
-	return new_var;
+    return NULL;
 }
 
 void postfix_count_test()

@@ -96,13 +96,10 @@ TStack *ins_stack;
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 {
-
-	
-	
 	if (DEB_INFO) {
-		printf("Expr_start!\n");
+		printf("EXPR_INFO START!\n");
 		TToken *tok = get_token();
-		printf("EXPR First token is %d %s\n", tok->type, tok->data);
+		printf("EXPR_INFO First token is %d %s\n", tok->type, tok->data);
 		unget_token(tok);
 	}
 
@@ -114,7 +111,7 @@ void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 		generate_code();
 	}
 
-	if (DEB_INFO) printf("Expr_end!\n");
+	if (DEB_INFO) printf("EXPR_INFO STOP!\n");
 }
 
 void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
@@ -339,7 +336,7 @@ void generate_code()
 	TVariable *var_to_push;
 
 	postfix_count_test();
-	while (gene_stack->capacity > 1) {
+	while (gene_stack->used > 1) {
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
 		if (token_is_operand(tok)) {

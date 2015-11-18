@@ -566,7 +566,7 @@ bool DECL_OR_ASSIGN()
         if (token->type == TOKEN_ASSIGN)
         {
             token = get_token();
-            expression(var, func->ins_list);
+            expression(var, func->ins_list, false);
         }
         // Syntax error
         else
@@ -601,7 +601,7 @@ bool DECL_ASSIGN(TVariable *var)
     // We must initialize the variable
     if(token->type == TOKEN_ASSIGN)
     {
-        expression(var, func->ins_list);
+        expression(var, func->ins_list, false);
         token = get_token();
         return true;
     }
@@ -633,7 +633,7 @@ bool ASSIGN()
 
         if(token->type == TOKEN_ASSIGN)
         {
-            expression(var, func->ins_list);
+            expression(var, func->ins_list, true);
             token = get_token();
             if(token->type == TOKEN_SEMICOLON)
             {
@@ -715,7 +715,7 @@ bool IF_STATEMENT()
         if(token->type == TOKEN_LROUND_BRACKET)
         {
             // Evaluate condition
-            expression(var, func->ins_list);
+            expression(var, func->ins_list, false);
             token = get_token();
 
             if(token->type == TOKEN_RROUND_BRACKET)
@@ -1054,7 +1054,7 @@ bool RETURN()
     if(token->type == TOKEN_RETURN)
     {
         G.g_return->var_type = func->return_type;
-        expression(G.g_return, func->ins_list);
+        expression(G.g_return, func->ins_list, false);
 
         token = get_token();
 

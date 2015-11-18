@@ -960,6 +960,8 @@ bool RETURN()
         G.g_return->var_type = func->return_type;
         expression(G.g_return, func->ins_list);
 
+        token = get_token();
+
         // Generate return instructions
         TList_item *ins = createInstruction(INS_RET, NULL, NULL, NULL);
         list_insert(func->ins_list, ins);

@@ -87,6 +87,9 @@ TStack *ins_stack;
 	Zpracovani funkci
 	Zkontrolovat konstanty vracenych exit_error
 	Uklízet po sobě
+	matej da vedet kdy se daji funkcce volat a kdy ne
+	pri funci kontrolovat parametry, pushovat (pres instrukci) a pak volat call
+	pouze existece funkce kontrolovat
 
 ***	POZNAMKY
 	inicializovane promenne?
@@ -95,12 +98,12 @@ TStack *ins_stack;
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 {
-	if (DEB_INFO) {
-		printf("EXPR_INFO START!\n");
-		TToken *tok = get_token();
-		printf("EXPR_INFO First token is %d %s\n", tok->type, tok->data);
-		unget_token(tok);
-	}
+	#ifdef DEBUG_MODE
+	printf("expr: --START--\n");
+	TToken *tok = get_token();
+	printf("expr: First token is %d %s\n", tok->type, tok->data);
+	unget_token(tok);
+	#endif
 
 	expr_init(var_from_parser, ins_list_to_fill);
 	if (its_function()) {
@@ -110,7 +113,9 @@ void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 		generate_code();
 	}
 
-	if (DEB_INFO) printf("EXPR_INFO STOP!\n");
+	#ifdef DEBUG_MODE
+	printf("expr: --END--\n");
+	#endif
 }
 
 void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
@@ -179,13 +184,10 @@ void infix_2_postfix()
 		tok_in = get_token();
 	}
 	transfer_rest_of_expr_stack();
-	if (DEB_INFO) {
-		printf("EXPR_INFO expr_stack\n");
-		stack_print(expr_stack);
-		printf("EXPR_INFO gene_stack\n");
-		stack_print(gene_stack);
-		printf("EXPR_INFO Unget %d %s\n", tok_in->type, tok_in->data);
-	}
+	#ifdef DEBUG_MODE
+	stack_print(gene_stack);
+	printf("expr: Unget %d %s\n", tok_in->type, tok_in->data);
+	#endif
 	unget_token(tok_in);
 }
 
@@ -279,8 +281,10 @@ int its_function()
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
-			if ((item == NULL) || (item->data.function == NULL) || (item->data.function->defined == 0)) {
-				if (DEB_ERROR_PRINT) printf("EXPR_ERR! Funkce nenalezena\n");
+			if (item == NULL) {
+				#ifdef DEBUG_MODE
+				printf("expr: Funkce nenalezena\n");
+				#endif
 				exit_error(E_SEMANTIC_DEF);
 			} else {
 				yes_it_is = 1;
@@ -303,7 +307,28 @@ int its_function()
 
 void function_elaboration()
 {
-	printf("EXPR Prijata funkce!\n");
+	printf("expr: Prijata funkce!\n");
+}
+
+void print_token(TToken *tok)
+{
+	switch (tok->type) {
+		case TOKEN_MUL: printf("*"); break;
+		case TOKEN_DIV: printf("/"); break;
+		case TOKEN_ADD: printf("+"); break;
+		case TOKEN_SUB: printf("-"); break;
+		case TOKEN_EQUAL: printf("="); break;
+		case TOKEN_NOT_EQUAL: printf("!="); break;
+		case TOKEN_GREATER: printf(">"); break;
+		case TOKEN_GREATER_EQUAL: printf(">="); break;
+		case TOKEN_LESS: printf("<"); break;
+		case TOKEN_LESS_EQUAL: printf("<="); break;
+		case TOKEN_IDENTIFIER:
+		case TOKEN_STRING_VALUE:
+		case TOKEN_INT_VALUE:
+		case TOKEN_DOUBLE_VALUE: printf("%s", tok->data); break;
+		default: printf("%d", tok->type);
+	}		
 }
 
 void stack_print(TStack *st)
@@ -312,9 +337,11 @@ void stack_print(TStack *st)
 	TStack *cache_stack;
 
 	cache_stack = stack_init();
+	printf("expr: gene_stack: ");
 	while (!stack_empty(st)) {
-		tok = stack_top(st);
-		printf("EXPE_INFO Token %d %s\n", tok->type, tok->data);
+		tok = stack_top(st);		
+		print_token(tok);
+		printf(" | ");		
 		stack_push(cache_stack, tok);
 		stack_pop(st);
 	}
@@ -324,6 +351,7 @@ void stack_print(TStack *st)
 		stack_pop(cache_stack);
 	}
 	stack_free(cache_stack);
+	printf("\n");
 }
 
 void generate_code()
@@ -352,23 +380,24 @@ void generate_code()
 			stack_push(ins_stack, G.g_return);
 		}
 	}
-    printf("%d\n", ins_stack->used);
 	actual_ins = create_ins(INS_ASSIGN, expr_var, stack_top(ins_stack), NULL);
 	list_insert(actual_ins_list, actual_ins);
 }
 
 TVariable *find_var(TToken *tok)
 {
-    for(int i=G.g_frameStack->used-1; i >= 0; i--)
-    {
-        TFunction *f = G.g_frameStack->data[i];
-        htab_item *found = htab_lookup(f->local_tab, tok->data);
+    	if (tok->type == TOKEN_IDENTIFIER) {
+		for(int i=G.g_frameStack->used-1; i >= 0; i--) {
+			TFunction *f = G.g_frameStack->data[i];
+			htab_item *found = htab_lookup(f->local_tab, tok->data);
+			if(found) {
+				return found->data.variable;
+			}
+		}
+		exit_error(E_SEMANTIC_DEF);
+	}
 
-        if(found)
-            return found->data.variable;
-    }
-
-    return token_to_const(tok);
+	return token_to_const(tok);
 }
 
 void postfix_count_test()
@@ -392,7 +421,9 @@ void postfix_count_test()
 	gene_stack = expr_stack;	/* Yummy! Yummy! */
 	expr_stack = cache_stack;
 	if (++operator_counter != operand_counter) {
-		if (DEB_ERROR_PRINT) printf("EXPR_ERR! Nesouhlasi pocet operatoru a operandu\n");
+		#ifdef DEBUG_MODE
+		printf("expr: Nesouhlasi pocet operatoru a operandu\n");
+		#endif
 		exit_error(E_SEMANTIC_DEF);
 	}
 }
@@ -475,7 +506,9 @@ void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 {
 	/* Operace mezi retezcem a neretezcem */
 	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
-		if (DEB_ERROR_PRINT) printf("EXPR_ERR! Operace meti neretezcem a retezcem\n");
+		#ifdef DEBUG_MODE
+		printf("expr: Operace meti neretezcem a retezcem\n");
+		#endif
 		exit_error(E_SEMANTIC_TYPES);
 	}
 
@@ -486,7 +519,9 @@ void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 		case TOKEN_SUB:
 			/* Aritmeticke operace nad retezci */
 			if (t_compare(var_1, TYPE_STRING) || t_compare(var_2, TYPE_STRING)) {
-				if (DEB_ERROR_PRINT) printf("EXPR_ERR! Aritmeticke operace nad retezci\n");
+				#ifdef DEBUG_MODE
+				printf("expr: Aritmeticke operace nad retezci\n");
+				#endif
 				exit_error(E_SEMANTIC_TYPES);
 			}
 	}
@@ -495,6 +530,43 @@ void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 int t_compare(TVariable *var, int type)
 {
 	return (var->var_type == type);
+}
+
+void print_variable(TVariable* var)
+{
+	printf(" %s ", var->name);
+}
+
+void print_ins_type(int type)
+{
+	switch (type) {
+	case INS_ASSIGN : printf(" INS_ASSIGN "); break;
+	case INS_ADD : printf(" INS_ADD "); break;
+	case INS_SUB : printf(" INS_SUB "); break;
+	case INS_MUL : printf(" INS_MUL "); break;
+	case INS_DIV : printf(" INS_DIV "); break;
+	case INS_EQ : printf(" INS_EQ "); break;
+	case INS_NEQ : printf(" INS_NEQ "); break;
+	case INS_GREATER : printf(" INS_GREATER "); break;
+	case INS_GREATEQ : printf(" INS_GREATEQ "); break;
+	case INS_LESSER : printf(" INS_LESSER "); break;
+	case INS_LESSEQ : printf(" INS_LESSEQ "); break;
+	case INS_JMP : printf(" INS_JMP "); break;
+	case INS_CJMP : printf(" INS_CJMP "); break;
+	case INS_LAB : printf(" INS_LAB "); break;
+	case INS_PUSH : printf(" INS_PUSH "); break;
+	case INS_CALL : printf(" INS_CALL "); break;
+	case INS_RET : printf(" INS_RET "); break;
+	case INS_PUSH_TAB : printf(" INS_PUSH_TAB "); break;
+	case INS_POP_TAB : printf(" INS_POP_TAB "); break;
+	case INS_LENGTH : printf(" INS_LENGTH "); break;
+	case INS_SUBSTR : printf(" INS_SUBSTR "); break;
+	case INS_CONCAT : printf(" INS_CONCAT "); break;
+	case INS_FIND : printf(" INS_FIND "); break;
+	case INS_SORT : printf(" INS_SORT "); break;
+	case INS_CIN : printf(" INS_CIN "); break;
+	case INS_COUT : printf(" INS_COUT "); break;
+	}
 }
 
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
@@ -506,6 +578,15 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 	ins->addr1 = addr1;
 	ins->addr2 = addr2;
 	ins->addr3 = addr3;
+	
+	#ifdef DEBUG_MODE
+	printf("expr: ");
+	print_ins_type(type);
+	print_variable(addr1);
+	print_variable(addr2);
+	print_variable(addr3);
+	printf("\n");	
+	#endif
 
 	return ins;
 }
@@ -516,3 +597,4 @@ void charlady()
 	stack_free(gene_stack);
 	stack_free(ins_stack);
 }
+

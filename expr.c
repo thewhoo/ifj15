@@ -86,7 +86,6 @@ TStack *ins_stack;
 ***	TODO
 	Zpracovani funkci
 	Zkontrolovat konstanty vracenych exit_error
-	Proměnné hledat v aktuálním stacu, ne v globálu
 	Uklízet po sobě
 
 ***	POZNAMKY
@@ -336,7 +335,7 @@ void generate_code()
 	TVariable *var_to_push;
 
 	postfix_count_test();
-	while (gene_stack->used > 1) {
+	while (!stack_empty(gene_stack)) {
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
 		if (token_is_operand(tok)) {
@@ -353,7 +352,6 @@ void generate_code()
 			stack_push(ins_stack, G.g_return);
 		}
 	}
-	printf("%d!!!\n", ins_stack->used);
 	actual_ins = create_ins(INS_ASSIGN, expr_var, stack_top(ins_stack), NULL);
 	list_insert(actual_ins_list, actual_ins);
 }

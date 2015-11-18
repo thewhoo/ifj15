@@ -2,8 +2,8 @@ CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -g -std=c99
 PROJECT=ifj
 
-SRC_FILES = $(filter-out $(TEST_FILE), $(wildcard *.c))
-HEADER_FILES = $($(wildcard *.h))
+SRC_FILES = $(wildcard *.c)
+HEADER_FILES = $(wildcard *.h)
 OBJ_FILES = $(patsubst %.c, %.o, $(SRC_FILES))
 
 .PHONY: all pack clean

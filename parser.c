@@ -71,6 +71,7 @@ TList_item *createInstruction();
 void createPseudoFrame();
 void killPseudoFrame();
 void checkFunctionDefinitions();
+void logger();
 
 enum
 {
@@ -78,6 +79,12 @@ enum
     T_VAR
 };
 
+void logger(char *c)
+{
+    #ifdef PARSER_DEBUG
+    fprintf(stdout, "parser: %s\n", c);
+    #endif // PARSER_DEBUG
+}
 
 TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)
 {
@@ -243,7 +250,7 @@ void storeVarName(TVariable *v)
 // ============== Rule functions start here ==============
 bool PROG()
 {
-
+    logger("enter PROG");
     // We need a function declaration or nothing
     if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
         return FUNCTION_DECL() && PROG();
@@ -258,6 +265,7 @@ bool PROG()
 
 bool FUNCTION_DECL()
 {
+    logger("enter FUNCTION_DECL");
 
     TFunction *currentFunc = getNewFunction();
 
@@ -307,6 +315,7 @@ bool FUNCTION_DECL()
 
             // Store the complete function "object" in the global table
             storeFunction(currentFunc);
+            logger("stored function in G.globalTab");
         }
     }
 
@@ -316,6 +325,7 @@ bool FUNCTION_DECL()
 // Detect and store the data type of the new function/variable
 bool DATA_TYPE(void *object, int type)
 {
+    logger("enter DATA_TYPE");
     TFunction *f = NULL;
     TVariable *v = NULL;
 
@@ -361,6 +371,7 @@ bool DATA_TYPE(void *object, int type)
 // NOTE: This function can and will be called with indirect recursion from FUNC_DECL_PARAMS_NEXT
 bool FUNC_DECL_PARAMS(TFunction *func)
 {
+    logger("enter FUNC_DECL_PARAMS");
     // If an identifier arrives, we must create and store a new param variable
     if(token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
     {
@@ -395,6 +406,7 @@ bool FUNC_DECL_PARAMS(TFunction *func)
 
 bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
 {
+    logger("enter FUNC_DECL_PARAMS_NEXT");
     // Next param must start with comma if it exists
     if (token->type == TOKEN_COMMA)
     {
@@ -411,6 +423,7 @@ bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
 
 bool NESTED_BLOCK()
 {
+    logger("enter NESTED_BLOCK");
     TFunction *func = stack_top(G.g_frameStack);
 
     if (token->type == TOKEN_LCURLY_BRACKET)
@@ -435,6 +448,7 @@ bool NESTED_BLOCK()
 
 bool NBC()
 {
+    logger("enter NBC");
     switch(token->type)
     {
     case TOKEN_AUTO:
@@ -475,6 +489,7 @@ bool NBC()
 
 bool DECL_OR_ASSIGN()
 {
+    logger("enter DECL_OR_ASSIGN");
     // Create new variable "object"
     TVariable *var = getNewVariable();
     // The variable belongs to the function or block on top of the frame stack
@@ -553,6 +568,7 @@ bool DECL_OR_ASSIGN()
 
 bool DECL_ASSIGN(TVariable *var)
 {
+    logger("enter DECL_ASSIGN");
     // Current function
     TFunction *func = stack_top(G.g_frameStack);
 
@@ -575,6 +591,7 @@ bool DECL_ASSIGN(TVariable *var)
 
 bool ASSIGN()
 {
+    logger("enter ASSIGN");
     // Current function
     TFunction *func = stack_top(G.g_frameStack);
 
@@ -586,8 +603,18 @@ bool ASSIGN()
         if(var == NULL)
             exit_error(E_SEMANTIC_OTHERS);
 
+        token = get_token();
+
         if(token->type == TOKEN_ASSIGN)
+        {
             expression(var, func->ins_list);
+            token = get_token();
+            if(token->type == TOKEN_SEMICOLON)
+            {
+                token = get_token();
+                return true;
+            }
+        }
         // Syntax error
         else
             return false;
@@ -601,6 +628,7 @@ bool ASSIGN()
 
 bool HARD_VALUE(TVariable **v)
 {
+    logger("enter HARD_VALUE");
     // If we get a magic value, add to constants table if its not already there
     if (token->type == TOKEN_INT_VALUE || token->type == TOKEN_DOUBLE_VALUE || token->type == TOKEN_STRING_VALUE)
     {
@@ -648,6 +676,7 @@ bool HARD_VALUE(TVariable **v)
 
 bool IF_STATEMENT()
 {
+    logger("enter IF_STATEMENT");
     /*
     bool ret = false;
 
@@ -669,6 +698,7 @@ bool IF_STATEMENT()
 
 bool ELSE_STATEMENT()
 {
+    logger("enter ELSE_STATEMENT");
     /*
     bool ret = false;
 
@@ -707,6 +737,7 @@ bool ELSE_STATEMENT()
 
 bool COUT()
 {
+    logger("enter COUT");
     if(token->type == TOKEN_COUT)
     {
         token = get_token();
@@ -726,6 +757,7 @@ bool COUT()
 
 bool COUT_OUTPUT()
 {
+    logger("enter COUT_OUTPUT");
     // Get current function
     TFunction *func = stack_top(G.g_frameStack);
 
@@ -771,6 +803,7 @@ bool COUT_OUTPUT()
 
 bool COUT_NEXT()
 {
+    logger("enter COUT_NEXT");
     if(token->type == TOKEN_COUT_BRACKET)
     {
         token = get_token();
@@ -785,6 +818,7 @@ bool COUT_NEXT()
 
 bool CIN()
 {
+    logger("enter CIN");
     // Current function
     TFunction *func = stack_top(G.g_frameStack);
 
@@ -825,6 +859,7 @@ bool CIN()
 
 bool CIN_NEXT()
 {
+    logger("enter CIN_NEXT");
     // Current function
     TFunction *func = stack_top(G.g_frameStack);
 
@@ -862,6 +897,7 @@ bool CIN_NEXT()
 
 bool FOR_STATEMENT()
 {
+    logger("enter FOR_STATEMENT");
     /*
     bool ret = false;
 
@@ -952,6 +988,7 @@ bool FOR_ASSIGN()
 
 bool RETURN()
 {
+    logger("enter RETURN");
     // Currently processed function
     TFunction *func = stack_top(G.g_frameStack);
 
@@ -980,11 +1017,13 @@ bool RETURN()
 
 void parse()
 {
+    logger("--START--");
     token = get_token();
 
     if(!PROG())
         exit_error(E_SYNTAX);
 
     checkFunctionDefinitions();
+    logger("--END--");
 
 }

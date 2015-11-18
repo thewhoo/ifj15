@@ -19,7 +19,7 @@
 #include "ial.h"
 #include "stack.h"
 
-#define DEBUG 1
+#define PARSER_DEBUG
 
 struct TGlobal
 {

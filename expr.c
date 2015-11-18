@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "stack.h"
 #include "galloc.h"
 #include "expr.h"
@@ -34,7 +35,7 @@
 #define ER 3
 
 /* External functions */
-void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
+void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_is_possible);
 /* Internal functions */
 void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
 void infix_2_postfix();
@@ -94,7 +95,7 @@ TStack *ins_stack;
 	kontrola jestli funkce defined?
 */
 
-void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
+void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_is_possible)
 {
 	#ifdef DEBUG_MODE
 	printf("expr: --START--\n");

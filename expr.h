@@ -23,8 +23,9 @@
 
 #include "adt.h"
 #include "ilist.h"
+#include <stdbool.h>
 
-typedef enum {
+enum {
 	 oper_add,
 	 oper_sub,
 	 oper_mul,
@@ -38,7 +39,7 @@ typedef enum {
 	 oper_greater_e,
 	 oper_equal,
 	 oper_not_equal
-} ex_operator;
+};
 
 /**
   * @brief Zpracovani vyrazu
@@ -49,7 +50,7 @@ typedef enum {
   * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
 
-void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
+void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_is_possible);
 
 #endif //EXPR_H
 

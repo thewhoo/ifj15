@@ -315,7 +315,7 @@ void print_token(TToken *tok)
 		case TOKEN_DIV: printf("/"); break;
 		case TOKEN_ADD: printf("+"); break;
 		case TOKEN_SUB: printf("-"); break;
-		case TOKEN_EQUAL: printf("="); break;
+		case TOKEN_EQUAL: printf("=="); break;
 		case TOKEN_NOT_EQUAL: printf("!="); break;
 		case TOKEN_GREATER: printf(">"); break;
 		case TOKEN_GREATER_EQUAL: printf(">="); break;

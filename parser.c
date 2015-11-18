@@ -84,6 +84,9 @@ void logger(char *c)
     #ifdef DEBUG_MODE
     fprintf(stdout, "parser: %s\n", c);
     #endif // PARSER_DEBUG
+
+    // Surpress unused variable warning
+    (void)c;
 }
 
 TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)

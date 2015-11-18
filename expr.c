@@ -32,8 +32,6 @@
 #define LO 1
 #define HI 2
 #define ER 3
-#define DEB_INFO 1
-#define DEB_ERROR_PRINT 1
 
 /* External functions */
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
@@ -328,7 +326,7 @@ void print_token(TToken *tok)
 		case TOKEN_INT_VALUE:
 		case TOKEN_DOUBLE_VALUE: printf("%s", tok->data); break;
 		default: printf("%d", tok->type);
-	}		
+	}
 }
 
 void stack_print(TStack *st)
@@ -339,9 +337,9 @@ void stack_print(TStack *st)
 	cache_stack = stack_init();
 	printf("expr: gene_stack: ");
 	while (!stack_empty(st)) {
-		tok = stack_top(st);		
+		tok = stack_top(st);
 		print_token(tok);
-		printf(" | ");		
+		printf(" | ");
 		stack_push(cache_stack, tok);
 		stack_pop(st);
 	}
@@ -534,7 +532,11 @@ int t_compare(TVariable *var, int type)
 
 void print_variable(TVariable* var)
 {
-	printf(" %s ", var->name);
+	if (var != NULL) {
+        printf(" %s ", var->name);
+    } else {
+        printf(" NULL ");
+    }
 }
 
 void print_ins_type(int type)
@@ -578,14 +580,14 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 	ins->addr1 = addr1;
 	ins->addr2 = addr2;
 	ins->addr3 = addr3;
-	
+
 	#ifdef DEBUG_MODE
 	printf("expr: ");
 	print_ins_type(type);
 	print_variable(addr1);
 	print_variable(addr2);
 	print_variable(addr3);
-	printf("\n");	
+	printf("\n");
 	#endif
 
 	return ins;

@@ -957,8 +957,6 @@ bool RETURN()
 
     if(token->type == TOKEN_RETURN)
     {
-        token = get_token();
-
         G.g_return->var_type = func->return_type;
         expression(G.g_return, func->ins_list);
 

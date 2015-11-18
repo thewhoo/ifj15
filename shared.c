@@ -29,7 +29,7 @@ void global_init()
 	G.g_frameStack = stack_init();
   G.g_return = gmalloc(sizeof(TVariable));
   G.g_return->var_type = 0;
-  G.g_return->name = NULL;
+  G.g_return->name = "GLOBAL_RET";
   G.g_return->initialized = 0;
   G.g_return->constant = 1;
 }

@@ -68,7 +68,7 @@ void storeFunction();
 void storeVariable();
 TVariable *findVariable();
 TList_item *createInstruction();
-void createPseudoFrame();
+TList_item *createPseudoFrame();
 void killPseudoFrame();
 void checkFunctionDefinitions();
 void logger();
@@ -76,14 +76,16 @@ void logger();
 enum
 {
     T_FUNC,
-    T_VAR
+    T_VAR,
+    T_BLOCK,
+    T_IF
 };
 
 void logger(char *c)
 {
-    #ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
     fprintf(stdout, "parser: %s\n", c);
-    #endif // PARSER_DEBUG
+#endif // PARSER_DEBUG
 
     // Surpress unused variable warning
     (void)c;
@@ -136,7 +138,8 @@ void storeFunction(TFunction *f)
 
 }
 
-void createPseudoFrame()
+// Returns pointer to first instruction in frame (need for if-statements and cycles)
+TList_item *createPseudoFrame(int type)
 {
     // Get current function
     TFunction *current = stack_top(G.g_frameStack);
@@ -154,8 +157,24 @@ void createPseudoFrame()
     stack_push(G.g_frameStack, f);
 
     // Create the instruction
-    TList_item *ins = createInstruction(INS_PUSH_TAB, f->local_tab, NULL, NULL);
-    list_insert(f->ins_list, ins);
+    if(type == T_BLOCK)
+    {
+        TList_item *ins = createInstruction(INS_PUSH_TAB, f->local_tab, NULL, NULL);
+        list_insert(f->ins_list, ins);
+        return ins;
+    }
+    else if(type == T_IF)
+    {
+        // Conditional jump skeleton
+        TList_item *ins1 = createInstruction(INS_CJMP, NULL, NULL, NULL);
+        list_insert(f->ins_list, ins1);
+        // We still need to push local table
+        TList_item *ins2 = createInstruction(INS_PUSH_TAB, f->local_tab, NULL, NULL);
+        list_insert(f->ins_list, ins2);
+        return ins1;
+    }
+
+    return NULL;
 }
 
 void killPseudoFrame()
@@ -481,7 +500,7 @@ bool NBC()
         return FOR_STATEMENT() && NBC();
 
     case TOKEN_LCURLY_BRACKET:
-        createPseudoFrame();
+        createPseudoFrame(T_BLOCK);
         return NESTED_BLOCK() && NBC();
 
     case TOKEN_RETURN:
@@ -685,23 +704,43 @@ bool HARD_VALUE(TVariable **v)
 bool IF_STATEMENT()
 {
     logger("enter IF_STATEMENT");
-    /*
-    bool ret = false;
+
+    // Current function
+    TFunction *func = stack_top(G.g_frameStack);
+    // We need to store the result of the evaluated expression
+    TVariable *expr = getNewVariable();
 
     if(token->type == TOKEN_IF)
     {
-    	token = get_token();
-    	if(token->type == TOKEN_LROUND_BRACKET)
-    	{
-    		//CALL_EXPR();
-    		if(token->type == TOKEN_RROUND_BRACKET)
-    			ret = NESTED_BLOCK() && ELSE_STATEMENT();
-    	}
+        token = get_token();
+        if(token->type == TOKEN_LROUND_BRACKET)
+        {
+            // Evaluate condition
+            expression(expr, func->ins_list);
+            token = get_token();
+
+            if(token->type == TOKEN_RROUND_BRACKET)
+            {
+                // Create the "then" block pseudo frame and get ptr to first instruction
+                TList_item *condIns = createPseudoFrame(T_IF);
+                condIns->addr1 = expr;
+
+                if(NESTED_BLOCK())
+                {
+                    // Create "false" label after if block ends
+                    TList_item *ifEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
+                    list_insert(func->ins_list, ifEnd);
+
+                    // Ammend initial conditional jump address to ifEnd
+                    condIns->addr2 = ifEnd;
+
+                    return true;
+                }
+            }
+        }
     }
 
-    return ret;
-    */
-    return true;
+    return false;
 }
 
 bool ELSE_STATEMENT()

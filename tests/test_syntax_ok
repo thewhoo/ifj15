@@ -1,5 +1,7 @@
 int main()
 {
-	cout << "fuck this shit!\n" << "really!\n"; 
+    double a;
+    cin >> a;
+    cout << a;
 	return 1;
 }

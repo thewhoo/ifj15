@@ -32,8 +32,7 @@
 #define LO 1
 #define HI 2
 #define ER 3
-#define DEB_STACK_PRINT 0
-#define DEB_EXPR_START 0
+#define DEB_INFO 0
 #define DEB_ERROR_PRINT 0
 
 /* External functions */
@@ -56,6 +55,7 @@ TVariable *find_var(TToken *tok);
 void operand_type_checker(int ins_type, TVariable *var_1, TVariable *var_2);
 int t_compare(TVariable *var, int type);
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3);
+void charlady();
 /* Debug functions */
 void stack_print(TStack *st);
 
@@ -80,6 +80,7 @@ TStack *expr_stack;
 TStack *gene_stack;
 Tins_list *actual_ins_list;
 TVariable *expr_var;
+TStack *ins_stack;
 
 /*
 ***	TODO
@@ -91,11 +92,13 @@ TVariable *expr_var;
 ***	POZNAMKY
 	globální ret pro používání  VS  co když mi ji matěj předhodí??
 	u ifu sežrat prvni zavorku
+	inicializovane promenne?
+	kontrola jestli funkce defined?
 */
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 {
-	if (DEB_EXPR_START) printf("Expr_start!\n");
+	if (DEB_INFO) printf("Expr_start!\n");
 
 	expr_init(var_from_parser, ins_list_to_fill);
 	if (its_function()) {
@@ -105,7 +108,7 @@ void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 		generate_code();
 	}
 
-	if (DEB_EXPR_START) printf("Expr_end!\n");
+	if (DEB_INFO) printf("Expr_end!\n");
 }
 
 void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
@@ -114,6 +117,7 @@ void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 	actual_ins_list = ins_list_to_fill;
 	expr_stack = stack_init();
 	gene_stack = stack_init();
+	ins_stack = stack_init();
 }
 
 void infix_2_postfix()
@@ -173,14 +177,13 @@ void infix_2_postfix()
 		tok_in = get_token();
 	}
 	transfer_rest_of_expr_stack();
-	if (DEB_STACK_PRINT) {
+	if (DEB_INFO) {
 
-		printf("**EXPR STACK\n");
+		printf("EXPR_INFO expr_stack\n");
 		stack_print(expr_stack);
-		printf("**GENE STACK\n");
+		printf("EXPR_INFO gene_stack\n");
 		stack_print(gene_stack);
-		printf("Unget %d %s\n", tok_in->type, tok_in->data);
-		printf("**END\n");
+		printf("EXPR_INFO Unget %d %s\n", tok_in->type, tok_in->data);
 	}
 	unget_token(tok_in);
 }
@@ -275,7 +278,8 @@ int its_function()
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
-			if (item == NULL) {
+			if ((item == NULL) || (item->data.function == NULL) || (item->data.function->defined == 0)) {
+				if (DEB_ERROR_PRINT) printf("EXPR_ERR! Funkce nenalezena\n");
 				exit_error(E_SEMANTIC_DEF);
 			} else {
 				yes_it_is = 1;
@@ -298,7 +302,7 @@ int its_function()
 
 void function_elaboration()
 {
-	printf("Prijata funkce!\n");
+	printf("EXPR Prijata funkce!\n");
 }
 
 void stack_print(TStack *st)
@@ -309,7 +313,7 @@ void stack_print(TStack *st)
 	cache_stack = stack_init();
 	while (!stack_empty(st)) {
 		tok = stack_top(st);
-		printf("Token %d %s\n", tok->type, tok->data);
+		printf("EXPE_INFO Token %d %s\n", tok->type, tok->data);
 		stack_push(cache_stack, tok);
 		stack_pop(st);
 	}
@@ -324,14 +328,12 @@ void stack_print(TStack *st)
 void generate_code()
 {
 	TToken *tok;
-	TStack *ins_stack;
 	TList_item *actual_ins;
 	TVariable *var_1;
 	TVariable *var_2;
 	TVariable *var_to_push;
 
 	postfix_count_test();
-	ins_stack = stack_init();
 	while (gene_stack->capacity > 1) {
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
@@ -362,6 +364,7 @@ TVariable *find_var(TToken *tok)
 	if (tok->type == TOKEN_IDENTIFIER) {
 		h_item = htab_lookup(G.g_globalTab, tok->data);
 		if (h_item == NULL) {
+			if (DEB_ERROR_PRINT) printf("EXPR_ERR! Nedeklarovana promenna\n");
 			exit_error(E_SEMANTIC_DEF);
 		} else {
 			new_var = h_item->data.variable;
@@ -401,7 +404,7 @@ void postfix_count_test()
 	gene_stack = expr_stack;	/* Yummy! Yummy! */
 	expr_stack = cache_stack;
 	if (++operator_counter != operand_counter) {
-		if (DEB_ERROR_PRINT) printf("postfix_count_test ERROR!\n");
+		if (DEB_ERROR_PRINT) printf("EXPR_ERR! Nesouhlasi pocet operatoru a operandu\n");
 		exit_error(E_SEMANTIC_DEF);
 	}
 }
@@ -484,6 +487,7 @@ void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 {
 	/* Operace mezi retezcem a neretezcem */
 	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
+		if (DEB_ERROR_PRINT) printf("EXPR_ERR! Operace meti neretezcem a retezcem\n");
 		exit_error(E_SEMANTIC_TYPES);
 	}
 
@@ -494,6 +498,7 @@ void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 		case TOKEN_SUB:
 			/* Aritmeticke operace nad retezci */
 			if (t_compare(var_1, TYPE_STRING) || t_compare(var_2, TYPE_STRING)) {
+				if (DEB_ERROR_PRINT) printf("EXPR_ERR! Aritmeticke operace nad retezci\n");
 				exit_error(E_SEMANTIC_TYPES);
 			}
 	}
@@ -517,3 +522,9 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 	return ins;
 }
 
+void charlady()
+{
+	stack_free(expr_stack);
+	stack_free(gene_stack);
+	stack_free(ins_stack);
+}

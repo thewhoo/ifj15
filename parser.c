@@ -81,9 +81,12 @@ enum
 
 void logger(char *c)
 {
-    #ifdef PARSER_DEBUG
+    #ifdef DEBUG_MODE
     fprintf(stdout, "parser: %s\n", c);
     #endif // PARSER_DEBUG
+
+    // Surpress unused variable warning
+    (void)c;
 }
 
 TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)
@@ -231,6 +234,9 @@ TVariable *getNewVariable()
 void pushParam(TFunction *f, TVariable *p)
 {
     stack_push(f->params_stack, p);
+    htab_item *param = htab_insert(f->local_tab, p->name);
+    p->initialized = true;
+    param->data.variable = p;
 }
 
 void storeFuncName(TFunction *f)
@@ -303,7 +309,6 @@ bool FUNCTION_DECL()
             if(token->type == TOKEN_SEMICOLON)
             {
                 currentFunc->defined = false;
-                token = get_token();
             }
             // Process function block if the function is defined
             else
@@ -315,6 +320,7 @@ bool FUNCTION_DECL()
 
             // Store the complete function "object" in the global table
             storeFunction(currentFunc);
+            token = get_token();
             logger("stored function in G.globalTab");
         }
     }
@@ -390,6 +396,8 @@ bool FUNC_DECL_PARAMS(TFunction *func)
             // Process next param
             if(!FUNC_DECL_PARAMS_NEXT(func))
                 return false;
+
+            return true;
         }
         else
             return false;

@@ -90,8 +90,6 @@ TStack *ins_stack;
 	Uklízet po sobě
 
 ***	POZNAMKY
-	globální ret pro používání  VS  co když mi ji matěj předhodí??
-	u ifu sežrat prvni zavorku
 	inicializovane promenne?
 	kontrola jestli funkce defined?
 */
@@ -178,7 +176,6 @@ void infix_2_postfix()
 	}
 	transfer_rest_of_expr_stack();
 	if (DEB_INFO) {
-
 		printf("EXPR_INFO expr_stack\n");
 		stack_print(expr_stack);
 		printf("EXPR_INFO gene_stack\n");

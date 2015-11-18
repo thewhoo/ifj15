@@ -353,7 +353,6 @@ void generate_code()
 			stack_push(ins_stack, G.g_return);
 		}
 	}
-	/* INS_ASSIGN */
 	actual_ins = create_ins(INS_ASSIGN, expr_var, stack_top(ins_stack), NULL);
 	list_insert(actual_ins_list, actual_ins);
 }
@@ -366,7 +365,7 @@ TVariable *find_var(TToken *tok)
 	if (tok->type == TOKEN_IDENTIFIER) {
 		h_item = htab_lookup(G.g_globalTab, tok->data);
 		if (h_item == NULL) {
-			if (DEB_ERROR_PRINT) printf("EXPR_ERR! Nedeklarovana promenna\n");
+			if (DEB_ERROR_PRINT) printf("EXPR_ERR! Nepouzitelna promenna\n");
 			exit_error(E_SEMANTIC_DEF);
 		} else {
 			new_var = h_item->data.variable;

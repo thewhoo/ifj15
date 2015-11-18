@@ -32,8 +32,8 @@
 #define LO 1
 #define HI 2
 #define ER 3
-#define DEB_INFO 0
-#define DEB_ERROR_PRINT 0
+#define DEB_INFO 1
+#define DEB_ERROR_PRINT 1
 
 /* External functions */
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill);
@@ -96,7 +96,15 @@ TStack *ins_stack;
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 {
-	if (DEB_INFO) printf("Expr_start!\n");
+
+	
+	
+	if (DEB_INFO) {
+		printf("Expr_start!\n");
+		TToken *tok = get_token();
+		printf("EXPR First token is %d %s\n", tok->type, tok->data);
+		unget_token(tok);
+	}
 
 	expr_init(var_from_parser, ins_list_to_fill);
 	if (its_function()) {
@@ -290,7 +298,7 @@ int its_function()
 			yes_it_is = 1;
 			break;
 		default:
-			yes_it_is = 0;			
+			yes_it_is = 0;
 	}
 	unget_token(tok);
 
@@ -335,7 +343,7 @@ void generate_code()
 		tok = stack_top(gene_stack);
 		stack_pop(gene_stack);
 		if (token_is_operand(tok)) {
-			var_to_push = find_var(tok);			
+			var_to_push = find_var(tok);
 			stack_push(ins_stack, var_to_push);
 		} else {
 			var_1 = stack_top(ins_stack);

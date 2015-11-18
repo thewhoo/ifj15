@@ -354,7 +354,7 @@ void generate_code()
 		}
 	}
 	/* INS_ASSIGN */
-	actual_ins = create_ins(INS_ASSIGN, expr_var, G.g_return, NULL);
+	actual_ins = create_ins(INS_ASSIGN, expr_var, stack_top(ins_stack), NULL);
 	list_insert(actual_ins_list, actual_ins);
 }
 

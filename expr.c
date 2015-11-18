@@ -86,7 +86,6 @@ TStack *ins_stack;
 ***	TODO
 	Zpracovani funkci
 	Zkontrolovat konstanty vracenych exit_error
-	Proměnné hledat v aktuálním stacu, ne v globálu
 	Uklízet po sobě
 
 ***	POZNAMKY

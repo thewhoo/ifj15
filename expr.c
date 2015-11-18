@@ -133,7 +133,7 @@ void infix_2_postfix()
 
 	bracket_counter = 0;
 	tok_in = get_token();
-	while ((tok_in->type != TOKEN_SEMICOLON) && (bracket_counter >= 0)) {
+	while ((tok_in->type != TOKEN_SEMICOLON) && ((bracket_counter >= 0))) {
 		switch (tok_in->type) {
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
@@ -142,10 +142,15 @@ void infix_2_postfix()
 				stack_push(gene_stack, tok_in);
 				break;
 			case TOKEN_LROUND_BRACKET:
-				stack_push(expr_stack, tok_in);
 				bracket_counter++;
+				stack_push(expr_stack, tok_in);
 				break;
 			case TOKEN_RROUND_BRACKET:
+                bracket_counter--;
+                if (bracket_counter < 0) {
+                    unget_token(tok_in);
+                    break;
+                }
 				tok_stack = stack_top(expr_stack);
 				stack_pop(expr_stack);
 				while (tok_stack->type != TOKEN_LROUND_BRACKET) {
@@ -153,7 +158,6 @@ void infix_2_postfix()
 					tok_stack = stack_top(expr_stack);
 					stack_pop(expr_stack);
 				}
-				bracket_counter--;
 				break;
 			case TOKEN_MUL:
 			case TOKEN_DIV:
@@ -279,12 +283,7 @@ int its_function()
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
-			if (item == NULL) {
-				#ifdef DEBUG_MODE
-				printf("expr: Funkce nenalezena\n");
-				#endif
-				exit_error(E_SEMANTIC_DEF);
-			} else {
+			if (item != NULL) {
 				yes_it_is = 1;
 			}
 			break;

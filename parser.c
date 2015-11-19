@@ -729,8 +729,14 @@ bool IF_STATEMENT()
             TList_item *condIns = createPseudoFrame(T_IF);
             condIns->addr1 = var;
 
+            // Create the instruction for else block skip
+            TList_item *skipElse = createInstruction(INS_JMP, NULL, NULL, NULL);
+
             if(NESTED_BLOCK())
             {
+                // Insert else skip instruction
+                list_insert(func->ins_list, skipElse);
+
                 // Create "false" label after if block ends
                 TList_item *ifEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
                 list_insert(func->ins_list, ifEnd);
@@ -738,7 +744,7 @@ bool IF_STATEMENT()
                 // Ammend initial conditional jump address to ifEnd
                 condIns->addr2 = ifEnd;
 
-                if(ELSE_STATEMENT())
+                if(ELSE_STATEMENT(skipElse))
                     return true;
             }
 
@@ -749,9 +755,11 @@ bool IF_STATEMENT()
     return false;
 }
 
-bool ELSE_STATEMENT()
+bool ELSE_STATEMENT(TList_item *skipIns)
 {
     logger("enter ELSE_STATEMENT");
+
+    TFunction *func = stack_top(G.g_frameStack);
 
     if(token->type == TOKEN_ELSE)
     {
@@ -759,7 +767,16 @@ bool ELSE_STATEMENT()
         createPseudoFrame(T_BLOCK);
         token = get_token();
         if(NESTED_BLOCK())
+        {
+            // Create skip label after block ends
+            TList_item *elseEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
+            list_insert(func->ins_list, elseEnd);
+
+            // Amend if true jump to skip else block
+            skipIns->addr1 = elseEnd;
+
             return true;
+        }
     }
     /*
     We might implement this later as SIMPLE extension

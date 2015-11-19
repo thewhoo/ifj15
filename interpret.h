@@ -24,33 +24,33 @@
 
 enum instructions
 {
-    INS_ASSIGN,     //dest, src
-    INS_ADD,        //dest, src1, src2
-    INS_SUB,        //dest, src1, src2
-    INS_MUL,        //dest, src1, src2
-    INS_DIV,        //dest, src1, src2
-    INS_EQ,         //dest, src1, src2
-    INS_NEQ,        //dest, src1, src2
-    INS_GREATER,    //dest, src1, src2
-    INS_GREATEQ,    //dest, src1, src2
-    INS_LESSER,     //dest, src1, src2
-    INS_LESSEQ,     //dest, src1, src2
-    INS_JMP,        //dest
-    INS_CJMP,       //TVar, label
-    INS_LAB,        //
-    INS_PUSH,       //src1
-    INS_CALL,       //
-    INS_RET,        //dest
-    INS_PUSH_TAB,   //htab_t*
-    INS_POP_TAB,    //
+    INS_ASSIGN,     //0     dest, src
+    INS_ADD,        //1     dest, src1, src2
+    INS_SUB,        //2     dest, src1, src2
+    INS_MUL,        //3     dest, src1, src2
+    INS_DIV,        //4     dest, src1, src2
+    INS_EQ,         //5     dest, src1, src2
+    INS_NEQ,        //6     dest, src1, src2
+    INS_GREATER,    //7     dest, src1, src2
+    INS_GREATEQ,    //8     dest, src1, src2
+    INS_LESSER,     //9     dest, src1, src2
+    INS_LESSEQ,     //10    dest, src1, src2
+    INS_JMP,        //11    dest
+    INS_CJMP,       //12    TVar, label
+    INS_LAB,        //13
+    INS_PUSH,       //14    src1
+    INS_CALL,       //15
+    INS_RET,        //16    dest
+    INS_PUSH_TAB,   //17    htab_t*
+    INS_POP_TAB,    //18
     //built-int functions
-    INS_LENGTH,     //dest, src1
-    INS_SUBSTR,
-    INS_CONCAT,     //dest, src1, src2
-    INS_FIND,       //dest, src1, src2
-    INS_SORT,       //dest, src1
-    INS_CIN,        //dest
-    INS_COUT        //src1
+    INS_LENGTH,     //19    dest, src1
+    INS_SUBSTR,     //20
+    INS_CONCAT,     //21    dest, src1, src2
+    INS_FIND,       //22    dest, src1, src2
+    INS_SORT,       //23    dest, src1
+    INS_CIN,        //24    dest
+    INS_COUT        //25    src1
 }; 
 
 /**

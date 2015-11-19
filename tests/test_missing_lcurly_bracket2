@@ -1,6 +1,5 @@
 int main()
 {
 	int a;
-	cout >> a; // wrong operator
+	cout << a << "\n";
 	return a;
-}

@@ -1,6 +1,6 @@
 int main) // missing (
 {
-	int a=5;
-	cout << a;
+	int a=55;
+	cout << a << "\n";
 	return a;
 }

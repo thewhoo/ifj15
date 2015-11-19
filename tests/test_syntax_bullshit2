@@ -3,6 +3,6 @@ dfd_ 7 		//some bullshit
 int main()
 {
 	int a=5;
-	cout << func(a); 
+	cout << a << "\n"; 
 	return 1;
 }

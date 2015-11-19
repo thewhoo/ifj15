@@ -1,6 +1,0 @@
-int main() 
-{
-	int a=5;
-	cout << a; $ // lexical error invalid token
-	return a;
-}

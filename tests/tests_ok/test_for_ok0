@@ -1,0 +1,9 @@
+int main()
+{
+	int a=0;
+	for (a; a<5; a=a+1)
+	{
+	cout << "a=" << a << "\n";
+	}
+	return 0;
+}

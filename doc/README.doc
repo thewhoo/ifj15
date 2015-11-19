@@ -1,0 +1,14 @@
+Dokumnetacia k projektu IFJ 2015
+--------------------------------
+
+Nastroj pre napisanie dokumentacie: LaTeX
+Jazyk dokumentacie: čeština
+Kontrola gramatiky: Pavel Pospíšil, Matej Postolka
+
+Pokyny:
+    - Ak netusite, co je LaTeX, prosim nehrabte sa v subore dokumentace.tex
+    - Dokumentaciu k svojej casti projektu ulozte do suboru:
+      aboutWhat_author.doc
+    - obrazky vytvarajte vo formate eps 
+      (prip. konverzia: `convert x.jpg eps3:xy.eps`)
+    - Zmeny obsahu v castich, ktore ste neimplementovali nie su pripustne

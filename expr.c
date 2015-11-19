@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "stack.h"
 #include "galloc.h"
 #include "expr.h"
@@ -51,16 +52,17 @@ void generate_code();
 void operand_check(TToken *tok);
 int ope_type_2_ins_type(int operator_type);
 TVariable *find_var(TToken *tok);
-void operand_type_checker(int ins_type, TVariable *var_1, TVariable *var_2);
+int operand_type_checker(int ins_type, TVariable *var_1, TVariable *var_2);
 int t_compare(TVariable *var, int type);
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3);
+TVariable* next_t_var(int t_x_type);
 void charlady();
 /* Debug functions */
 void stack_print(TStack *st);
 
 /* Global variables */
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {/* Sloupec tok_in, řádek tok_stack */
-/*         +   -   *   /   (   )   id  <   >   <=  >=  ==  !=      */
+/*         +   -   *   /   (   )   id  <   >   <=  >=  ==  !=	 */
 /* +  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* -  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* *  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI },
@@ -80,19 +82,18 @@ TStack *gene_stack;
 Tins_list *actual_ins_list;
 TVariable *expr_var;
 TStack *ins_stack;
+int t_x_var_counter;
 
 /*
 ***	TODO
 	Zpracovani funkci
 	Zkontrolovat konstanty vracenych exit_error
-	Uklízet po sobě
-	matej da vedet kdy se daji funkcce volat a kdy ne
 	pri funci kontrolovat parametry, pushovat (pres instrukci) a pak volat call
-	pouze existece funkce kontrolovat
+	tvorba vice nez 10 TX
+	Uklízet po sobě
 
 ***	POZNAMKY
-	inicializovane promenne?
-	kontrola jestli funkce defined?
+
 */
 
 void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_is_possible)
@@ -106,7 +107,11 @@ void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_
 
 	expr_init(var_from_parser, ins_list_to_fill);
 	if (its_function()) {
-		function_elaboration();
+		if (f_is_possible) {		
+			function_elaboration();
+		} else {
+			exit_error(E_SEMANTIC_DEF);
+		}
 	} else {
 		infix_2_postfix();
 		generate_code();
@@ -124,6 +129,7 @@ void expr_init(TVariable *var_from_parser, Tins_list *ins_list_to_fill)
 	expr_stack = stack_init();
 	gene_stack = stack_init();
 	ins_stack = stack_init();
+	t_x_var_counter = 0;
 }
 
 void infix_2_postfix()
@@ -147,11 +153,11 @@ void infix_2_postfix()
 				stack_push(expr_stack, tok_in);
 				break;
 			case TOKEN_RROUND_BRACKET:
-                bracket_counter--;
-                if (bracket_counter < 0) {
-                    unget_token(tok_in);
-                    break;
-                }
+				bracket_counter--;
+				if (bracket_counter < 0) {
+					unget_token(tok_in);
+					break;
+				}
 				tok_stack = stack_top(expr_stack);
 				stack_pop(expr_stack);
 				while (tok_stack->type != TOKEN_LROUND_BRACKET) {
@@ -359,6 +365,8 @@ void generate_code()
 	TVariable *var_1;
 	TVariable *var_2;
 	TVariable *var_to_push;
+	TVariable *new_t_var;
+	int t_x_type;	
 
 	postfix_count_test();
 	while (!stack_empty(gene_stack)) {
@@ -372,10 +380,14 @@ void generate_code()
 			stack_pop(ins_stack);
 			var_2 = stack_top(ins_stack);
 			stack_pop(ins_stack);
-			operand_type_checker(tok->type, var_1, var_2);
-			actual_ins = create_ins(ope_type_2_ins_type(tok->type), G.g_return, var_2, var_1);
+			t_x_type = operand_type_checker(tok->type, var_1, var_2);
+			#ifdef DEBUG_MODE
+			printf("expr: dst type is %d\n", t_x_type);
+			#endif
+			new_t_var = next_t_var(t_x_type);
+			actual_ins = create_ins(ope_type_2_ins_type(tok->type), new_t_var, var_2, var_1);
 			list_insert(actual_ins_list, actual_ins);
-			stack_push(ins_stack, G.g_return);
+			stack_push(ins_stack, new_t_var);
 		}
 	}
 	actual_ins = create_ins(INS_ASSIGN, expr_var, stack_top(ins_stack), NULL);
@@ -384,7 +396,7 @@ void generate_code()
 
 TVariable *find_var(TToken *tok)
 {
-    	if (tok->type == TOKEN_IDENTIFIER) {
+	if (tok->type == TOKEN_IDENTIFIER) {
 		for(int i=G.g_frameStack->used-1; i >= 0; i--) {
 			TFunction *f = G.g_frameStack->data[i];
 			htab_item *found = htab_lookup(f->local_tab, tok->data);
@@ -500,7 +512,7 @@ int ope_type_2_ins_type(int operator_type)
 	return val;
 }
 
-void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
+int operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 {
 	/* Operace mezi retezcem a neretezcem */
 	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
@@ -522,7 +534,12 @@ void operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 				#endif
 				exit_error(E_SEMANTIC_TYPES);
 			}
+			if (t_compare(var_1, TYPE_DOUBLE) || t_compare(var_2, TYPE_DOUBLE)) {
+				return TYPE_DOUBLE;
+			}	
 	}
+	
+	return TYPE_INT;
 }
 
 int t_compare(TVariable *var, int type)
@@ -533,10 +550,10 @@ int t_compare(TVariable *var, int type)
 void print_variable(TVariable* var)
 {
 	if (var != NULL) {
-        printf(" %s ", var->name);
-    } else {
-        printf(" NULL ");
-    }
+		printf(" %s ", var->name);
+	} else {
+		printf(" NULL ");
+	}
 }
 
 void print_ins_type(int type)
@@ -591,6 +608,47 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 	#endif
 
 	return ins;
+}
+
+char *create_t_name(int number)
+{
+	char *s;
+	
+	if (number < 9) {
+		s = gmalloc(sizeof(char)*3);
+		s [0] = 'T';
+		s [1] = '0' + number;
+		s [2] = '\0';
+		return s;
+	} else {
+		printf("expr: Hmm... moc velky cislo na muj vkus\n");
+	}
+	return NULL;
+}
+
+TVariable* next_t_var(int t_x_type)
+{
+	htab_item *h_item;
+	TVariable* var;
+	char *t_name;
+	
+	t_name = create_t_name(t_x_var_counter);
+	h_item = htab_lookup(G.g_exprTab, t_name);
+	if(h_item == NULL) {
+		var = gmalloc(sizeof(TVariable));
+		var->initialized = 1;
+		var->constant = 1;
+		var->name = gmalloc(strlen(t_name) + 1);
+		strcpy(var->name, t_name);
+		var->var_type = t_x_type;
+		h_item = htab_insert(G.g_exprTab, t_name);
+		h_item->data.variable = var;
+		t_x_var_counter++;
+		
+		return var;
+	} else {
+		return h_item->data.variable;
+	}
 }
 
 void charlady()

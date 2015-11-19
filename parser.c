@@ -336,7 +336,6 @@ bool FUNCTION_DECL()
 
             // Store the complete function "object" in the global table
             storeFunction(currentFunc);
-            token = get_token();
             logger("stored function in G.globalTab");
         }
     }

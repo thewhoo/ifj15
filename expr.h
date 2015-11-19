@@ -41,6 +41,13 @@ enum {
 	 oper_not_equal
 };
 
+enum {
+	EQ,
+	LO,
+	HI,
+	ER
+};
+
 /**
   * @brief Zpracovani vyrazu
   *
@@ -50,7 +57,7 @@ enum {
   * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
 
-void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_is_possible);
+void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible);
 
 #endif //EXPR_H
 

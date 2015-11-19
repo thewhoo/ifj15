@@ -209,16 +209,11 @@ TToken* get_token()
 		    break;
 
 //*************************************************
-		case S_DOT: // INTEGER DOT
+		case S_DOT: // number DOT
 			if (isdigit(c))
 			{
 				insertIntoString(&buffer, c);
 				state = S_DBL;
-			}
-			else if(c == 'E' || c == 'e')
-			{
-				insertIntoString(&buffer, c);
-				state = S_EXPO_E;	
 			}	
 			else
 			{

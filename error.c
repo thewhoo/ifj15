@@ -24,40 +24,40 @@ void exit_error(int err)
     switch(err)
     {
         case(E_LEX):
-            fprintf(stderr, "Error: lexical error!\n");
+            fprintf(stderr, "IFJ15 Error: lexical error!\n");
             break;          
         case(E_SYNTAX):
-            fprintf(stderr, "Error: syntax error!\n");
+            fprintf(stderr, "IFJ15 Error: syntax error!\n");
             break;
         case(E_SEMANTIC_DEF):
-            fprintf(stderr, "Error: Some semantic error!\n");
+            fprintf(stderr, "IFJ15 Error: Some semantic error!\n");
             break;
         case(E_SEMANTIC_TYPES):
-            fprintf(stderr, "Error: Semantic type error!\n");
+            fprintf(stderr, "IFJ15 Error: Semantic type error!\n");
             break;
         case(E_AUTO_TYPE):
-            fprintf(stderr, "Error: No idea about type for 'auto' variable!\n");
+            fprintf(stderr, "IFJ15 Error: No idea about type for 'auto' variable!\n");
             break;
         case(E_SEMANTIC_OTHERS):
-            fprintf(stderr, "Error: Some semantic error!\n");
+            fprintf(stderr, "IFJ15 Error: Some semantic error!\n");
             break;
         case(E_READ_NUMBER):
-            fprintf(stderr, "Cin: Fail to read number from stdin!\n");
+            fprintf(stderr, "IFJ15 Error: Cin: Fail to read number from stdin!\n");
             break;
         case(E_UNINITIALIZED):
-            fprintf(stderr, "Some operation with unitialized var!\n");
+            fprintf(stderr, "IFJ15 Error: Operation with unitialized var!\n");
             break;
         case(E_ZERO_DIVISION):
-            fprintf(stderr, "Math error: Zero division!\n");
+            fprintf(stderr, "IFJ15 Math error: Zero division!\n");
             break;
         case(E_RUNTIME_OTHERS):
-            fprintf(stderr, "Interpret: runtime failure\n");
+            fprintf(stderr, "IFJ15 Error: Interpret: runtime failure\n");
             break;
         case(E_INTERNAL):
-            fprintf(stderr, "Error: Something went wrong!\n");
+            fprintf(stderr, "IFJ15 Error: Something went wrong!\n");
             break;
         case(E_ALLOC):
-            fprintf(stderr, "Error: Memory allocation failed!\n");
+            fprintf(stderr, "IFJ15 Error: Memory allocation failed!\n");
             err = E_INTERNAL;
             break;
 

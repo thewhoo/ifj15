@@ -1056,7 +1056,14 @@ bool FOR_STATEMENT()
             return false;
 
         // Append assignment to end of loop block
-        list_insert(frame->ins_list, tempList->first);
+        TList_item *tmp;
+        do
+        {
+            tmp = tempList->first;
+            tempList->first = tempList->first->next;
+            list_insert(frame->ins_list, tmp);
+        }
+        while(tempList->first);
 
         // Add hard jump to loop label
         TList_item *jump = createInstruction(INS_JMP, loopLabel, NULL, NULL);

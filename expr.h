@@ -48,6 +48,12 @@ enum {
 	ER
 };
 
+enum {
+	not_function,
+	internal_function,	
+	external_function
+};
+
 /**
   * @brief Zpracovani vyrazu
   *

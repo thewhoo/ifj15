@@ -398,7 +398,7 @@ void print_token(TToken *tok)
 		case TOKEN_STRING_VALUE:
 		case TOKEN_INT_VALUE:
 		case TOKEN_DOUBLE_VALUE: printf("%s", tok->data); break;
-		default: printf("%d", tok->type);
+		default: printf("%d %s", tok->type, tok->data);
 	}
 }
 
@@ -426,14 +426,22 @@ void stack_print(TStack *st)
 }
 #endif
 
-void function_elaboration()
+void function_elaboration(int f_symptom)
 {
-	printf("expr: Prijata funkce!\n");
+	/*if (f_symptom == internal_function) {
+		for (int i = 0; i < 5; i++) {
+			tok = get_token();
+			print_token(tok);
+			printf("\n");		
+		}
+	} else {
+		printf("Externi funkce\n");
+	}*/
 }
 
 int its_function()
 {
-	int yes_it_is;
+	int answer;
 	TToken *tok;
 	htab_item *item;
 
@@ -442,7 +450,7 @@ int its_function()
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
 			if (item != NULL) {
-				yes_it_is = 1;
+				answer = external_function;
 			}
 			break;
 		case TOKEN_BF_LENGTH:
@@ -450,14 +458,14 @@ int its_function()
 		case TOKEN_BF_CONCAT:
 		case TOKEN_BF_FIND:
 		case TOKEN_BF_SORT:
-			yes_it_is = 1;
+			answer = internal_function;
 			break;
 		default:
-			yes_it_is = 0;
+			answer = not_function;
 	}
 	unget_token(tok);
 
-	return yes_it_is;
+	return answer;
 }
 
 int find_priority(const int *n)
@@ -621,6 +629,16 @@ void expr_init(int *t_var_counter)
 void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 {
 	int t_var_counter;
+	int function_symptom;
+	
+	/*TToken *tok;
+	
+	for (int i = 0; i < 5000; i++) {
+			tok = get_token();
+			print_token(tok);
+			printf("\n");		
+	}*/
+	
 	
 	#ifdef DEBUG_MODE
 	printf("expr: --START--\n");
@@ -632,15 +650,16 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 	#endif
 	
 	expr_init(&t_var_counter);
-	if (its_function()) {
-		if (f_is_possible) {		
-			function_elaboration();
+	function_symptom = its_function();
+	if (function_symptom == not_function) {
+		infix_2_postfix();
+		generate_code(ret_var, act_ins_list, &t_var_counter);		
+	} else {
+		if (f_is_possible) {
+			function_elaboration(function_symptom);
 		} else {
 			exit_error(E_SEMANTIC_DEF);
 		}
-	} else {
-		infix_2_postfix();
-		generate_code(ret_var, act_ins_list, &t_var_counter);
 	}
 	charlady();	
 	#ifdef DEBUG_MODE

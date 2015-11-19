@@ -305,7 +305,10 @@ void interpret_loop(Tins_list *ins_list)
                           //begin with first one
             case(INS_RET):
                 if(stack_empty(gStack))  //end of main func
+                {
+                    gcDestroy();
                     exit(0);            //maybe some cleaning?
+                }
 
                 clean_active_frame();
                 ins = (TList_item*) stack_top(gStack);

@@ -1,0 +1,23 @@
+int main()
+{
+	int a=5;
+	if(a>3)
+	{
+		cout << a <<" is bigger than 3\n"; 
+	}
+	else
+	{
+		cout << a <<" is not bigger than 3\n";
+	}
+
+	if (a==4)
+	{ 
+		cout << a <<" is equal 4\n"; 
+	}
+	else
+	{
+		cout << a <<" is not equal 4\n"; 
+	}
+	
+	return 0;
+}

@@ -708,6 +708,8 @@ bool IF_STATEMENT()
     TFunction *func = stack_top(G.g_frameStack);
     // We need to store the result of the evaluated expression
     TVariable *var = getNewVariable();
+    var->initialized = true;
+    var->constant = true;
 
     if(token->type == TOKEN_IF)
     {

@@ -2,7 +2,7 @@
 
 import os
 import subprocess
-
+import sys
 
 def print_test_head(source):
     print("-------------------------------")
@@ -40,8 +40,13 @@ def print_statistics():
 
     if x_fail != 0:
         print("Failed tests:")
-        for k, v in fails.items():
+        for k, v in sorted(fails.items()):
             print("TEST {}: {}".format(k,v))
+
+if not(os.path.isfile('ifj') and os.access('ifj', os.X_OK)):
+    print("No executable file found, try 'make'.")
+    sys.exit()
+
 
 tests_dir = os.path.join(os.getcwd(), 'tests')
 

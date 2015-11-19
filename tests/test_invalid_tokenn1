@@ -1,6 +1,6 @@
 ^int main() // lexical error invalid token
 {
 	int a=5;
-	cout << a;
+	cout << a << "\n";
 	return a;
 }

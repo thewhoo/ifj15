@@ -1,0 +1,7 @@
+int main()
+{
+	string s;
+	s="sadasdadsd";
+	cout << "string: " << s << "\n";
+	return 0;
+}

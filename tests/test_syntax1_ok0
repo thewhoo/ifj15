@@ -2,6 +2,6 @@ int main()
 {
     double a;
     cin >> a;
-    cout << a;
-	return 1;
+    cout << a << "\n";
+	return 0;
 }

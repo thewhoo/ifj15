@@ -1,0 +1,26 @@
+int fu(int g)
+{
+	g=g+3;
+	return g;
+}
+
+int fun(int h)
+{
+	h=7+fu(h);
+	return h;
+}
+
+int func(int k)
+{
+	k=5+fun(k);
+	return k;
+}
+
+int main()
+{
+	int a=5;
+	int b;
+	b=func(a);
+	cout << b << "\n"; 
+	return 0;
+}

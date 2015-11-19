@@ -41,11 +41,11 @@ int main(int argc, char **argv)
 
     parse();
 
+    fclose(fp);
+
     interpret();
 
     gcDestroy();
-
-    fclose(fp);
 
     return 0;
 }

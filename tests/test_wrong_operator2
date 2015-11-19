@@ -1,0 +1,6 @@
+int main()
+{
+	int a=25;
+	cout >> a; // wrong operator, should be <<
+	return a;
+}

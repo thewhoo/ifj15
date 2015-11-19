@@ -1,6 +1,6 @@
 int main()) 	// double )
 {
 	int a=5;
-	cout << a;
+	cout << a << "\n";
 	return a;
 }

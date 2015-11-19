@@ -1,0 +1,9 @@
+int main()
+{
+	double a=2;
+	double b=5;
+	double c;
+	c=b/a; 
+	cout << c << "\n"
+	return 0;
+}

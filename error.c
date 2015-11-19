@@ -25,7 +25,7 @@ void exit_error(int err)
     {
         case(E_LEX):
             fprintf(stderr, "IFJ15 Error: lexical error!\n");
-            break;          
+            break;
         case(E_SYNTAX):
             fprintf(stderr, "IFJ15 Error: syntax error!\n");
             break;
@@ -45,7 +45,7 @@ void exit_error(int err)
             fprintf(stderr, "IFJ15 Error: Cin: Fail to read number from stdin!\n");
             break;
         case(E_UNINITIALIZED):
-            fprintf(stderr, "IFJ15 Error: Operation with unitialized var!\n");
+            fprintf(stderr, "IFJ15 Error: Operation with unitialized var or missing return at the end of function!\n");
             break;
         case(E_ZERO_DIVISION):
             fprintf(stderr, "IFJ15 Math error: Zero division!\n");
@@ -62,7 +62,7 @@ void exit_error(int err)
             break;
 
     }
-    
+
     gcDestroy();
     exit(err);
 }

@@ -7,7 +7,8 @@ int func(int k)
 int main()
 {
 	int a=5;
-	double d;
-	cout << func(d); // wrong parameter type
-	return 1;
+	int b;
+	b=func(a);
+	cout << b << "\n"; 
+	return 0;
 }

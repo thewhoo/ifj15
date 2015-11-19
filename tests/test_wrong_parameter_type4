@@ -1,0 +1,13 @@
+int func(int k)
+{
+	k=5+k;
+	return k;
+}
+
+int main()
+{
+	string d="asda";
+	int a=func(d); // wrong parameter type
+	cout << a << "\n"
+	return 1;
+}

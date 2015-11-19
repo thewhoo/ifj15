@@ -250,6 +250,15 @@ void interpret_loop(Tins_list *ins_list)
                         get_var(ins->addr3));
                 break;
 
+            case(INS_EQ):
+            case(INS_NEQ):
+            case(INS_GREATER):
+            case(INS_GREATEQ):
+            case(INS_LESSER):
+            case(INS_LESSEQ):
+                compare_ins(ins->ins_type, get_var(ins->addr1),
+                            get_var(ins->addr2), get_var(ins->addr3));
+                break;
             case(INS_PUSH_TAB):
                 new_tab = htab_copy(ins->addr1);
                 stack_push(active_frame, new_tab);

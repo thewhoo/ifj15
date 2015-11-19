@@ -38,7 +38,7 @@ bool FUNCTION_DECL();
 bool DATA_TYPE();
 bool FUNC_DECL_PARAMS();
 bool FUNC_DECL_PARAMS_NEXT();
-bool NESTED_BLOCK();
+bool NESTED_BLOCK(bool);
 bool NBC();
 bool DECL_OR_ASSIGN();
 bool DECL_ASSIGN();
@@ -52,9 +52,6 @@ bool COUT_OUTPUT();
 bool CIN();
 bool CIN_NEXT();
 bool FOR_STATEMENT();
-bool FOR_DECLARATION();
-bool FOR_EXPR();
-bool FOR_ASSIGN();
 bool RETURN();
 
 
@@ -163,7 +160,7 @@ TList_item *createPseudoFrame(int type)
         list_insert(f->ins_list, ins);
         return ins;
     }
-    else if(type == T_IF)
+    else
     {
         // Conditional jump skeleton
         TList_item *ins1 = createInstruction(INS_CJMP, NULL, NULL, NULL);
@@ -333,7 +330,7 @@ bool FUNCTION_DECL()
             else
             {
                 currentFunc->defined = true;
-                if(!NESTED_BLOCK())
+                if(!NESTED_BLOCK(true))
                     return false;
             }
 
@@ -447,7 +444,7 @@ bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
         return false;
 }
 
-bool NESTED_BLOCK()
+bool NESTED_BLOCK(bool removeBlockAtEnd)
 {
     logger("enter NESTED_BLOCK");
     TFunction *func = stack_top(G.g_frameStack);
@@ -457,12 +454,16 @@ bool NESTED_BLOCK()
         token = get_token();
         if(NBC() && token->type == TOKEN_RCURLY_BRACKET)
         {
-            // If this is not a function but just a block, kill the pseudo frame
-            if(func->return_type == TYPE_PSEUDO)
-                killPseudoFrame();
+            // Loops don't want us to kill their blocks
+            if(removeBlockAtEnd)
+            {
+                // If this is not a function but just a block, kill the pseudo frame
+                if(func->return_type == TYPE_PSEUDO)
+                    killPseudoFrame();
 
-            // Pop current function from frame stack
-            stack_pop(G.g_frameStack);
+                // Pop current function from frame stack
+                stack_pop(G.g_frameStack);
+            }
 
             token = get_token();
             return true;
@@ -500,7 +501,7 @@ bool NBC()
 
     case TOKEN_LCURLY_BRACKET:
         createPseudoFrame(T_BLOCK);
-        return NESTED_BLOCK() && NBC();
+        return NESTED_BLOCK(true) && NBC();
 
     case TOKEN_RETURN:
         return RETURN();
@@ -633,7 +634,9 @@ bool ASSIGN()
 
         if(token->type == TOKEN_ASSIGN)
         {
+            // Use a custom list if it is specified
             expression(var, func->ins_list, true);
+
             token = get_token();
             if(token->type == TOKEN_SEMICOLON)
             {
@@ -645,7 +648,6 @@ bool ASSIGN()
         else
             return false;
 
-        return true;
     }
 
     // Syntax error, unexpected token
@@ -732,7 +734,7 @@ bool IF_STATEMENT()
             // Create the instruction for else block skip
             TList_item *skipElse = createInstruction(INS_JMP, NULL, NULL, NULL);
 
-            if(NESTED_BLOCK())
+            if(NESTED_BLOCK(true))
             {
                 // Insert else skip instruction
                 list_insert(func->ins_list, skipElse);
@@ -766,7 +768,7 @@ bool ELSE_STATEMENT(TList_item *skipIns)
         // Create pseudo frame for else block
         createPseudoFrame(T_BLOCK);
         token = get_token();
-        if(NESTED_BLOCK())
+        if(NESTED_BLOCK(true))
         {
             // Create skip label after block ends
             TList_item *elseEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
@@ -976,92 +978,106 @@ bool CIN_NEXT()
 bool FOR_STATEMENT()
 {
     logger("enter FOR_STATEMENT");
-    /*
-    bool ret = false;
 
     if(token->type == TOKEN_FOR)
     {
-    	token = get_token();
-    	if(token->type == TOKEN_LROUND_BRACKET)
-    	{
-    		token = get_token();
-    		if(FOR_DECLARATION() && FOR_EXPR() && FOR_ASSIGN() && token->type == TOKEN_RROUND_BRACKET)
-    			ret = NESTED_BLOCK();
-    	}
+        // Create basic pseudo frame
+        createPseudoFrame(T_BLOCK);
+        TFunction *frame = stack_top(G.g_frameStack);
+
+        // Create the variable to which will store eval result
+        TVariable *expr = getNewVariable();
+        expr->initialized = true;
+        expr->constant = true;
+
+        token = get_token();
+
+        if(!(token->type == TOKEN_LROUND_BRACKET))
+            return false;
+
+        token = get_token();
+
+        // Process assign, append to nested block ilist
+        if(!DECL_OR_ASSIGN())
+            return false;
+
+        // Create loop label
+        TList_item *loopLabel = createInstruction(INS_LAB, NULL, NULL, NULL);
+        list_insert(frame->ins_list, loopLabel);
+
+        // Add instruction for expression evaluation under loop label
+        unget_token(token);
+        expression(expr, frame->ins_list, false);
+
+        // Add conditional jump under evaluation
+        TList_item *condJump = createInstruction(INS_CJMP, expr, NULL, NULL);
+        list_insert(frame->ins_list, condJump);
+
+        token = get_token();
+
+        if(!(token->type == TOKEN_SEMICOLON))
+            return false;
+
+        token = get_token();
+
+        // Create temp list for assign instruction
+        Tins_list *tempList = list_init();
+
+        // Create and store the assign instruction
+        if(token->type == TOKEN_IDENTIFIER)
+        {
+            // Retrieve the variable which we will be assigning to
+            TVariable *var = findVariable(token->data);
+            // Cannot assign to an undefined variable
+            if(var == NULL)
+                exit_error(E_SEMANTIC_OTHERS);
+
+            token = get_token();
+
+            if(token->type == TOKEN_ASSIGN)
+            {
+                // Place assign instruction in temporary list
+                expression(var, tempList, false);
+
+                token = get_token();
+            }
+            // Syntax error
+            else
+                return false;
+
+        }
+
+        if(!(token->type == TOKEN_RROUND_BRACKET))
+            return false;
+
+        token = get_token();
+
+        // Process nested block without killing frame at the end
+        if(!NESTED_BLOCK(false))
+            return false;
+
+        // Append assignment to end of loop block
+        list_insert(frame->ins_list, tempList->first);
+
+        // Add hard jump to loop label
+        TList_item *jump = createInstruction(INS_JMP, loopLabel, NULL, NULL);
+        list_insert(frame->ins_list, jump);
+
+        // Add loop end label, amend conditional jump to point here
+        TList_item *loopEnd = createInstruction(INS_LAB, NULL, NULL, NULL);
+        list_insert(frame->ins_list, loopEnd);
+        condJump->addr2 = loopEnd;
+
+        // Clean up
+        killPseudoFrame();
+        stack_pop(G.g_frameStack);
+
+        return true;
+
     }
 
-    return ret;
-    */
-    return true;
-}
 
-bool FOR_DECLARATION()
-{
-    /*
-    bool ret = false;
-
-    if(token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)
-    {
-    	if(DATA_TYPE() && token->type == TOKEN_IDENTIFIER)
-    	{
-    		token = get_token();
-    		ret = DECL_ASSIGN() && token->type == TOKEN_SEMICOLON;
-    		token = get_token();
-    	}
-    }
-    else if(token->type == TOKEN_AUTO)
-    {
-    	token = get_token();
-    	if(token->type == TOKEN_IDENTIFIER)
-    	{
-    		token = get_token();
-    		if(token->type == TOKEN_ASSIGN)
-    		{
-    			token = get_token();
-    			CALL_EXPR();
-    			ret = (token->type == TOKEN_SEMICOLON);
-    			token = get_token();
-    		}
-    	}
-    }
-
-    return ret;
-    */
-    return true;
-}
-
-bool FOR_EXPR()
-{
-    /*
-    bool ret = false;
-
-    ret = (token->type == TOKEN_SEMICOLON);
-    token = get_token();
-
-    return ret;
-    */
-    return true;
-}
-
-bool FOR_ASSIGN()
-{
-    /*
-    bool ret = false;
-
-    if(token->type == TOKEN_IDENTIFIER)
-    {
-    	token = get_token();
-    	if(token->type == TOKEN_ASSIGN)
-    	{
-    		token = get_token();
-    		CALL_EXPR();
-    		ret = true;
-    	}
-    }
-
-    return ret;
-    */
-    return true;
+    return false;
 }
 
 bool RETURN()

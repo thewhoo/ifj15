@@ -1,24 +1,19 @@
 int main()
 {
-    string c;
-    cin >> c;
+    string c = "ahoj1";
     cout << c << "\n";
 
     {
-        string c;
-        cin >> c;
+        string c = "ahoj2";
         cout << c << "\n";
         {
-            string c;
-            cin >> c;
+            string c = "ahoj3";
             cout << c << "\n";
             {
-                string c;
-                cin >> c;
+                string c = "ahoj4";
                 cout << c << "\n";
                 {
-                    string c;
-                    cin >> c;
+                    string c = "ahoj5";
                     cout << c << "\n";
                 }
                 cout << c << "\n";

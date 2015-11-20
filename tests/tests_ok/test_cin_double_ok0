@@ -1,7 +1,0 @@
-int main()
-{
-    double a;
-    cin >> a;
-    cout << a << "\n";
-	return 0;
-}

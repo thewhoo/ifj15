@@ -4,6 +4,6 @@ int main()
 	double b=5;
 	double c;
 	c=b/a; 
-	cout << c << "\n"
+	cout << c << "\n";
 	return 0;
 }

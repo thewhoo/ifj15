@@ -119,9 +119,30 @@ void storeFunction(TFunction *f)
     htab_item *result = htab_lookup(G.g_globalTab, f->name);
     if(result)
     {
+        // Retrieve found function
+        TFunction *found = result->data.function;
+
+        // Make sure found function has not already been defined
+        if(found->defined)
+            exit_error(E_SEMANTIC_OTHERS);
+
         // Check if return type matches
-        if(!(result->data.function->return_type == f->return_type))
+        if(!(found->return_type == f->return_type))
             exit_error(E_SEMANTIC_DEF);
+
+        // Check if data types of parameters match
+        for(int i = 0; i < found->params_stack->used; i++)
+        {
+            TVariable *providedVar = f->params_stack->data[i];
+            TVariable *foundVar = found->params_stack->data[i];
+
+            // Param list length mismatch
+            if(providedVar == NULL || foundVar == NULL)
+                exit_error(E_SEMANTIC_DEF);
+
+            if(providedVar->var_type != foundVar->var_type)
+                exit_error(E_SEMANTIC_DEF);
+        }
         // Replace forward declaration with definition
         gfree(result->data.function);
         result->data.function = f;
@@ -325,6 +346,7 @@ bool FUNCTION_DECL()
             if(token->type == TOKEN_SEMICOLON)
             {
                 currentFunc->defined = false;
+                token = get_token();
             }
             // Process function block if the function is defined
             else

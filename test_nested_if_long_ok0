@@ -1,0 +1,16 @@
+int main()
+{
+    int a = 1;
+
+    if (a < 2)
+    {
+        cout << a;
+        int a = 4;
+        cout <<a;
+    }
+    else
+    {
+        
+        }
+    return 3;
+}

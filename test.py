@@ -35,6 +35,7 @@ def check_stderr(err):
 
 def print_statistics():
     print("-------------------------------")
+    print("-------------------------------")
     print("Number of tests: {}\nSuccess tests: {}\nFailed: {}\n"
           .format(x, x_ok, x_fail))
 
@@ -55,7 +56,10 @@ x_ok = 0
 x_fail = 0
 fails = {}
 
+print("-------------------------------------")
+print("-------------------------------------")
 print("\nIFJ15: Tests containing some error.\n")
+print("-------------------------------------")
 
 for source in [f for f in os.listdir(tests_dir)
               if os.path.isfile(os.path.join(tests_dir, f))]:

@@ -1,0 +1,5 @@
+int main()
+{
+    string s = "123" + "12";
+    return 0;
+}

@@ -1,0 +1,8 @@
+int main()
+
+{
+
+    double x = 0;
+    double t = 10 / x;
+    return 99;
+}

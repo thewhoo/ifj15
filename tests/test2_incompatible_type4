@@ -1,0 +1,6 @@
+int main()
+{
+    string a = 12;
+
+    return 1;
+}

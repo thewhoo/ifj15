@@ -6,8 +6,8 @@ int func(int k)
 
 int main()
 {
-	auto a;
-	b= func(a);  // a is not initialized
+	int a;
+	int b = a + 1;  // a is not initialized
 	cout << b << "\n";
 	return 1;
 }

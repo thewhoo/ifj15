@@ -1,0 +1,14 @@
+int f1()
+{
+    return 4;
+}
+
+int f1()
+{
+    return 3;
+}
+
+int main()
+{
+    return 0;
+}

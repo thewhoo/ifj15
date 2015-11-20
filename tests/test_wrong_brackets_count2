@@ -1,0 +1,14 @@
+int main()
+{
+    int a;
+
+    if((1 < 4)
+    {
+    }
+    else
+    {
+    }
+
+    return 0;
+
+}

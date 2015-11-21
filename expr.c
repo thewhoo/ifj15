@@ -59,10 +59,31 @@ TODO
 	Kontrola typu výstupu přiřazení
 	Zkontrolovat konstanty vracenych exit_error
 		pri funci kontrolovat parametry, pushovat (pres instrukci) a pak volat call
+	Spustit s o2 optimalizací
 	Uklízet po sobe
 POZNAMKY
 	Breaks vs. Return
 */
+
+void my_exit_error(int error_type, int extra_info)
+{
+		#ifdef DEBUG_MODE
+		switch (extra_info) {
+			case 1:	printf("expr: Operace mezi neretezcem a retezcem\n");
+					break;
+			case 2: printf("expr: Aritmeticke operace nad retezci\n");
+					break;
+			case 3: printf("expr: Nesouhlasi pocet operatoru a operandu\n");
+					break;
+			case 4: printf("expr: Nesouhlasi pocet operatoru a operandu\n");
+					break;
+			case 5: printf("expr: Wrong token!\n");
+					break;
+		}
+		printf("expr: EXIT_ERROR!\n");
+		#endif
+		exit_error(error_type);
+}
 
 void charlady()
 {
@@ -106,7 +127,7 @@ TVariable* next_t_var(int t_x_type, int *t_x_var_counter)
 	}
 }
 
-//#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 void print_ins_type(int type)
 {
 	switch (type) {
@@ -147,7 +168,7 @@ void print_variable(TVariable* var)
 		printf(" NULL");
 	}
 }
-//#endif
+#endif
 
 TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
 {
@@ -159,13 +180,13 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 	ins->addr2 = addr2;
 	ins->addr3 = addr3;
 
-	//#ifdef DEBUG_MODE
+	#ifdef DEBUG_MODE
 	print_ins_type(type);
 	print_variable(addr1);
 	print_variable(addr2);
 	print_variable(addr3);
 	printf("\n");
-	//#endif
+	#endif
 
 	return ins;
 }
@@ -179,10 +200,7 @@ int operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 {
 	/* Operace mezi retezcem a neretezcem */
 	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
-		//#ifdef DEBUG_MODE
-		printf("expr: Operace mezi neretezcem a retezcem\n");
-		//#endif
-		exit_error(E_SEMANTIC_TYPES);
+		my_exit_error(E_SEMANTIC_TYPES, 1);
 	}
 
 	switch (operator_type) {
@@ -192,10 +210,7 @@ int operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 		case TOKEN_SUB:
 			/* Aritmeticke operace nad retezci */
 			if (t_compare(var_1, TYPE_STRING) || t_compare(var_2, TYPE_STRING)) {
-				//#ifdef DEBUG_MODE
-				printf("expr: Aritmeticke operace nad retezci\n");
-				//#endif
-				exit_error(E_SEMANTIC_TYPES);
+				my_exit_error(E_SEMANTIC_TYPES, 2);
 			}
 			if (t_compare(var_1, TYPE_DOUBLE) || t_compare(var_2, TYPE_DOUBLE)) {
 				return TYPE_DOUBLE;
@@ -205,11 +220,11 @@ int operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 	return TYPE_INT;
 }
 
-int ope_type_2_ins_type(const int *operator_type)
+int ope_2_ins_type(const TToken *tok)
 {
 	int val;
 
-	switch (*operator_type) {
+	switch (tok->type) {
 		case TOKEN_MUL:
 			val = INS_MUL;
 			break;
@@ -239,6 +254,21 @@ int ope_type_2_ins_type(const int *operator_type)
 			break;
 		case TOKEN_LESS_EQUAL:
 			val = INS_LESSEQ;
+			break;
+		case TOKEN_LENGTH:
+			val = INS_LENGTH;
+			break;
+		case TOKEN_SUBSTR:
+			val = INS_SUBSTR;
+			break;
+		case TOKEN_CONCAT:
+			val = INS_CONCAT;
+			break;
+		case TOKEN_FIND:
+			val = INS_FIND;
+			break;
+		case TOKEN_SORT:
+			val = INS_SORT;
 			break;
 	}
 
@@ -299,10 +329,7 @@ void postfix_count_test()
 	gene_stack = expr_stack;
 	expr_stack = cache_stack;
 	if (++operator_counter != operand_counter) {
-		//#ifdef DEBUG_MODE
-		printf("expr: Nesouhlasi pocet operatoru a operandu\n");
-		//#endif
-		exit_error(E_SEMANTIC_DEF);
+		my_exit_error(E_SEMANTIC_TYPES, 3);
 	}
 }
 
@@ -316,16 +343,13 @@ TVariable *find_var(TToken *tok)
 				return found->data.variable;
 			}
 		}
-		//#ifdef DEBUG_MODE
-		printf("expr: EXIT_ERROR\n");
-		//#endif
-		exit_error(E_SEMANTIC_DEF);
+		my_exit_error(E_SEMANTIC_TYPES, 4);		
 	}
 
 	return token_to_const(tok);
 }
 
-//#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 void print_dst_type(const int *t)
 {
 	switch (*t) {
@@ -340,7 +364,7 @@ void print_dst_type(const int *t)
 			break;
 	}
 }
-//#endif
+#endif
 
 void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 {
@@ -367,23 +391,23 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			var_2 = stack_top(ins_stack);
 			stack_pop(ins_stack);
 			t_var_type = operand_type_checker(tok->type, var_1, var_2);
-			//#ifdef DEBUG_MODE
+			#ifdef DEBUG_MODE
 			print_dst_type(&t_var_type);
-			//#endif
+			#endif
 			new_t_var = next_t_var(t_var_type, &t_var_counter);
-			actual_ins = create_ins(ope_type_2_ins_type(&tok->type), new_t_var, var_2, var_1);
+			actual_ins = create_ins(ope_2_ins_type(tok), new_t_var, var_2, var_1);
 			list_insert(act_ins_list, actual_ins);
 			stack_push(ins_stack, new_t_var);
 		}
 	}
-	//#ifdef DEBUG_MODE
+	#ifdef DEBUG_MODE
 		printf("expr: ");
-	//#endif
+	#endif
 	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
 	list_insert(act_ins_list, actual_ins);
 }
 
-//#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
 void print_token(TToken *tok)
 {
 	switch (tok->type) {
@@ -427,22 +451,107 @@ void stack_print(TStack *st)
 	stack_free(cache_stack);
 	printf("\n");
 }
-//#endif
+#endif
+
+//TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
+
+int token_type_2_var_type(int *n)
+{
+	int val;
+	
+	switch (*n) {
+		case TOKEN_INT:
+				val = TYPE_INT;
+				break;
+		case TOKEN_DOUBLE:
+				val = TYPE_DOUBLE;
+				break;
+		case TOKEN_STRING:
+				val = TYPE_STRING;
+	}
+	
+	return val;
+}
+
+/*
+TList_item *separate_internal_function_parametres(int ins_type)
+{
+	TToken *tok;
+	int param_count;
+	int param_1_type;
+	int param_2_type;
+	int param_3_type;
+	TVariable *var_1;
+	TVariable *var_2;
+	TVariable *var_3;	
+
+	switch (ins_type) {
+		case INS_LENGTH:
+		case INS_SORT:
+			param_count = 1;
+			param_1_type = TYPE_STRING;
+			break;
+		case INS_CONCAT:
+		case INS_FIND:
+			param_count = 2;
+			param_1_type = TYPE_STRING;
+			param_2_type = TYPE_STRING;
+			break;
+		case INS_SUBSTR:
+			param_count = 3;
+			param_1_type = TYPE_STRING;
+			param_2_type = TYPE_INT;
+			param_3_type = TYPE_STRING;			
+	}
+
+	tok = get_token();
+	if (tok->type != TOKEN_RROUND_BRACKET) {
+		my_exit_error(E_SEMANTIC_TYPES, 0);
+	}
+	tok = get_token();
+	if (!token_is_operand(tok)) {
+		my_exit_error(E_SEMANTIC_TYPES, 0);	
+	}
+	var_1 = find_var(tok);
+	tok = get_token();
+	if (tok->type != TOKEN_COMMA) {
+		my_exit_error(E_SEMANTIC_TYPES, 0);
+	}
+		// pomoci has tabulky
+	
+
+}*/
+
+/*TVariable *get_next_para(
+{
+	TVariable *new_var;
+	
+	new_var = gmalloc(sizeof(TVariable));
+	
+}*/
+
+void generate_internal_function()
+{
+	TToken *tok;
+	
+	tok = get_token();
+	switch (ope_2_ins_type(tok)) {
+		case INS_LENGTH:
+		case INS_SORT:
+			printf("Ahojky\n");
+			break;
+		default:
+			my_exit_error(E_SEMANTIC_TYPES, 0);
+	}
+}
 
 void function_elaboration(int f_symptom)
 {
-	/*TToken *tok;
-
 	if (f_symptom == internal_function) {
-		tok = get_token();
-		switch (tok->type) {
-			case TOKEN_LENGTH:
-
-
-		}
+		generate_internal_function();
 	} else {
 		printf("Externi funkce\n");
-	}*/
+	}
 }
 
 int its_function()
@@ -517,7 +626,6 @@ int find_priority(const int *n)
 			break;
 		case TOKEN_NOT_EQUAL:
 			val = oper_not_equal;
-			break;
 	}
 
 	return val;
@@ -540,10 +648,7 @@ int stack_lower_prio(const TToken *token_in, const TToken *token_stack)
 			val = 1;
 			break;
 		case ER:
-			//#ifdef DEBUG_MODE
-			printf("expr: EXIT_ERROR\n");
-			//#endif
-			exit_error(E_SYNTAX);
+			my_exit_error(E_SEMANTIC_TYPES, 0);
 	}
 
 	return val;
@@ -567,26 +672,17 @@ void check_expr_integrity(TToken *tok, int *last_type)
 		case TOKEN_STRING_VALUE:
 		case TOKEN_IDENTIFIER:
 				if (!token_is_operator(tok) && (tok->type != TOKEN_RROUND_BRACKET)) {
-					//#ifdef DEBUG_MODE
-					printf("expr: EXIT_ERROR\n");
-					//#endif
-					exit_error(E_SYNTAX);
+					my_exit_error(E_SEMANTIC_TYPES, 0);
 				}
 				break;
 		case TOKEN_LROUND_BRACKET:
 				if (!token_is_operand(tok)) {
-					//#ifdef DEBUG_MODE
-					printf("expr: EXIT_ERROR\n");
-					//#endif
-					exit_error(E_SYNTAX);
+					my_exit_error(E_SEMANTIC_TYPES, 0);					
 				}
 				break;
 		case TOKEN_RROUND_BRACKET:
 				if (!token_is_operator(tok)) {
-					//#ifdef DEBUG_MODE
-					printf("expr: EXIT_ERROR\n");
-					//#endif
-					exit_error(E_SYNTAX);
+					my_exit_error(E_SEMANTIC_TYPES, 0);
 				}
 				break;
 		case TOKEN_MUL:
@@ -600,17 +696,11 @@ void check_expr_integrity(TToken *tok, int *last_type)
 		case TOKEN_LESS:
 		case TOKEN_LESS_EQUAL:
 				if (!(token_is_operand(tok))) {
-					//#ifdef DEBUG_MODE
-					printf("expr: EXIT_ERROR\n");
-					//#endif
-					exit_error(E_SYNTAX);
+					my_exit_error(E_SEMANTIC_TYPES, 0);
 				}
 				break;
 		default:
-			//#ifdef DEBUG_MODE
-			printf("expr: EXIT_ERROR\n");
-			//#endif
-			exit_error(E_SYNTAX);
+			my_exit_error(E_SEMANTIC_TYPES, 0);
 	}
 	*last_type = tok->type;
 }
@@ -675,20 +765,17 @@ void infix_2_postfix()
 				}
 				break;
 			default:
-				//#ifdef DEBUG_MODE
-				printf("expr: Wrong token!\n");
-				//#endif
-				exit_error(E_SYNTAX);
+				my_exit_error(E_SEMANTIC_TYPES, 5);
 		}
 		tok_in = get_token();
 	}
 	transfer_rest_of_expr_stack();
-	//#ifdef DEBUG_MODE
+	#ifdef DEBUG_MODE
 	printf("expr: Unget token ");
 	print_token(tok_in);
 	printf("\n");
 	stack_print(gene_stack);
-	//#endif
+	#endif
 	unget_token(tok_in);
 }
 
@@ -702,55 +789,46 @@ void expr_init()
 void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 {
 	int function_symptom;
-
-	/*TToken *tok;
-
-	for (int i = 0; i < 5000; i++) {
-			tok = get_token();
-			print_token(tok);
-			printf("\n");
-	}*/
-
-
-	//#ifdef DEBUG_MODE
+	
+	#ifdef DEBUG_MODE
 	printf("expr: --START--\n");
 	TToken *tok = get_token();
 	printf("expr: First token ");
 	print_token(tok);
 	printf("\n");
 	unget_token(tok);
-	//#endif
-
+	#endif
+	
 	expr_init();
 	function_symptom = its_function();
 	if (function_symptom == not_function) {
-		//#ifdef DEBUG_MODE
-		printf("expr: expr comming!\n");
-		//#endif
+								#ifdef DEBUG_MODE
+								printf("expr: expr comming!\n");
+								#endif
 		infix_2_postfix();
 		generate_code(ret_var, act_ins_list);
-		//#ifdef DEBUG_MODE
-		printf("expr: expr done!\n");
-		//#endif
+								#ifdef DEBUG_MODE
+								printf("expr: expr done!\n");
+								#endif
 	} else {
-		//#ifdef DEBUG_MODE
-		printf("expr: function comming!\n");
-		//#endif
+								#ifdef DEBUG_MODE
+								printf("expr: function comming!\n");
+								#endif
 		if (f_is_possible) {
 			function_elaboration(function_symptom);
 		} else {
-			//#ifdef DEBUG_MODE
-			printf("expr: EXIT_ERROR\n");
-			//#endif
+								#ifdef DEBUG_MODE
+								printf("expr: EXIT_ERROR\n");
+								#endif
 			exit_error(E_SEMANTIC_DEF);
 		}
-		//#ifdef DEBUG_MODE
-		printf("expr: function done!\n");
-		//#endif
+								#ifdef DEBUG_MODE
+								printf("expr: function done!\n");
+								#endif	
 	}
 	charlady();
-	//#ifdef DEBUG_MODE
-	printf("expr: --END--\n");
-	//#endif
+								#ifdef DEBUG_MODE
+								printf("expr: --END--\n");
+								#endif
 }
 

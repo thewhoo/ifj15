@@ -422,6 +422,7 @@ void interpret_loop(Tins_list *ins_list)
                 var1 = (TVariable*)fparams_stack->data[0];
                 var2 = (TVariable*)fparams_stack->data[1];
                 var3 = (TVariable*)fparams_stack->data[2];
+                stack_clear(fparams_stack);
                 if(var2->var_type == TYPE_INT)
                     int1 = var2->data.i;
                 else

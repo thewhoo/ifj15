@@ -53,12 +53,9 @@ TStack *ins_stack;
 
 /*
 TODO
-	Zpracovani funkci
-		pri funci kontrolovat parametry, pushovat (pres instrukci) a pak volat call
 	Typ auto
 	Automatické konverze
 	Kontrola typu výstupu přiřazení
-	Spustit s o2 optimalizací
 	Uklízet po sobe
 	Neprelivat zasobniky, pristup pres index
 POZNAMKY
@@ -179,7 +176,7 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 	}
 	print_variable(addr2);
 	print_variable(addr3);
-	printf("\n");	
+	printf("\n");
 	#endif
 
 	return ins;
@@ -216,57 +213,40 @@ int operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 
 int ope_2_ins_type(const TToken *tok)
 {
-	int val;
-
 	switch (tok->type) {
 		case TOKEN_MUL:
-			val = INS_MUL;
-			break;
+			return INS_MUL;
 		case TOKEN_DIV:
-			val = INS_DIV;
-			break;
+			return INS_DIV;
 		case TOKEN_ADD:
-			val = INS_ADD;
-			break;
+			return INS_ADD;
 		case TOKEN_SUB:
-			val = INS_SUB;
-			break;
+			return INS_SUB;
 		case TOKEN_EQUAL:
-			val = INS_EQ;
-			break;
+			return INS_EQ;
 		case TOKEN_NOT_EQUAL:
-			val = INS_NEQ;
-			break;
+			return INS_NEQ;
 		case TOKEN_GREATER:
-			val = INS_GREATER;
-			break;
+			return INS_GREATER;
 		case TOKEN_GREATER_EQUAL:
-			val = INS_GREATEQ;
-			break;
+			return INS_GREATEQ;
 		case TOKEN_LESS:
-			val = INS_LESSER;
-			break;
+			return INS_LESSER;
 		case TOKEN_LESS_EQUAL:
-			val = INS_LESSEQ;
-			break;
+			return INS_LESSEQ;
 		case TOKEN_LENGTH:
-			val = INS_LENGTH;
-			break;
+			return INS_LENGTH;
 		case TOKEN_SUBSTR:
-			val = INS_SUBSTR;
-			break;
+			return INS_SUBSTR;
 		case TOKEN_CONCAT:
-			val = INS_CONCAT;
-			break;
+			return INS_CONCAT;
 		case TOKEN_FIND:
-			val = INS_FIND;
-			break;
+			return INS_FIND;
 		case TOKEN_SORT:
-			val = INS_SORT;
-			break;
+			return INS_SORT;
 	}
 
-	return val;
+	return 0;
 }
 
 int token_is_operand(TToken *tok)
@@ -277,7 +257,6 @@ int token_is_operand(TToken *tok)
 		case TOKEN_INT_VALUE:
 		case TOKEN_DOUBLE_VALUE:
 			return 1;
-			break;
 	}
 
 	return 0;
@@ -297,7 +276,6 @@ int token_is_operator(TToken *tok)
 		case TOKEN_LESS:
 		case TOKEN_LESS_EQUAL:
 			return 1;
-			break;
 	}
 
 	return 0;
@@ -449,20 +427,16 @@ void stack_print(TStack *st)
 
 int token_type_2_var_type(int *n)
 {
-	int val;
-
 	switch (*n) {
 		case TOKEN_INT:
-				val = TYPE_INT;
-				break;
+				return TYPE_INT;
 		case TOKEN_DOUBLE:
-				val = TYPE_DOUBLE;
-				break;
+				return TYPE_DOUBLE;
 		case TOKEN_STRING:
-				val = TYPE_STRING;
+				return TYPE_STRING;
 	}
-
-	return val;
+	
+	return 0;
 }
 
 TVariable *get_next_para(int operand_type)
@@ -621,6 +595,7 @@ int its_function()
 	htab_item *item;
 
 	tok = get_token();
+	answer = not_function;
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
@@ -634,84 +609,64 @@ int its_function()
 		case TOKEN_FIND:
 		case TOKEN_SORT:
 			answer = internal_function;
-			break;
-		default:
-			answer = not_function;
 	}
 	unget_token(tok);
 
 	return answer;
 }
 
-int find_priority(const int *n)
+int find_priority_pos(const int *n)
 {
-	int val;
-
 	switch (*n) {
 		case TOKEN_ADD:
-			val = oper_add;
-			break;
+			return oper_add;
 		case TOKEN_SUB:
-			val = oper_sub;
-			break;
+			return oper_sub;
 		case TOKEN_MUL:
-			val = oper_mul;
-			break;
+			return oper_mul;
 		case TOKEN_DIV:
-			val = oper_div;
-			break;
+			return oper_div;
 		case TOKEN_LROUND_BRACKET:
-			val = oper_lr_bracket;
-			break;
+			return oper_lr_bracket;
 		case TOKEN_RROUND_BRACKET:
-			val = oper_rr_bracket;
-			break;
+			return oper_rr_bracket;
 		case TOKEN_IDENTIFIER:
-			val = oper_id;
-			break;
+			return oper_id;
 		case TOKEN_LESS:
-			val = oper_less;
-			break;
+			return oper_less;
 		case TOKEN_GREATER:
-			val = oper_greater;
-			break;
+			return oper_greater;
 		case TOKEN_LESS_EQUAL:
-			val = oper_less_e;
-			break;
+			return oper_less_e;
 		case TOKEN_GREATER_EQUAL:
-			val = oper_greater_e;
-			break;
+			return oper_greater_e;
 		case TOKEN_EQUAL:
-			val = oper_equal;
-			break;
+			return oper_equal;
 		case TOKEN_NOT_EQUAL:
-			val = oper_not_equal;
+			return oper_not_equal;
 	}
 
-	return val;
+	return 0;
 }
 
 int stack_lower_prio(const TToken *token_in, const TToken *token_stack)
 {
 	int x;
 	int y;
-	int val;
 
-	x = find_priority(&token_in->type);
-	y = find_priority(&token_stack->type);
+	x = find_priority_pos(&token_in->type);
+	y = find_priority_pos(&token_stack->type);
 	switch (prece_table[y][x]) {
 		case HI:
 		case EQ:
-			val = 0;
-			break;
+			return 0;
 		case LO:
-			val = 1;
-			break;
+			return 1;
 		case ER:
 			my_exit_error(E_SYNTAX);
 	}
 
-	return val;
+	return 0;
 }
 
 void transfer_rest_of_expr_stack()

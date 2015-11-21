@@ -54,23 +54,23 @@ TStack *ins_stack;
 /*
 TODO
 	Zpracovani funkci
+		pri funci kontrolovat parametry, pushovat (pres instrukci) a pak volat call
 	Typ auto
 	Automatické konverze
 	Kontrola typu výstupu přiřazení
-	Zkontrolovat konstanty vracenych exit_error
-		pri funci kontrolovat parametry, pushovat (pres instrukci) a pak volat call
 	Spustit s o2 optimalizací
 	Uklízet po sobe
+	Neprelivat zasobniky, pristup pres index
 POZNAMKY
 	Breaks vs. Return
 */
 
 void my_exit_error(int error_type)
 {
-		#ifdef DEBUG_MODE
-		printf("expr: EXIT_ERROR!\n");
-		#endif
-		exit_error(error_type);
+	#ifdef DEBUG_MODE
+	printf("expr: EXIT_ERROR!\n");
+	#endif
+	exit_error(error_type);
 }
 
 void charlady()
@@ -170,10 +170,16 @@ TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *
 
 	#ifdef DEBUG_MODE
 	print_ins_type(type);
-	print_variable(addr1);
+	if (type != INS_CALL) {
+		print_variable(addr1);
+	} else {
+		htab_item *item;
+		item = (htab_item*)addr1;
+		printf(" %s", item->data.function->name);
+	}
 	print_variable(addr2);
 	print_variable(addr3);
-	printf("\n");
+	printf("\n");	
 	#endif
 
 	return ins;
@@ -459,7 +465,7 @@ int token_type_2_var_type(int *n)
 	return val;
 }
 
-TVariable *get_next_para(int comma_is_next, int operand_type)
+TVariable *get_next_para(int operand_type)
 {
 	TVariable *new_var;
 	TToken *tok;
@@ -467,12 +473,6 @@ TVariable *get_next_para(int comma_is_next, int operand_type)
 	tok = get_token();
 	new_var = gmalloc(sizeof(TVariable));
 	new_var = find_var(tok);
-	if (comma_is_next) {
-		tok = get_token();
-		if (tok->type != TOKEN_COMMA) {
-			my_exit_error(E_SYNTAX);
-		}
-	}
 	if (new_var->var_type != operand_type) {
 		my_exit_error(E_SEMANTIC_TYPES);
 	}
@@ -508,6 +508,52 @@ void return_type_checker(int ins_type, int ret_type)
 	}
 }
 
+void skip_token(int token_type)
+{
+	TToken *tok;
+
+	tok = get_token();
+	if (tok->type != token_type) {
+		my_exit_error(E_SYNTAX);
+	}
+}
+
+void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
+{
+	TToken *tok;
+	TList_item *actual_ins;
+	htab_item *h_item;
+	TFunction *f_stored;
+	int f_sto_param_count;
+	TVariable *f_stored_var;
+	TVariable *f_readed_var;
+
+	tok = get_token();
+	h_item = htab_lookup(G.g_globalTab, tok->data);
+	if (h_item == NULL) {
+		my_exit_error(E_SEMANTIC_DEF);
+	}
+	f_stored = h_item->data.function;
+	if (!f_stored->defined) {
+		my_exit_error(E_SEMANTIC_DEF);
+	}
+	skip_token(TOKEN_LROUND_BRACKET);
+	f_sto_param_count = f_stored->params_stack->used;
+	for(int i = 0; i < f_sto_param_count; i++) {
+		f_stored_var = f_stored->params_stack->data[i];
+		f_readed_var = get_next_para(f_stored_var->var_type);
+		if (i < f_sto_param_count-1) {
+			skip_token(TOKEN_COMMA);
+		}
+		actual_ins = create_ins(INS_PUSH, f_readed_var, NULL, NULL);
+		list_insert(act_ins_list, actual_ins);
+	}
+	compare_two_types(ret_var->var_type, f_stored->return_type);
+	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
+	list_insert(act_ins_list, actual_ins);
+	skip_token(TOKEN_RROUND_BRACKET);
+}
+
 void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 {
 	TToken *tok;
@@ -515,7 +561,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 	int ins_type;
 	TVariable *var_1;
 	TVariable *var_2;
-	//TVariable *var_3;
+	TVariable *var_3;
 
 	tok = get_token();
 	ins_type = ope_2_ins_type(tok);
@@ -526,26 +572,37 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 	switch (ins_type) {
 		case INS_LENGTH:
 		case INS_SORT:
-			var_1 = get_next_para(0, TYPE_STRING);
+			var_1 = get_next_para(TYPE_STRING);
 			return_type_checker(ins_type, ret_var->var_type);
 			actual_ins = create_ins(ins_type, ret_var, var_1, NULL);
 			list_insert(act_ins_list, actual_ins);
 			break;
 		case INS_CONCAT:
 		case INS_FIND:
-			var_1 = get_next_para(1, TYPE_STRING);
-			var_2 = get_next_para(0, TYPE_STRING);
+			var_1 = get_next_para(TYPE_STRING);
+			skip_token(TOKEN_COMMA);
+			var_2 = get_next_para(TYPE_STRING);
 			return_type_checker(ins_type, ret_var->var_type);
 			actual_ins = create_ins(ins_type, ret_var, var_1, var_2);
 			list_insert(act_ins_list, actual_ins);
 			break;
 		case INS_SUBSTR:
-			printf("EXPR: Substring function!\n");
+			var_1 = get_next_para(TYPE_STRING);
+			skip_token(TOKEN_COMMA);
+			var_2 = get_next_para(TYPE_STRING);
+			skip_token(TOKEN_COMMA);
+			var_3 = get_next_para(TYPE_STRING);
+			return_type_checker(ins_type, ret_var->var_type);
+			actual_ins = create_ins(INS_PUSH, var_1, NULL, NULL);
+			list_insert(act_ins_list, actual_ins);
+			actual_ins = create_ins(INS_PUSH, var_2, NULL, NULL);
+			list_insert(act_ins_list, actual_ins);
+			actual_ins = create_ins(INS_PUSH, var_3, NULL, NULL);
+			list_insert(act_ins_list, actual_ins);
+			actual_ins = create_ins(ins_type, NULL, NULL, NULL);
+			list_insert(act_ins_list, actual_ins);
 	}
-	tok = get_token();
-	if (tok->type != TOKEN_RROUND_BRACKET) {
-		my_exit_error(E_SYNTAX);
-	}
+	skip_token(TOKEN_RROUND_BRACKET);
 }
 
 void function_elaboration(TVariable *ret_var, Tins_list *act_ins_list, int f_symptom)
@@ -553,7 +610,7 @@ void function_elaboration(TVariable *ret_var, Tins_list *act_ins_list, int f_sym
 	if (f_symptom == internal_function) {
 		generate_internal_function(ret_var, act_ins_list);
 	} else {
-		printf("Externi funkce\n");
+		generate_external_function(ret_var, act_ins_list);
 	}
 }
 

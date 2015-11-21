@@ -317,7 +317,7 @@ void postfix_count_test()
 	gene_stack = expr_stack;
 	expr_stack = cache_stack;
 	if (++operator_counter != operand_counter) {
-		my_exit_error(E_SEMANTIC_TYPES);
+		my_exit_error(E_SYNTAX);
 	}
 }
 
@@ -331,7 +331,7 @@ TVariable *find_var(TToken *tok)
 				return found->data.variable;
 			}
 		}
-		my_exit_error(E_SEMANTIC_TYPES);
+		my_exit_error(E_SEMANTIC_DEF);
 	}
 
 	return token_to_const(tok);
@@ -651,7 +651,7 @@ int stack_lower_prio(const TToken *token_in, const TToken *token_stack)
 			val = 1;
 			break;
 		case ER:
-			my_exit_error(E_SEMANTIC_TYPES);
+			my_exit_error(E_SYNTAX);
 	}
 
 	return val;
@@ -675,17 +675,17 @@ void check_expr_integrity(TToken *tok, int *last_type)
 		case TOKEN_STRING_VALUE:
 		case TOKEN_IDENTIFIER:
 				if (!token_is_operator(tok) && (tok->type != TOKEN_RROUND_BRACKET)) {
-					my_exit_error(E_SEMANTIC_TYPES);
+					my_exit_error(E_SYNTAX);
 				}
 				break;
 		case TOKEN_LROUND_BRACKET:
 				if (!token_is_operand(tok)) {
-					my_exit_error(E_SEMANTIC_TYPES);
+					my_exit_error(E_SYNTAX);
 				}
 				break;
 		case TOKEN_RROUND_BRACKET:
 				if (!token_is_operator(tok)) {
-					my_exit_error(E_SEMANTIC_TYPES);
+					my_exit_error(E_SYNTAX);
 				}
 				break;
 		case TOKEN_MUL:
@@ -699,11 +699,11 @@ void check_expr_integrity(TToken *tok, int *last_type)
 		case TOKEN_LESS:
 		case TOKEN_LESS_EQUAL:
 				if (!(token_is_operand(tok))) {
-					my_exit_error(E_SEMANTIC_TYPES);
+					my_exit_error(E_SYNTAX);
 				}
 				break;
 		default:
-			my_exit_error(E_SEMANTIC_TYPES);
+			my_exit_error(E_SYNTAX);
 	}
 	*last_type = tok->type;
 }
@@ -768,7 +768,7 @@ void infix_2_postfix()
 				}
 				break;
 			default:
-				my_exit_error(E_SEMANTIC_TYPES);
+				my_exit_error(E_SYNTAX);
 		}
 		tok_in = get_token();
 	}

@@ -135,7 +135,8 @@ for source in [f for f in os.listdir(tests_dir)
     ret_code = proc.returncode
     
     print_test_head(fx, source)
-    c_ret = check_ret_code(ret_code, source[-1])
+    exp_ret = source[-2:] if source[-2].isdigit() else source[-1]
+    c_ret = check_ret_code(ret_code, exp_ret)
     c_out = check_stdout(out.decode('utf-8'), '')
     c_err = check_stderr(err.decode('utf-8'))
 

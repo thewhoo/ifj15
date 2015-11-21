@@ -1,6 +1,7 @@
 int main()
 {
     int a;
+    double x;
     string s;
     
     s = "ab\x43def";
@@ -12,8 +13,8 @@ int main()
     cout << a << "\n";
 
     s = "2w.a;[{}d";
-    a = length(s);
-    cout << a <<"\n"; 
+    x = length(s);
+    cout << x <<"\n"; 
 
     return 42;
 }

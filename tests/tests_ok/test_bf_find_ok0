@@ -1,6 +1,7 @@
 int main()
 {
     int a;
+    double x;
     string s;
     string d;
 
@@ -11,8 +12,8 @@ int main()
     cout << a << "\n";
 
     d = "x";
-    a = find(s, d);
-    cout << a << "\n";
+    x = find(s, d);
+    cout << x << "\n";
 
     d = "";
     a = find(s, d);

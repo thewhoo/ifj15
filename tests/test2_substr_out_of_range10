@@ -1,0 +1,9 @@
+int main()
+{
+    string s = "qwerty";
+    string sub;
+
+    sub = substr(s, 42, 11);
+
+    return 42;
+}

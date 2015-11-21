@@ -7,6 +7,15 @@ int main()
     sub = substr(s, 4, 5);
     cout << sub << "\n";
 
+    s = "";
+    sub = substr(s, 0, 3);
+    cout << sub << "\n"
+
+    s = "qwerty";
+    sub = substr(s, 2, 2.43);
+    cout << sub << "\n"; 
+    
+
     return 42;
 }
 

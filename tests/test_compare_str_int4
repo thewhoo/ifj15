@@ -1,0 +1,5 @@
+int main()
+{
+    string s = "qwerty" + 42;
+    return 42;
+}

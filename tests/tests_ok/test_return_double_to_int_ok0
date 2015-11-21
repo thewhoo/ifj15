@@ -1,0 +1,13 @@
+double pow3(double x)
+{
+    double z = x * x * x;
+    return z;
+}
+
+int main()
+{
+    int a;
+    a = pow3(2.1);
+    cout << a << "\n";
+    return 42;
+}

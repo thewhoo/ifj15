@@ -1,0 +1,8 @@
+int main()
+{
+    string s = "ss";
+    string d = "dd" + s;
+
+    return 42;
+}
+    

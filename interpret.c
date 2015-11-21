@@ -196,15 +196,48 @@ void map_params(htab_t *tab, TStack* decl_params)
     } //delete later
 
     htab_item *param;
+    TVariable *dest, *src;
 
     for(int i=0; i<decl_params->used; i++)
     {
         param = htab_lookup(tab, ((TVariable*) decl_params->data[i])->name);
-        memcpy(param, fparams_stack->data[i], sizeof(TVariable));
+        dest = param->data.variable;
+        src = fparams_stack->data[i];
+        if(dest->var_type == TYPE_INT)
+        {
+            if(src->var_type == TYPE_DOUBLE)
+                dest->data.i = src->data.d;
+            else
+                dest->data.i = src->data.i;
+        }
+        else if (dest->var_type == TYPE_DOUBLE)
+        {
+            if(src->var_type == TYPE_DOUBLE)
+                dest->data.d = src->data.d;
+            else
+                dest->data.d = src->data.i;
+        }
+        else
+            dest->data.str = src->data.str;
+        dest->initialized = 1; 
     }
 
     stack_clear(fparams_stack);
 }
+
+#ifdef DEBUG_MODE
+void print_instructions(TList_item *ins)
+{
+    TList_item *tmp = ins;
+    printf("INTERPRET: intruction list:\n");
+    while(tmp != NULL)
+    {
+        printf("%d\n", tmp->ins_type);
+        tmp = tmp->next;
+    }
+    printf("End of list\n");
+}
+#endif
 
 void interpret_loop(Tins_list *ins_list)
 {
@@ -216,17 +249,10 @@ void interpret_loop(Tins_list *ins_list)
     htab_t *new_tab = NULL;
 
     TList_item *ins = ins_list->first;
-
-#ifdef DEBUG_MODE
-    printf("INTERPRET: intruction list in main function:\n");
-    while(ins != NULL)
-    {
-        printf("%d\n", ins->ins_type);
-        ins = ins->next;
-    }
-    printf("End of list\n");
-    ins = ins_list->first;
-#endif
+    
+    #ifdef DEBUG_MODE
+    print_instructions(ins);
+    #endif
 
     while(ins != NULL)
     {
@@ -283,11 +309,10 @@ void interpret_loop(Tins_list *ins_list)
                 break;
 
             case(INS_PUSH):
-                if(!((TVariable *)ins->addr1)->initialized)
+                var1 = get_var(ins->addr1);
+                if(!var1->initialized)
                     exit_error(E_UNINITIALIZED);
-                //pushnem premennu, ale z mojich tabuliek symbolov
-                //v parametri ins je z originalnych tab. premenna
-                stack_push(fparams_stack, get_var(ins->addr1));
+                stack_push(fparams_stack, var1);
                 break;
 
             case(INS_CALL):
@@ -296,6 +321,9 @@ void interpret_loop(Tins_list *ins_list)
 
                 func = (htab_item*)ins->addr1;
                 ins = func->data.function->ins_list->first;
+                #ifdef DEBUG_MODE
+                print_instructions(ins);
+                #endif
                 active_frame = stack_init();
                 new_tab = htab_copy(func->data.function->local_tab);
                 stack_push(active_frame, new_tab);

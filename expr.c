@@ -58,8 +58,9 @@ TODO
 	Kontrola typu výstupu přiřazení
 	Uklízet po sobe
 	Neprelivat zasobniky, pristup pres index
+	Odstranit f_is_possible
 POZNAMKY
-	Breaks vs. Return
+	stack implementovany polem
 */
 
 void my_exit_error(int error_type)
@@ -435,7 +436,7 @@ int token_type_2_var_type(int *n)
 		case TOKEN_STRING:
 				return TYPE_STRING;
 	}
-	
+
 	return 0;
 }
 
@@ -492,7 +493,7 @@ void skip_token(int token_type)
 	}
 }
 
-void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
+void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, bool *f_is_possible)
 {
 	TToken *tok;
 	TList_item *actual_ins;
@@ -502,6 +503,9 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 	TVariable *f_stored_var;
 	TVariable *f_readed_var;
 
+	if (*f_is_possible == 0) {
+		my_exit_error(E_SYNTAX);
+	}
 	tok = get_token();
 	h_item = htab_lookup(G.g_globalTab, tok->data);
 	if (h_item == NULL) {
@@ -525,10 +529,12 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 	compare_two_types(ret_var->var_type, f_stored->return_type);
 	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
 	list_insert(act_ins_list, actual_ins);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, NULL, NULL);
+	list_insert(act_ins_list, actual_ins);
 	skip_token(TOKEN_RROUND_BRACKET);
 }
 
-void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
+void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, bool *f_is_possible)
 {
 	TToken *tok;
 	TList_item *actual_ins;
@@ -536,6 +542,10 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 	TVariable *var_1;
 	TVariable *var_2;
 	TVariable *var_3;
+
+	if (*f_is_possible == 0) {
+		my_exit_error(E_SYNTAX);
+	}
 
 	tok = get_token();
 	ins_type = ope_2_ins_type(tok);
@@ -579,23 +589,14 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 	skip_token(TOKEN_RROUND_BRACKET);
 }
 
-void function_elaboration(TVariable *ret_var, Tins_list *act_ins_list, int f_symptom)
-{
-	if (f_symptom == internal_function) {
-		generate_internal_function(ret_var, act_ins_list);
-	} else {
-		generate_external_function(ret_var, act_ins_list);
-	}
-}
-
 int its_function()
 {
 	int answer;
 	TToken *tok;
 	htab_item *item;
 
-	tok = get_token();
 	answer = not_function;
+	tok = get_token();
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
@@ -681,6 +682,9 @@ void check_expr_integrity(TToken *tok, int *last_type)
 {
 	switch (*last_type) {
 		case TOKEN_EOF:
+				if (!token_is_operand(tok) && (tok->type != TOKEN_LROUND_BRACKET)) {
+					my_exit_error(E_SYNTAX);
+				}
 				break;
 		case TOKEN_INT_VALUE:
 		case TOKEN_DOUBLE_VALUE:
@@ -803,8 +807,6 @@ void expr_init()
 
 void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 {
-	int function_symptom;
-
 	#ifdef DEBUG_MODE
 	printf("expr: --START--\n");
 	TToken *tok = get_token();
@@ -815,35 +817,21 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 	#endif
 
 	expr_init();
-	function_symptom = its_function();
-	if (function_symptom == not_function) {
-								#ifdef DEBUG_MODE
-								printf("expr: expr comming!\n");
-								#endif
-		infix_2_postfix();
-		generate_code(ret_var, act_ins_list);
-								#ifdef DEBUG_MODE
-								printf("expr: expr done!\n");
-								#endif
-	} else {
-								#ifdef DEBUG_MODE
-								printf("expr: function comming!\n");
-								#endif
-		if (f_is_possible) {
-			function_elaboration(ret_var, act_ins_list, function_symptom);
-		} else {
-								#ifdef DEBUG_MODE
-								printf("expr: EXIT_ERROR\n");
-								#endif
-			exit_error(E_SEMANTIC_DEF);
-		}
-								#ifdef DEBUG_MODE
-								printf("expr: function done!\n");
-								#endif
+	switch (its_function()) {
+		case not_function:
+			infix_2_postfix();
+			generate_code(ret_var, act_ins_list);
+			break;
+		case external_function:
+			generate_external_function(ret_var, act_ins_list, &f_is_possible);
+			break;
+		case internal_function:
+			generate_internal_function(ret_var, act_ins_list, &f_is_possible);
 	}
 	charlady();
-								#ifdef DEBUG_MODE
-								printf("expr: --END--\n");
-								#endif
+
+	#ifdef DEBUG_MODE
+	printf("expr: --END--\n");
+	#endif
 }
 

@@ -529,7 +529,7 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	compare_two_types(ret_var->var_type, f_stored->return_type);
 	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
 	list_insert(act_ins_list, actual_ins);
-	actual_ins = create_ins(INS_ASSIGN, ret_var, NULL, NULL);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
 	list_insert(act_ins_list, actual_ins);
 	skip_token(TOKEN_RROUND_BRACKET);
 }
@@ -585,7 +585,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(ins_type, NULL, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(INS_ASSIGN, ret_var, NULL, NULL);
+			actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
 			list_insert(act_ins_list, actual_ins);
 	}
 	skip_token(TOKEN_RROUND_BRACKET);

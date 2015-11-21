@@ -80,30 +80,30 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
     {
         case('+'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a+b;
+                dest->data.d = (double)a+b;
             else
-                dest->data.i = a+b;
+                dest->data.i = (int)a+b;
             break;
         case('-'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a-b;
+                dest->data.d = (double)a-b;
             else
-                dest->data.i = a-b;
+                dest->data.i = (int)a-b;
             break;
         case('*'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a*b;
+                dest->data.d = (double)a*b;
             else
-                dest->data.i = a*b;
+                dest->data.i = (int)a*b;
             break;
         case('/'):
             if(b == 0)
                 exit_error(E_ZERO_DIVISION);
 
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a/b;
+                dest->data.d = (double)a/b;
             else
-                dest->data.i = a/b;
+                dest->data.i = (int)a/b;
             break;
     }
 
@@ -136,22 +136,40 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
         switch(type)
         {
             case(INS_EQ):
-                dest->data.i = (result == 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result == 0) ? 1 : 0;
+                else
+                    dest->data.d = (result == 0) ? 1 : 0;
                 break;
             case(INS_NEQ):
-                dest->data.i = (result != 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result != 0) ? 1 : 0;
+                else
+                    dest->data.d = (result != 0) ? 1 : 0;
                 break;
             case(INS_GREATER):
-                dest->data.i = (result > 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result > 0) ? 1 : 0;
+                else
+                    dest->data.d = (result > 0) ? 1 : 0;
                 break;
             case(INS_GREATEQ):
-                dest->data.i = (result >= 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result >= 0) ? 1 : 0;
+                else
+                    dest->data.d = (result >= 0) ? 1 : 0;
                 break;
             case(INS_LESSER):
-                dest->data.i = (result < 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result < 0) ? 1 : 0;
+                else
+                    dest->data.d = (result < 0) ? 1 : 0;
                 break;
             case(INS_LESSEQ):
-                dest->data.i = (result <= 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result <= 0) ? 1 : 0;
+                else
+                    dest->data.d = (result <= 0) ? 1 : 0;
                 break;
         }
     }
@@ -160,29 +178,46 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
         switch(type)
         {
             case(INS_EQ):
-                dest->data.i = (a == b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a == b) ? 1 : 0;
+                else
+                    dest->data.d = (a == b) ? 1 : 0;
                 break;
             case(INS_NEQ):
-                dest->data.i = (a != b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a != b) ? 1 : 0;
+                else
+                    dest->data.d = (a != b) ? 1 : 0;
                 break;
             case(INS_GREATER):
-                dest->data.i = (a > b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a > b) ? 1 : 0;
+                else
+                    dest->data.d = (a > b) ? 1 : 0;
                 break;
             case(INS_GREATEQ):
-                dest->data.i = (a >= b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a >= b) ? 1 : 0;
+                else
+                    dest->data.d = (a >= b) ? 1 : 0;
                 break;
             case(INS_LESSER):
-                dest->data.i = (a < b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a < b) ? 1 : 0;
+                else
+                    dest->data.d = (a < b) ? 1 : 0;
                 break;
             case(INS_LESSEQ):
-                dest->data.i = (a <= b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a <= b) ? 1 : 0;
+                else
+                    dest->data.d = (a <= b) ? 1 : 0;
                 break;
         }
     }
     else
         exit_error(E_SEMANTIC_TYPES);
 
-    dest->var_type = TYPE_INT;
     dest->initialized = 1;
 }
 
@@ -206,7 +241,7 @@ void map_params(htab_t *tab, TStack* decl_params)
         if(dest->var_type == TYPE_INT)
         {
             if(src->var_type == TYPE_DOUBLE)
-                dest->data.i = src->data.d;
+                dest->data.i = (int)src->data.d;
             else
                 dest->data.i = src->data.i;
         }
@@ -215,7 +250,7 @@ void map_params(htab_t *tab, TStack* decl_params)
             if(src->var_type == TYPE_DOUBLE)
                 dest->data.d = src->data.d;
             else
-                dest->data.d = src->data.i;
+                dest->data.d = (double)src->data.i;
         }
         else
             dest->data.str = src->data.str;
@@ -241,9 +276,8 @@ void print_instructions(TList_item *ins)
 
 void interpret_loop(Tins_list *ins_list)
 {
-    int ret_int;
+    int ret_int, int1, int2;
     char* ret_str;
-    char* str;
     TVariable *var1, *var2, *var3;
     htab_item *func;
     htab_t *new_tab = NULL;
@@ -354,7 +388,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(var1->var_type == TYPE_INT)
                 {
                     if(var2->var_type == TYPE_DOUBLE)
-                        var1->data.i = var2->data.d;
+                        var1->data.i = (int)var2->data.d;
                     else
                         var1->data.i = var2->data.i;
                 }
@@ -363,7 +397,7 @@ void interpret_loop(Tins_list *ins_list)
                     if(var2->var_type == TYPE_DOUBLE)
                         var1->data.d = var2->data.d;
                     else
-                        var1->data.d = var2->data.i;
+                        var1->data.d = (double)var2->data.i;
                 }
                 else
                     var1->data.str = var2->data.str;
@@ -373,18 +407,30 @@ void interpret_loop(Tins_list *ins_list)
 
             //built-in
             case(INS_LENGTH):
-                //CHECK RETURN VAR TYPE?
                 var2 = get_var(ins->addr2);
                 if(!var2->initialized)
                     exit_error(E_UNINITIALIZED);
                 ret_int = length(var2);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_INT;
-                var1->data.i = ret_int;
+                if(var1->var_type == TYPE_INT)
+                    var1->data.i = ret_int;
+                else
+                    var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
                 var1->initialized = 1;
                 break;
             case(INS_SUBSTR):
-                //3 agrumenty, 1 return..neda sa ako 1 instrukcia..hm..
+                var1 = (TVariable*)fparams_stack->data[0];
+                var2 = (TVariable*)fparams_stack->data[1];
+                var3 = (TVariable*)fparams_stack->data[2];
+                if(var2->var_type == TYPE_INT)
+                    int1 = var2->data.i;
+                else
+                    int1 = (int)var2->data.d;
+                if(var2->var_type == TYPE_INT)
+                    int2 = (int)var2->data.i;
+                else
+                    int2 = (int)var2->data.d;
+                ret_str = substr(var1->data.str, int1, int2);
                 break;
             case(INS_CONCAT):
                 var2 = get_var(ins->addr2);
@@ -393,7 +439,6 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 ret_str = concat(var2, var3);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_STRING;
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
@@ -404,22 +449,20 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 ret_int = find(var2, var3);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_INT;
+                if(var1->var_type == TYPE_INT)
+                    var1->data.i = ret_int;
+                else
+                    var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
                 var1->data.i = ret_int;
                 var1->initialized = 1;
                 break;
             case(INS_SORT):
                 //create copy of string, sort do not affect original string
                 var2 = get_var(ins->addr2);
-                if(var2->var_type != TYPE_STRING)
-                    exit_error(E_SEMANTIC_TYPES);
-
-                str = gmalloc(strlen(var2->data.str) + 1);
-                strcpy(str, var2->data.str);
-                ret_str = sort(str);
-                gfree(str);
+                if(!var2->initialized)
+                    exit_error(E_UNINITIALIZED);
+                ret_str = sort(var2);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_STRING;
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;

@@ -1,0 +1,22 @@
+int main()
+{
+    int a;
+    string s;
+    string d;
+
+    s = "asdf";
+
+    d = "d";
+    a = find(s, d);
+    cout << a << "\n";
+
+    d = "x";
+    a = find(s, d);
+    cout << a << "\n";
+
+    d = "";
+    a = find(s, d);
+    cout << a << "\n";
+
+    return 42;
+}

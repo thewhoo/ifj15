@@ -1,0 +1,12 @@
+int main()
+{
+    string s;
+    string d;
+
+    d = "qwerty";
+    s = sort(d);
+
+    cout << s << "\n";
+
+    return 42;
+}

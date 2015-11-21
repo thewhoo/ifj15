@@ -102,8 +102,9 @@ void siftDown(char *str, int left, int right)
     str[root] = tmp;
 }
 
-char *sort(char * orig_str)
+char *sort(TVariable *var)
 {
+    char *orig_str = var->data.str;
     int s_len = strlen(orig_str);
     char *str = gmalloc(s_len + 1);
     strcpy(str, orig_str);   

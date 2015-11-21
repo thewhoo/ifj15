@@ -42,7 +42,7 @@ int find(TVariable* s, TVariable* search);
  * @param *str ptr to string
  * @return *ptr to sorted string
  */
-char * sort(char *str);
+char * sort(TVariable *var);
 
 /* -----------------Hash tab ------------------- */
 

@@ -30,23 +30,31 @@
 #include "shared.h"
 
 #define RULE_COUNTER 13
+//#define DEBUG_MODE
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
-/*         +   -   *   /   (   )   id  <   >   <=  >=  ==  !=	 */
+/* st\in  +   -   *   /   (   )   id  <   >   <=  >=  ==  != */
 /* +  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* -  */ { HI, HI, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
-/* *  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI }, /* Z */
-/* /  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI }, /* a */
-/* (  */ { LO, LO, LO, LO, LO, EQ, LO, LO, LO, LO, LO, LO, LO }, /* s */
-/* )  */ { HI, HI, HI, HI, ER, HI, ER, HI, HI, HI, HI, HI, HI }, /* o */
-/* id */ { HI, HI, HI, HI, ER, HI, ER, HI, HI, HI, HI, HI, HI }, /* b */
-/* <  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI }, /* n */
-/* >  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI }, /* i */
-/* <= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI }, /* k */
+/* *  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* /  */ { HI, HI, HI, HI, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* (  */ { LO, LO, LO, LO, LO, EQ, LO, LO, LO, LO, LO, LO, LO },
+/* )  */ { HI, HI, HI, HI, ER, HI, ER, HI, HI, HI, HI, HI, HI },
+/* id */ { HI, HI, HI, HI, ER, HI, ER, HI, HI, HI, HI, HI, HI },
+/* <  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* >  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
+/* <= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* >= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* == */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
-/* != */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
-};										/* Vstupni tokeny */
+/* != */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI }
+};
+const char operation_table[4][4] = {
+/* dst\src  i   d   s   a  */
+/*  i   */ {EQ, EQ, ER, ER},
+/*  d   */ {EQ, EQ, ER, ER}, /* INS_ASSIGN */
+/*  s   */ {ER, ER, EQ, ER},
+/*  a   */ {EQ, EQ, ER, EQ}
+};
 TStack *expr_stack;
 TStack *gene_stack;
 TStack *ins_stack;
@@ -61,13 +69,16 @@ TODO
 	Odstranit f_is_possible
 POZNAMKY
 	stack implementovany polem
+	Přepisovat typ auto proměnné?
 */
+// error counter 22
 
-void my_exit_error(int error_type)
+void my_exit_error(int error_type, int code_position)
 {
 	#ifdef DEBUG_MODE
-	printf("expr: EXIT_ERROR!\n");
+	printf("expr: EXIT_ERROR! %d\n", code_position);
 	#endif
+	(void)code_position;
 	exit_error(error_type);
 }
 
@@ -156,19 +167,24 @@ void print_variable(TVariable* var)
 }
 #endif
 
-TList_item *create_ins(int type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
+TList_item *create_ins(int ins_type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
 {
 	TList_item *ins;
 
+	if (ins_type == INS_ASSIGN) {
+		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
+			my_exit_error(E_SEMANTIC_TYPES ,22);
+		}
+	}
 	ins = gmalloc(sizeof(TList_item));
-	ins->ins_type = type;
+	ins->ins_type = ins_type;
 	ins->addr1 = addr1;
 	ins->addr2 = addr2;
 	ins->addr3 = addr3;
 
 	#ifdef DEBUG_MODE
-	print_ins_type(type);
-	if (type != INS_CALL) {
+	print_ins_type(ins_type);
+	if (ins_type != INS_CALL) {
 		print_variable(addr1);
 	} else {
 		htab_item *item;
@@ -190,19 +206,22 @@ int t_compare(TVariable *var, int type)
 
 int operand_type_checker(int operator_type, TVariable *var_1, TVariable *var_2)
 {
-	/* Operace mezi retezcem a neretezcem */
-	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
-		my_exit_error(E_SEMANTIC_TYPES);
+	/* Auto type in expression */
+	if ((var_1->var_type == TYPE_PSEUDO) || (var_2->var_type == TYPE_PSEUDO)) {
+		my_exit_error(E_AUTO_TYPE, 21);
 	}
-
+	/* nonString OP String */
+	if (t_compare(var_1, TYPE_STRING) && !t_compare(var_2, TYPE_STRING)) {
+		my_exit_error(E_SEMANTIC_TYPES, 1);
+	}
 	switch (operator_type) {
 		case TOKEN_MUL:
 		case TOKEN_DIV:
 		case TOKEN_ADD:
 		case TOKEN_SUB:
-			/* Aritmeticke operace nad retezci */
+			/* String ArOP String */
 			if (t_compare(var_1, TYPE_STRING) || t_compare(var_2, TYPE_STRING)) {
-				my_exit_error(E_SEMANTIC_TYPES);
+				my_exit_error(E_SEMANTIC_TYPES, 2);
 			}
 			if (t_compare(var_1, TYPE_DOUBLE) || t_compare(var_2, TYPE_DOUBLE)) {
 				return TYPE_DOUBLE;
@@ -302,7 +321,7 @@ void postfix_count_test()
 	gene_stack = expr_stack;
 	expr_stack = cache_stack;
 	if (++operator_counter != operand_counter) {
-		my_exit_error(E_SYNTAX);
+		my_exit_error(E_SYNTAX, 3);
 	}
 }
 
@@ -316,7 +335,7 @@ TVariable *find_var(TToken *tok)
 				return found->data.variable;
 			}
 		}
-		my_exit_error(E_SEMANTIC_DEF);
+		my_exit_error(E_SEMANTIC_DEF, 4);
 	}
 
 	return token_to_const(tok);
@@ -449,7 +468,7 @@ TVariable *get_next_para(int operand_type)
 	new_var = gmalloc(sizeof(TVariable));
 	new_var = find_var(tok);
 	if (new_var->var_type != operand_type) {
-		my_exit_error(E_SEMANTIC_TYPES);
+		my_exit_error(E_SEMANTIC_TYPES, 5);
 	}
 
 	return new_var;
@@ -458,7 +477,7 @@ TVariable *get_next_para(int operand_type)
 void compare_two_types(int type_1, int type_2)
 {
 	if (type_1 != type_2) {
-		my_exit_error(E_SEMANTIC_TYPES);
+		my_exit_error(E_SEMANTIC_TYPES, 6);
 	}
 }
 
@@ -489,7 +508,7 @@ void skip_token(int token_type)
 
 	tok = get_token();
 	if (tok->type != token_type) {
-		my_exit_error(E_SYNTAX);
+		my_exit_error(E_SYNTAX, 7);
 	}
 }
 
@@ -504,16 +523,16 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	TVariable *f_readed_var;
 
 	if (*f_is_possible == 0) {
-		my_exit_error(E_SYNTAX);
+		my_exit_error(E_SYNTAX, 8);
 	}
 	tok = get_token();
 	h_item = htab_lookup(G.g_globalTab, tok->data);
 	if (h_item == NULL) {
-		my_exit_error(E_SEMANTIC_DEF);
+		my_exit_error(E_SEMANTIC_DEF, 9);
 	}
 	f_stored = h_item->data.function;
 	if (!f_stored->defined) {
-		my_exit_error(E_SEMANTIC_DEF);
+		my_exit_error(E_SEMANTIC_DEF, 10);
 	}
 	skip_token(TOKEN_LROUND_BRACKET);
 	f_sto_param_count = f_stored->params_stack->used;
@@ -529,7 +548,7 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	compare_two_types(ret_var->var_type, f_stored->return_type);
 	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
 	list_insert(act_ins_list, actual_ins);
-	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, G.g_return, NULL);
 	list_insert(act_ins_list, actual_ins);
 	skip_token(TOKEN_RROUND_BRACKET);
 }
@@ -544,14 +563,14 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	TVariable *var_3;
 
 	if (*f_is_possible == 0) {
-		my_exit_error(E_SYNTAX);
+		my_exit_error(E_SYNTAX, 11);
 	}
 
 	tok = get_token();
 	ins_type = ope_2_ins_type(tok);
 	tok = get_token();
 	if (tok->type != TOKEN_LROUND_BRACKET) {
-        my_exit_error(E_SYNTAX);
+        my_exit_error(E_SYNTAX, 12);
 	}
 	switch (ins_type) {
 		case INS_LENGTH:
@@ -573,9 +592,9 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 		case INS_SUBSTR:
 			var_1 = get_next_para(TYPE_STRING);
 			skip_token(TOKEN_COMMA);
-			var_2 = get_next_para(TYPE_STRING);
+			var_2 = get_next_para(TYPE_INT);
 			skip_token(TOKEN_COMMA);
-			var_3 = get_next_para(TYPE_STRING);
+			var_3 = get_next_para(TYPE_INT);
 			return_type_checker(ins_type, ret_var->var_type);
 			actual_ins = create_ins(INS_PUSH, var_1, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
@@ -583,9 +602,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(INS_PUSH, var_3, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(ins_type, NULL, NULL, NULL);
-			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
+			actual_ins = create_ins(ins_type, ret_var, G.g_return, NULL);
 			list_insert(act_ins_list, actual_ins);
 	}
 	skip_token(TOKEN_RROUND_BRACKET);
@@ -666,7 +683,7 @@ int stack_lower_prio(const TToken *token_in, const TToken *token_stack)
 		case LO:
 			return 1;
 		case ER:
-			my_exit_error(E_SYNTAX);
+			my_exit_error(E_SYNTAX, 13);
 	}
 
 	return 0;
@@ -685,7 +702,7 @@ void check_expr_integrity(TToken *tok, int *last_type)
 	switch (*last_type) {
 		case TOKEN_EOF:
 				if (!token_is_operand(tok) && (tok->type != TOKEN_LROUND_BRACKET)) {
-					my_exit_error(E_SYNTAX);
+					my_exit_error(E_SYNTAX, 14);
 				}
 				break;
 		case TOKEN_INT_VALUE:
@@ -693,17 +710,17 @@ void check_expr_integrity(TToken *tok, int *last_type)
 		case TOKEN_STRING_VALUE:
 		case TOKEN_IDENTIFIER:
 				if (!token_is_operator(tok) && (tok->type != TOKEN_RROUND_BRACKET)) {
-					my_exit_error(E_SYNTAX);
+					my_exit_error(E_SYNTAX, 15);
 				}
 				break;
 		case TOKEN_LROUND_BRACKET:
 				if (!token_is_operand(tok)) {
-					my_exit_error(E_SYNTAX);
+					my_exit_error(E_SYNTAX, 16);
 				}
 				break;
 		case TOKEN_RROUND_BRACKET:
 				if (!token_is_operator(tok)) {
-					my_exit_error(E_SYNTAX);
+					my_exit_error(E_SYNTAX, 17);
 				}
 				break;
 		case TOKEN_MUL:
@@ -717,11 +734,11 @@ void check_expr_integrity(TToken *tok, int *last_type)
 		case TOKEN_LESS:
 		case TOKEN_LESS_EQUAL:
 				if (!(token_is_operand(tok))) {
-					my_exit_error(E_SYNTAX);
+					my_exit_error(E_SYNTAX, 18);
 				}
 				break;
 		default:
-			my_exit_error(E_SYNTAX);
+			my_exit_error(E_SYNTAX, 19);
 	}
 	*last_type = tok->type;
 }
@@ -786,7 +803,7 @@ void infix_2_postfix()
 				}
 				break;
 			default:
-				my_exit_error(E_SYNTAX);
+				my_exit_error(E_SYNTAX, 20);
 		}
 		tok_in = get_token();
 	}
@@ -836,4 +853,3 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 	printf("expr: --END--\n");
 	#endif
 }
-

@@ -1,0 +1,17 @@
+int main()
+{
+    int a;
+    int res;
+
+    a = 6;
+    res = 1;
+
+    for (int foo; a > 0; a = a - 1)
+    {
+        res = res * a;
+    }
+
+    cout << "faktorial: " << res << "\n";
+
+    return 42;
+}

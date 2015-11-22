@@ -3,7 +3,7 @@ int main()
     string s = "qwerty";
     string sub;
 
-    sub = substr(s, -3, 11);
+    sub = substr(s, 400, 11);
 
     return 42;
 }

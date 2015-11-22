@@ -1,0 +1,30 @@
+int factorial(int n)
+{
+    int tmp;
+    auto decrement = n - 1;
+
+    if(n  < 2)
+    {
+        return 1;
+    }
+    else
+    {
+        tmp = factorial(decrement);
+        return n*tmp;
+    }
+}
+
+int main()
+{
+    int a; int res;
+
+    a = 6;
+    res = factorial(a);
+
+    auto neg =  0 - res;
+
+    cout << "faktorial: " << res << "\n";
+    cout << "negovany: " << neg << "\n";
+
+    return 42;
+}

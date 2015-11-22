@@ -9,10 +9,10 @@ int main()
 
     s = "";
     sub = substr(s, 0, 3);
-    cout << sub << "\n"
+    cout << sub << "\n";
 
     s = "qwerty";
-    sub = substr(s, 2, 2.43);
+    sub = substr(s, 2, 2);
     cout << sub << "\n"; 
     
 

@@ -12,7 +12,7 @@ int main()
     cout << sub << "\n";
 
     s = "qwerty";
-    sub = substr(s, 2, 2);
+    sub = substr(s, 2, 2.43);
     cout << sub << "\n"; 
     
 

@@ -54,6 +54,8 @@ enum {
 	external_function
 };
 
+void expr_init();
+
 /**
   * @brief Zpracovani vyrazu
   *

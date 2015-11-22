@@ -64,6 +64,11 @@ TODO
 	Neprelivat zasobniky, pristup pres index
 	Odstranit f_is_possible
 	Matějovi o "auto a =..."
+	nastavvovat typ auto promenné
+	2.34 + 4  -> T0 = DOUBLE
+	auto a = func();	konverze a
+	kontrola návratových hodnot funkcí
+	typová kontrola parametrů funkcí
 POZNAMKY
 	stack implementovany polem
 	Přepisovat typ auto proměnné?
@@ -87,9 +92,9 @@ void my_exit_error(const int error_type, const int error_pos_in_code)
 
 void charlady()
 {
-	stack_free(expr_stack);
-	stack_free(gene_stack);
-	stack_free(ins_stack);
+	stack_clear(expr_stack);
+	stack_clear(gene_stack);
+	stack_clear(ins_stack);
 }
 
 char *create_t_name(const int *number)
@@ -629,7 +634,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(INS_PUSH, var_3, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(ins_type, ret_var, G.g_return, NULL);
+			actual_ins = create_ins(ins_type, ret_var, G.g_return, NULL); /* SUBSTR obsahuje parametry ASSIGN */
 			list_insert(act_ins_list, actual_ins);
 	}
 	skip_token(TOKEN_RROUND_BRACKET);
@@ -863,7 +868,6 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 	#endif
 
 	(void)f_is_possible;
-	expr_init();
 	switch (its_function()) {
 		case not_function:
 			infix_2_postfix();

@@ -8,6 +8,6 @@ int main()
 {
 	string d="asda";
 	int a=func(d); // wrong parameter type
-	cout << a << "\n"
+	cout << a << "\n";
 	return 1;
 }

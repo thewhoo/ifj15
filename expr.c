@@ -76,7 +76,7 @@ POZNAMKY
 void my_exit_error(int error_type, int code_position)
 {
 	#ifdef DEBUG_MODE
-	printf("expr: EXIT_ERROR! %d\n", code_position);
+	printf("expr: EXIT_ERROR! %d (error position %d)\n", error_type, code_position);
 	#endif
 	(void)code_position;
 	exit_error(error_type);
@@ -173,7 +173,7 @@ TList_item *create_ins(int ins_type, TVariable *addr1, TVariable *addr2, TVariab
 
 	if (ins_type == INS_ASSIGN) {
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
-			my_exit_error(E_SEMANTIC_TYPES ,22);
+			my_exit_error(E_SEMANTIC_TYPES, 22);
 		}
 	}
 	ins = gmalloc(sizeof(TList_item));
@@ -474,34 +474,6 @@ TVariable *get_next_para(int operand_type)
 	return new_var;
 }
 
-void compare_two_types(int type_1, int type_2)
-{
-	if (type_1 != type_2) {
-		my_exit_error(E_SEMANTIC_TYPES, 6);
-	}
-}
-
-void return_type_checker(int ins_type, int ret_type)
-{
-	switch (ins_type) {
-		case INS_LENGTH:
-			compare_two_types(ret_type, TYPE_INT);
-			break;
-		case INS_SUBSTR:
-			compare_two_types(ret_type, TYPE_STRING);
-			break;
-		case INS_CONCAT:
-			compare_two_types(ret_type, TYPE_STRING);
-			break;
-		case INS_FIND:
-			compare_two_types(ret_type, TYPE_INT);
-			break;
-		case INS_SORT:
-			compare_two_types(ret_type, TYPE_STRING);
-			break;
-	}
-}
-
 void skip_token(int token_type)
 {
 	TToken *tok;
@@ -512,7 +484,7 @@ void skip_token(int token_type)
 	}
 }
 
-void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, bool *f_is_possible)
+void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 {
 	TToken *tok;
 	TList_item *actual_ins;
@@ -522,9 +494,6 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	TVariable *f_stored_var;
 	TVariable *f_readed_var;
 
-	if (*f_is_possible == 0) {
-		my_exit_error(E_SYNTAX, 8);
-	}
 	tok = get_token();
 	h_item = htab_lookup(G.g_globalTab, tok->data);
 	if (h_item == NULL) {
@@ -545,7 +514,6 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 		actual_ins = create_ins(INS_PUSH, f_readed_var, NULL, NULL);
 		list_insert(act_ins_list, actual_ins);
 	}
-	compare_two_types(ret_var->var_type, f_stored->return_type);
 	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
 	list_insert(act_ins_list, actual_ins);
 	actual_ins = create_ins(INS_ASSIGN, ret_var, G.g_return, NULL);
@@ -553,7 +521,7 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	skip_token(TOKEN_RROUND_BRACKET);
 }
 
-void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, bool *f_is_possible)
+void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 {
 	TToken *tok;
 	TList_item *actual_ins;
@@ -561,10 +529,6 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 	TVariable *var_1;
 	TVariable *var_2;
 	TVariable *var_3;
-
-	if (*f_is_possible == 0) {
-		my_exit_error(E_SYNTAX, 11);
-	}
 
 	tok = get_token();
 	ins_type = ope_2_ins_type(tok);
@@ -576,7 +540,6 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 		case INS_LENGTH:
 		case INS_SORT:
 			var_1 = get_next_para(TYPE_STRING);
-			return_type_checker(ins_type, ret_var->var_type);
 			actual_ins = create_ins(ins_type, ret_var, var_1, NULL);
 			list_insert(act_ins_list, actual_ins);
 			break;
@@ -585,7 +548,6 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 			var_1 = get_next_para(TYPE_STRING);
 			skip_token(TOKEN_COMMA);
 			var_2 = get_next_para(TYPE_STRING);
-			return_type_checker(ins_type, ret_var->var_type);
 			actual_ins = create_ins(ins_type, ret_var, var_1, var_2);
 			list_insert(act_ins_list, actual_ins);
 			break;
@@ -595,7 +557,6 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list, boo
 			var_2 = get_next_para(TYPE_INT);
 			skip_token(TOKEN_COMMA);
 			var_3 = get_next_para(TYPE_INT);
-			return_type_checker(ins_type, ret_var->var_type);
 			actual_ins = create_ins(INS_PUSH, var_1, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(INS_PUSH, var_2, NULL, NULL);
@@ -835,6 +796,7 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 	unget_token(tok);
 	#endif
 
+    (void)f_is_possible;
 	expr_init();
 	switch (its_function()) {
 		case not_function:
@@ -842,10 +804,10 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 			generate_code(ret_var, act_ins_list);
 			break;
 		case external_function:
-			generate_external_function(ret_var, act_ins_list, &f_is_possible);
+			generate_external_function(ret_var, act_ins_list);
 			break;
 		case internal_function:
-			generate_internal_function(ret_var, act_ins_list, &f_is_possible);
+			generate_internal_function(ret_var, act_ins_list);
 	}
 	charlady();
 

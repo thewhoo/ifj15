@@ -1,0 +1,25 @@
+int main()
+{
+    int a = 1;
+    
+    cout << a << "\n";
+
+    {
+        cout << a << "\n";
+
+        int a = 2;
+        cout << a << "\n";
+
+        {
+            cout << a << "\n";
+
+            int a = 3;
+            cout << a << "\n";
+        }
+        cout << a << "\n";
+
+    }
+    cout << a << "\n";
+     
+    return 42;
+}

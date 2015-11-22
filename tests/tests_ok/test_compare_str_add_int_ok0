@@ -1,0 +1,12 @@
+int main()
+{
+    int a = 0;
+    if(("abc" < "adf") + a)
+    {
+        cout << a << "\n";
+    }
+    else
+    {}
+
+    return 42;
+}

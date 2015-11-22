@@ -26,19 +26,19 @@
 #include <stdbool.h>
 
 enum {
-	 oper_add,
-	 oper_sub,
-	 oper_mul,
-	 oper_div,
-	 oper_lr_bracket,
-	 oper_rr_bracket,
-	 oper_id,
-	 oper_less,
-	 oper_greater,
-	 oper_less_e,
-	 oper_greater_e,
-	 oper_equal,
-	 oper_not_equal
+	oper_add,
+	oper_sub,
+	oper_mul,
+	oper_div,
+	oper_lr_bracket,
+	oper_rr_bracket,
+	oper_id,
+	oper_less,
+	oper_greater,
+	oper_less_e,
+	oper_greater_e,
+	oper_equal,
+	oper_not_equal
 };
 
 enum {

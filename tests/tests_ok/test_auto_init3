@@ -1,0 +1,6 @@
+int main()
+{
+	auto a = 3;
+	
+	return a;
+}

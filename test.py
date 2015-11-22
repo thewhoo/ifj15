@@ -13,8 +13,9 @@ def print_head(text):
 
 
 def print_test_head(n, source):
-    print("-------------------------------")
-    print("TEST {}: {}".format(n, source))
+    global to_print
+    to_print += "-------------------------------\n"
+    to_print += "TEST {}: {}\n".format(n, source)
 
 
 def set_cin_cout(source):
@@ -33,26 +34,28 @@ def set_cin_cout(source):
 
 
 def check_ret_code(returned, expected):
+    global to_print
     if returned == int(expected):
-        print("Return value: OK")
+        to_print += "Return value: OK\n"
         return True
     else:
-        print("Expected return code: {}\nProgram returned: {}"
-              .format(expected, returned))
+        to_print += "Expected return code: {}\nProgram returned: {}\n".format(expected, returned)
         return False
 
 
 def check_stdout(out, expected):
+    global to_print
     if out != expected:
-        print("UNexpected output: "+out)
-        print("Expected: "+expected)
+        to_print += "UNexpected output: {}\n".format(out)
+        to_print += "Expected: {}\n".format(expected)
         return False
     return True
 
 
 def check_stderr(err):
+    global to_print
     if 'IFJ15' not in err:
-        print("UNexpected error output: "+err)
+        to_print = "UNexpected error output: {}\n".format(err)
         return False
     return True
 
@@ -70,6 +73,7 @@ if not(os.path.isfile('ifj') and os.access('ifj', os.X_OK)):
     print("No executable file found, try 'make'.")
     sys.exit()
 
+
 #################################################
 #                    OK
 #################################################
@@ -80,12 +84,14 @@ x = 0
 x_ok = 0
 x_fail = 0
 fails = {}
+to_print = ''
 
 print_head("IFJ15: Tests without errors.")
 
 for source in [f for f in os.listdir(tests_dir)
-              if not f.endswith('.out')]:
+              if not f.endswith('.out') and f.startswith('test')]:
 
+    to_print = ''
     x = x + 1
     source_path = os.path.join(tests_dir, source)
     proc = subprocess.Popen(["./ifj", source_path],
@@ -105,9 +111,10 @@ for source in [f for f in os.listdir(tests_dir)
     if c_ret and c_out and c_err:
         x_ok = x_ok + 1
     else:
+        print(to_print)
         x_fail = x_fail + 1
         fails[x] = source
-
+    
 
 ##################################################
 #                 Error tests
@@ -124,8 +131,10 @@ ffails = {}
 print_head("IFJ15: Tests containing some errors.")
 
 for source in [f for f in os.listdir(tests_dir)
-              if os.path.isfile(os.path.join(tests_dir, f))]:
-
+              if os.path.isfile(os.path.join(tests_dir, f)) and
+              f.startswith('test')]:
+    
+    to_print = ''
     fx = fx + 1
     source_path = os.path.join(tests_dir, source)
     proc = subprocess.Popen(["./ifj", source_path],
@@ -143,6 +152,7 @@ for source in [f for f in os.listdir(tests_dir)
     if c_ret and c_out and c_err:
         fx_ok = fx_ok + 1
     else:
+        print(to_print)
         fx_fail = fx_fail + 1
         ffails[fx] = source
 

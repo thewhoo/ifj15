@@ -30,7 +30,7 @@
 #include "shared.h"
 
 #define RULE_COUNTER 13
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* st\in   +   -   *   /   (   )   id  <   >   <=  >=  ==  != */

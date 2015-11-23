@@ -68,6 +68,7 @@ TList_item *createInstruction();
 TList_item *createPseudoFrame();
 void killPseudoFrame();
 void checkFunctionDefinitions();
+void pushVar(TVariable*);
 void logger();
 
 enum
@@ -225,6 +226,14 @@ void storeNewConstant(TVariable *c)
     htab_item *newConst = htab_insert(G.g_constTab, c->name);
     newConst->data.variable = c;
 
+}
+
+void pushVar(TVariable *v)
+{
+    // Grab current ins list
+    TFunction *f = stack_top(G.g_frameStack);
+    TList_item *ins = createInstruction(INS_PUSH_VAR, v, NULL, NULL);
+    list_insert(f->ins_list, ins);
 }
 
 // This will search the frame stack for the var and return it (returns NULL if the var is not found)
@@ -589,6 +598,7 @@ bool DECL_OR_ASSIGN()
         // There must be an assignment
         if (token->type == TOKEN_ASSIGN)
         {
+            pushVar(var);
             expression(var, func->ins_list);
         }
         // Auto derivation error
@@ -626,6 +636,7 @@ bool DECL_ASSIGN(TVariable *var)
     // We must initialize the variable
     if(token->type == TOKEN_ASSIGN)
     {
+        pushVar(var);
         expression(var, func->ins_list);
         token = get_token();
         return true;
@@ -659,6 +670,7 @@ bool ASSIGN()
         if(token->type == TOKEN_ASSIGN)
         {
             // Use a custom list if it is specified
+            pushVar(var);
             expression(var, func->ins_list);
 
             token = get_token();
@@ -743,6 +755,7 @@ bool IF_STATEMENT()
         if(token->type == TOKEN_LROUND_BRACKET)
         {
             // Evaluate condition
+            pushVar(var);
             expression(var, func->ins_list);
             token = get_token();
 
@@ -1035,6 +1048,7 @@ bool FOR_STATEMENT()
 
         // Add instruction for expression evaluation under loop label
         unget_token(token);
+        pushVar(expr);
         expression(expr, frame->ins_list);
 
         // Add conditional jump under evaluation
@@ -1065,6 +1079,7 @@ bool FOR_STATEMENT()
             if(token->type == TOKEN_ASSIGN)
             {
                 // Place assign instruction in temporary list
+                pushVar(var);
                 expression(var, tempList);
 
                 token = get_token();
@@ -1126,6 +1141,7 @@ bool RETURN()
     if(token->type == TOKEN_RETURN)
     {
         G.g_return->var_type = func->return_type;
+        pushVar(G.g_return);
         expression(G.g_return, func->ins_list);
 
         token = get_token();

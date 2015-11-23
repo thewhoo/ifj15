@@ -119,9 +119,30 @@ void storeFunction(TFunction *f)
     htab_item *result = htab_lookup(G.g_globalTab, f->name);
     if(result)
     {
-        // Check if return type matches
-        if(!(result->data.function->return_type == f->return_type))
+        // Retrieve found function
+        TFunction *found = result->data.function;
+
+        // Make sure found function has not already been defined
+        if(found->defined)
             exit_error(E_SEMANTIC_DEF);
+
+        // Check if return type matches
+        if(!(found->return_type == f->return_type))
+            exit_error(E_SEMANTIC_DEF);
+
+        // Check if data types of parameters match
+        for(int i = 0; i < found->params_stack->used; i++)
+        {
+            TVariable *providedVar = f->params_stack->data[i];
+            TVariable *foundVar = found->params_stack->data[i];
+
+            // Param list length mismatch
+            if(providedVar == NULL || foundVar == NULL)
+                exit_error(E_SEMANTIC_DEF);
+
+            if(providedVar->var_type != foundVar->var_type)
+                exit_error(E_SEMANTIC_DEF);
+        }
         // Replace forward declaration with definition
         gfree(result->data.function);
         result->data.function = f;
@@ -325,6 +346,7 @@ bool FUNCTION_DECL()
             if(token->type == TOKEN_SEMICOLON)
             {
                 currentFunc->defined = false;
+                token = get_token();
             }
             // Process function block if the function is defined
             else
@@ -553,6 +575,8 @@ bool DECL_OR_ASSIGN()
     {
         token = get_token();
 
+        var->var_type = TYPE_AUTO;
+
         if (token->type == TOKEN_IDENTIFIER)
         {
             storeVarName(var);
@@ -565,12 +589,13 @@ bool DECL_OR_ASSIGN()
         // There must be an assignment
         if (token->type == TOKEN_ASSIGN)
         {
-            token = get_token();
-            expression(var, func->ins_list, false);
+            expression(var, func->ins_list);
         }
-        // Syntax error
+        // Auto derivation error
         else
-            return false;
+            exit_error(E_AUTO_TYPE);
+
+        token = get_token();
 
         // Syntax error
         if(!(token->type == TOKEN_SEMICOLON))
@@ -601,7 +626,7 @@ bool DECL_ASSIGN(TVariable *var)
     // We must initialize the variable
     if(token->type == TOKEN_ASSIGN)
     {
-        expression(var, func->ins_list, false);
+        expression(var, func->ins_list);
         token = get_token();
         return true;
     }
@@ -627,14 +652,14 @@ bool ASSIGN()
         TVariable *var = findVariable(token->data);
         // Cannot assign to an undefined variable
         if(var == NULL)
-            exit_error(E_SEMANTIC_OTHERS);
+            exit_error(E_SEMANTIC_DEF);
 
         token = get_token();
 
         if(token->type == TOKEN_ASSIGN)
         {
             // Use a custom list if it is specified
-            expression(var, func->ins_list, true);
+            expression(var, func->ins_list);
 
             token = get_token();
             if(token->type == TOKEN_SEMICOLON)
@@ -718,7 +743,7 @@ bool IF_STATEMENT()
         if(token->type == TOKEN_LROUND_BRACKET)
         {
             // Evaluate condition
-            expression(var, func->ins_list, false);
+            expression(var, func->ins_list);
             token = get_token();
 
             if(token->type == TOKEN_RROUND_BRACKET)
@@ -1000,13 +1025,17 @@ bool FOR_STATEMENT()
         if(!DECL_OR_ASSIGN())
             return false;
 
+        // Create another pseudo frame for the for loop body
+        createPseudoFrame(T_BLOCK);
+        frame = stack_top(G.g_frameStack);
+
         // Create loop label
         TList_item *loopLabel = createInstruction(INS_LAB, NULL, NULL, NULL);
         list_insert(frame->ins_list, loopLabel);
 
         // Add instruction for expression evaluation under loop label
         unget_token(token);
-        expression(expr, frame->ins_list, false);
+        expression(expr, frame->ins_list);
 
         // Add conditional jump under evaluation
         TList_item *condJump = createInstruction(INS_CJMP, expr, NULL, NULL);
@@ -1029,14 +1058,14 @@ bool FOR_STATEMENT()
             TVariable *var = findVariable(token->data);
             // Cannot assign to an undefined variable
             if(var == NULL)
-                exit_error(E_SEMANTIC_OTHERS);
+                exit_error(E_SEMANTIC_DEF);
 
             token = get_token();
 
             if(token->type == TOKEN_ASSIGN)
             {
                 // Place assign instruction in temporary list
-                expression(var, tempList, false);
+                expression(var, tempList);
 
                 token = get_token();
             }
@@ -1077,6 +1106,8 @@ bool FOR_STATEMENT()
         // Clean up
         killPseudoFrame();
         stack_pop(G.g_frameStack);
+        killPseudoFrame();
+        stack_pop(G.g_frameStack);
 
         return true;
 
@@ -1095,7 +1126,7 @@ bool RETURN()
     if(token->type == TOKEN_RETURN)
     {
         G.g_return->var_type = func->return_type;
-        expression(G.g_return, func->ins_list, false);
+        expression(G.g_return, func->ins_list);
 
         token = get_token();
 

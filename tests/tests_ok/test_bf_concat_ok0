@@ -1,0 +1,16 @@
+int main()
+{
+    string s;
+
+    s = concat("qwe", "rty");
+    cout << s << "\n";
+
+    s = concat(s, "");
+    cout << s << "\n";
+
+    s = concat("", "");
+
+    cout << s << "\n";
+
+    return 42;
+}

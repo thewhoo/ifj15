@@ -43,14 +43,15 @@ enum instructions
     INS_RET,        //16    dest
     INS_PUSH_TAB,   //17    htab_t*
     INS_POP_TAB,    //18
+    INS_PUSH_VAR,   //19    src1
     //built-int functions
-    INS_LENGTH,     //19    dest, src1
-    INS_SUBSTR,     //20
-    INS_CONCAT,     //21    dest, src1, src2
-    INS_FIND,       //22    dest, src1, src2
-    INS_SORT,       //23    dest, src1
-    INS_CIN,        //24    dest
-    INS_COUT        //25    src1
+    INS_LENGTH,     //20    dest, src1
+    INS_SUBSTR,     //21
+    INS_CONCAT,     //22    dest, src1, src2
+    INS_FIND,       //23    dest, src1, src2
+    INS_SORT,       //24    dest, src1
+    INS_CIN,        //25    dest
+    INS_COUT        //26    src1
 }; 
 
 /**

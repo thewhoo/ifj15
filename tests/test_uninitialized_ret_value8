@@ -1,0 +1,15 @@
+int pow2(double x)
+{
+    int y;
+    x = x * x;
+    return y;
+}
+
+int main()
+{
+    int a;
+    a = pow2(3.3);
+    cout << a;
+    return 42;
+}
+

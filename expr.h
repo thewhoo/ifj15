@@ -26,20 +26,35 @@
 #include <stdbool.h>
 
 enum {
-	 oper_add,
-	 oper_sub,
-	 oper_mul,
-	 oper_div,
-	 oper_lr_bracket,
-	 oper_rr_bracket,
-	 oper_id,
-	 oper_less,
-	 oper_greater,
-	 oper_less_e,
-	 oper_greater_e,
-	 oper_equal,
-	 oper_not_equal
+	oper_add,
+	oper_sub,
+	oper_mul,
+	oper_div,
+	oper_lr_bracket,
+	oper_rr_bracket,
+	oper_id,
+	oper_less,
+	oper_greater,
+	oper_less_e,
+	oper_greater_e,
+	oper_equal,
+	oper_not_equal
 };
+
+enum {
+	EQ,
+	LO,
+	HI,
+	ER
+};
+
+enum {
+	not_function,
+	internal_function,	
+	external_function
+};
+
+void expr_init();
 
 /**
   * @brief Zpracovani vyrazu
@@ -50,7 +65,7 @@ enum {
   * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
 
-void expression(TVariable *var_from_parser, Tins_list *ins_list_to_fill, bool f_is_possible);
+void expression(TVariable *ret_var, Tins_list *act_ins_list);
 
 #endif //EXPR_H
 

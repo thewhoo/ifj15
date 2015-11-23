@@ -2,7 +2,7 @@ int main()
 {
 	int a=1;
 	int b;
-	string str="asdasda"
+	string str="asdasda";
 	b=a+str; // incompatible type
 	return 1;
 }

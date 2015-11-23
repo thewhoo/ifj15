@@ -1,0 +1,19 @@
+int main()
+{
+    string s;
+    string d;
+
+    d = "qwerty";
+    s = sort(d);
+    cout << s << "\n";
+
+    d = "";
+    s = sort(d);
+    cout << s << "\n";
+
+    d = "aazz\x45555";
+    s = sort(d);
+    cout << s << "\n";
+
+    return 42;
+}

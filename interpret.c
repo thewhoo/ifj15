@@ -80,30 +80,30 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
     {
         case('+'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a+b;
+                dest->data.d = (double)a+b;
             else
-                dest->data.i = a+b;
+                dest->data.i = (int)a+b;
             break;
         case('-'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a-b;
+                dest->data.d = (double)a-b;
             else
-                dest->data.i = a-b;
+                dest->data.i = (int)a-b;
             break;
         case('*'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a*b;
+                dest->data.d = (double)a*b;
             else
-                dest->data.i = a*b;
+                dest->data.i = (int)a*b;
             break;
         case('/'):
             if(b == 0)
                 exit_error(E_ZERO_DIVISION);
 
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = a/b;
+                dest->data.d = (double)a/b;
             else
-                dest->data.i = a/b;
+                dest->data.i = (int)a/b;
             break;
     }
 
@@ -136,22 +136,40 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
         switch(type)
         {
             case(INS_EQ):
-                dest->data.i = (result == 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result == 0) ? 1 : 0;
+                else
+                    dest->data.d = (result == 0) ? 1 : 0;
                 break;
             case(INS_NEQ):
-                dest->data.i = (result != 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result != 0) ? 1 : 0;
+                else
+                    dest->data.d = (result != 0) ? 1 : 0;
                 break;
             case(INS_GREATER):
-                dest->data.i = (result > 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result > 0) ? 1 : 0;
+                else
+                    dest->data.d = (result > 0) ? 1 : 0;
                 break;
             case(INS_GREATEQ):
-                dest->data.i = (result >= 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result >= 0) ? 1 : 0;
+                else
+                    dest->data.d = (result >= 0) ? 1 : 0;
                 break;
             case(INS_LESSER):
-                dest->data.i = (result < 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result < 0) ? 1 : 0;
+                else
+                    dest->data.d = (result < 0) ? 1 : 0;
                 break;
             case(INS_LESSEQ):
-                dest->data.i = (result <= 0) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (result <= 0) ? 1 : 0;
+                else
+                    dest->data.d = (result <= 0) ? 1 : 0;
                 break;
         }
     }
@@ -160,29 +178,46 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
         switch(type)
         {
             case(INS_EQ):
-                dest->data.i = (a == b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a == b) ? 1 : 0;
+                else
+                    dest->data.d = (a == b) ? 1 : 0;
                 break;
             case(INS_NEQ):
-                dest->data.i = (a != b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a != b) ? 1 : 0;
+                else
+                    dest->data.d = (a != b) ? 1 : 0;
                 break;
             case(INS_GREATER):
-                dest->data.i = (a > b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a > b) ? 1 : 0;
+                else
+                    dest->data.d = (a > b) ? 1 : 0;
                 break;
             case(INS_GREATEQ):
-                dest->data.i = (a >= b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a >= b) ? 1 : 0;
+                else
+                    dest->data.d = (a >= b) ? 1 : 0;
                 break;
             case(INS_LESSER):
-                dest->data.i = (a < b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a < b) ? 1 : 0;
+                else
+                    dest->data.d = (a < b) ? 1 : 0;
                 break;
             case(INS_LESSEQ):
-                dest->data.i = (a <= b) ? 1 : 0;
+                if(dest->var_type == TYPE_INT)
+                    dest->data.i = (a <= b) ? 1 : 0;
+                else
+                    dest->data.d = (a <= b) ? 1 : 0;
                 break;
         }
     }
     else
         exit_error(E_SEMANTIC_TYPES);
 
-    dest->var_type = TYPE_INT;
     dest->initialized = 1;
 }
 
@@ -193,40 +228,70 @@ void map_params(htab_t *tab, TStack* decl_params)
     {
         fprintf(stderr, "Wrong number of parameters!\n");
         exit_error(10);
-    } //delete later
+    } //delete later maybe
 
     htab_item *param;
+    TVariable *dest, *src;
 
     for(int i=0; i<decl_params->used; i++)
     {
-        param = htab_lookup(tab, ((TVariable*) decl_params->data[i])->name);
-        memcpy(param, fparams_stack->data[i], sizeof(TVariable));
+        param = htab_insert(tab, ((TVariable*)decl_params->data[i])->name);
+        dest = malloc(sizeof(TVariable));
+        dest->name = ((TVariable*)decl_params->data[i])->name;
+        dest->constant = 0;
+        dest->initialized = 1; 
+        dest->var_type = ((TVariable*)decl_params->data[i])->var_type;
+        param->data.variable = dest;
+        src = fparams_stack->data[i];
+        if(dest->var_type == TYPE_INT)
+        {
+            if(src->var_type == TYPE_DOUBLE)
+                dest->data.i = (int)src->data.d;
+            else
+                dest->data.i = src->data.i;
+        }
+        else if (dest->var_type == TYPE_DOUBLE)
+        {
+            if(src->var_type == TYPE_DOUBLE)
+                dest->data.d = src->data.d;
+            else
+                dest->data.d = (double)src->data.i;
+        }
+        else
+            dest->data.str = src->data.str;
     }
 
     stack_clear(fparams_stack);
 }
 
+#ifdef DEBUG_MODE
+void print_instructions(TList_item *ins)
+{
+    TList_item *tmp = ins;
+    printf("INTERPRET: intruction list:\n");
+    while(tmp != NULL)
+    {
+        printf("%d\n", tmp->ins_type);
+        tmp = tmp->next;
+    }
+    printf("End of list\n");
+}
+#endif
+
 void interpret_loop(Tins_list *ins_list)
 {
-    int ret_int;
+    int ret_int, int1, int2;
     char* ret_str;
-    char* str;
     TVariable *var1, *var2, *var3;
     htab_item *func;
+    htab_item *item;
     htab_t *new_tab = NULL;
 
     TList_item *ins = ins_list->first;
-
-#ifdef DEBUG_MODE
-    printf("INTERPRET: intruction list in main function:\n");
-    while(ins != NULL)
-    {
-        printf("%d\n", ins->ins_type);
-        ins = ins->next;
-    }
-    printf("End of list\n");
-    ins = ins_list->first;
-#endif
+    
+    #ifdef DEBUG_MODE
+    print_instructions(ins);
+    #endif
 
     while(ins != NULL)
     {
@@ -260,13 +325,21 @@ void interpret_loop(Tins_list *ins_list)
                             get_var(ins->addr2), get_var(ins->addr3));
                 break;
             case(INS_PUSH_TAB):
-                new_tab = htab_copy(ins->addr1);
+                new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
+                break;
+
+            case(INS_PUSH_VAR):
+                new_tab = stack_top(active_frame);
+                item = htab_insert(new_tab, ((TVariable *)ins->addr1)->name);
+                var1 = gmalloc(sizeof(TVariable));
+                memcpy(var1, ins->addr1, sizeof(TVariable));
+                item->data.variable = var1;
                 break;
 
             case(INS_POP_TAB):
                 htab_free((htab_t*)stack_top(active_frame));
-                stack_pop(active_frame);
+                stack_pop(active_frame);  //cleaning?
                 break;
 
             case(INS_JMP):
@@ -283,11 +356,10 @@ void interpret_loop(Tins_list *ins_list)
                 break;
 
             case(INS_PUSH):
-                if(!((TVariable *)ins->addr1)->initialized)
+                var1 = get_var(ins->addr1);
+                if(!var1->initialized)
                     exit_error(E_UNINITIALIZED);
-                //pushnem premennu, ale z mojich tabuliek symbolov
-                //v parametri ins je z originalnych tab. premenna
-                stack_push(fparams_stack, get_var(ins->addr1));
+                stack_push(fparams_stack, var1);
                 break;
 
             case(INS_CALL):
@@ -296,8 +368,11 @@ void interpret_loop(Tins_list *ins_list)
 
                 func = (htab_item*)ins->addr1;
                 ins = func->data.function->ins_list->first;
+                #ifdef DEBUG_MODE
+                print_instructions(ins);
+                #endif
                 active_frame = stack_init();
-                new_tab = htab_copy(func->data.function->local_tab);
+                new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
                 map_params(new_tab, func->data.function->params_stack);
                 //map pushed f arguments to f parameters
@@ -326,7 +401,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(var1->var_type == TYPE_INT)
                 {
                     if(var2->var_type == TYPE_DOUBLE)
-                        var1->data.i = var2->data.d;
+                        var1->data.i = (int)var2->data.d;
                     else
                         var1->data.i = var2->data.i;
                 }
@@ -335,7 +410,7 @@ void interpret_loop(Tins_list *ins_list)
                     if(var2->var_type == TYPE_DOUBLE)
                         var1->data.d = var2->data.d;
                     else
-                        var1->data.d = var2->data.i;
+                        var1->data.d = (double)var2->data.i;
                 }
                 else
                     var1->data.str = var2->data.str;
@@ -345,19 +420,36 @@ void interpret_loop(Tins_list *ins_list)
 
             //built-in
             case(INS_LENGTH):
-                //CHECK RETURN VAR TYPE?
                 var2 = get_var(ins->addr2);
                 if(!var2->initialized)
                     exit_error(E_UNINITIALIZED);
                 ret_int = length(var2);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_INT;
-                var1->data.i = ret_int;
+                if(var1->var_type == TYPE_INT)
+                    var1->data.i = ret_int;
+                else
+                    var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
                 var1->initialized = 1;
                 break;
+
             case(INS_SUBSTR):
-                //3 agrumenty, 1 return..neda sa ako 1 instrukcia..hm..
+                var1 = (TVariable*)fparams_stack->data[0];
+                var2 = (TVariable*)fparams_stack->data[1];
+                var3 = get_var(ins->addr1);
+                stack_clear(fparams_stack);
+                if(var2->var_type == TYPE_INT)
+                    int1 = var2->data.i;
+                else
+                    int1 = (int)var2->data.d;
+                if(var2->var_type == TYPE_INT)
+                    int2 = (int)var2->data.i;
+                else
+                    int2 = (int)var2->data.d;
+                ret_str = substr(var1->data.str, int1, int2);
+                var3->data.str = ret_str;
+                var3->initialized = 1;
                 break;
+
             case(INS_CONCAT):
                 var2 = get_var(ins->addr2);
                 var3 = get_var(ins->addr3);
@@ -365,10 +457,10 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 ret_str = concat(var2, var3);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_STRING;
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
+
             case(INS_FIND):
                 var2 = get_var(ins->addr2);
                 var3 = get_var(ins->addr3);
@@ -376,28 +468,29 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 ret_int = find(var2, var3);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_INT;
+                if(var1->var_type == TYPE_INT)
+                    var1->data.i = ret_int;
+                else
+                    var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
                 var1->data.i = ret_int;
                 var1->initialized = 1;
                 break;
+
             case(INS_SORT):
                 //create copy of string, sort do not affect original string
                 var2 = get_var(ins->addr2);
-                if(var2->var_type != TYPE_STRING)
-                    exit_error(E_SEMANTIC_TYPES);
-
-                str = gmalloc(strlen(var2->data.str) + 1);
-                strcpy(str, var2->data.str);
-                ret_str = sort(str);
-                gfree(str);
+                if(!var2->initialized)
+                    exit_error(E_UNINITIALIZED);
+                ret_str = sort(var2);
                 var1 = get_var(ins->addr1);
-                var1->var_type = TYPE_STRING;
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
+
             case(INS_CIN):
                 cin(get_var(ins->addr1));
                break;
+
             case(INS_COUT):
                 var1 = get_var(ins->addr1);
                 if(!var1->initialized)
@@ -428,7 +521,7 @@ void interpret()
         exit_error(3);
 
     //copy of main symbol table
-    htab_t *main_tab = htab_copy(func_main->data.function->local_tab);
+    htab_t *main_tab = htab_init(HTAB_SIZE);
     TStack *func_main_frame = stack_init();
     stack_push(func_main_frame, main_tab);
     active_frame = func_main_frame;

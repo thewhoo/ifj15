@@ -1,0 +1,8 @@
+int main()
+{
+	auto a = 3;
+	
+	cout << a << "\n";
+	
+	return 0;
+}

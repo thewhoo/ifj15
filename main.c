@@ -22,6 +22,7 @@
 #include "lex.h"
 #include "parser.h"
 #include "shared.h"
+#include "expr.h"
 
 int main(int argc, char **argv)
 {
@@ -38,6 +39,8 @@ int main(int argc, char **argv)
     lex_init(fp);
 
     global_init();
+    
+    expr_init();
 
     parse();
 

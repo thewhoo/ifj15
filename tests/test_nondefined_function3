@@ -1,0 +1,8 @@
+int main()
+{
+	string a = nejsem_definovana("MUHEHE!");
+	cout << a << "\n";
+	
+	return 0;
+}
+

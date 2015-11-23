@@ -1,0 +1,9 @@
+int main()
+{
+    int a;
+    a = 3+15;
+    
+    cout << a <<"\n";
+    
+    return 0;
+}

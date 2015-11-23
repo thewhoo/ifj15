@@ -652,7 +652,7 @@ bool ASSIGN()
         TVariable *var = findVariable(token->data);
         // Cannot assign to an undefined variable
         if(var == NULL)
-            exit_error(E_SEMANTIC_OTHERS);
+            exit_error(E_SEMANTIC_DEF);
 
         token = get_token();
 
@@ -1058,7 +1058,7 @@ bool FOR_STATEMENT()
             TVariable *var = findVariable(token->data);
             // Cannot assign to an undefined variable
             if(var == NULL)
-                exit_error(E_SEMANTIC_OTHERS);
+                exit_error(E_SEMANTIC_DEF);
 
             token = get_token();
 

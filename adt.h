@@ -30,7 +30,8 @@ enum vars
     TYPE_INT,
     TYPE_DOUBLE,
     TYPE_STRING,
-    TYPE_PSEUDO
+    TYPE_PSEUDO,
+    TYPE_AUTO
 };
 
 typedef struct s_variable

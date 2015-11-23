@@ -575,6 +575,8 @@ bool DECL_OR_ASSIGN()
     {
         token = get_token();
 
+        var->var_type = TYPE_AUTO;
+
         if (token->type == TOKEN_IDENTIFIER)
         {
             storeVarName(var);
@@ -587,12 +589,13 @@ bool DECL_OR_ASSIGN()
         // There must be an assignment
         if (token->type == TOKEN_ASSIGN)
         {
-            token = get_token();
             expression(var, func->ins_list, false);
         }
-        // Syntax error
+        // Auto derivation error
         else
-            return false;
+            exit_error(E_AUTO_TYPE);
+
+        token = get_token();
 
         // Syntax error
         if(!(token->type == TOKEN_SEMICOLON))

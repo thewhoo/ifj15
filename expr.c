@@ -67,13 +67,14 @@ ZEPTAT SE
 	kdo nastavví global_return? (matěj?)
 	nacpat všude const a co nejmenší datové typy?
 	Matěj mi dává při modulo funkci jako návrat STRING
+	podvat se dopředu, jestli jde o funkci, hledat (
 POZNAMKY
 	stack implementovany polem
 	Neprelivat zasobniky, pristup pres index
 OMEZENÍ
 	Maximálně 10 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 9 11 12 20 24+
+	Aktuální volné error_pos_in_code 11 12 20 24+
 OTESTOVAT
 	Přepisuji návratovou auto proměnnou výrazu?
 	Přepisuji návratovou auto proměnnou funkce?
@@ -666,6 +667,10 @@ int its_function()
 			item = htab_lookup(G.g_globalTab, tok->data);
 			if (item != NULL) {
 				answer = external_function;
+			} else {
+                if (!find_var(tok)) {
+                    my_exit_error(E_SEMANTIC_DEF, 9);
+                }
 			}
 			break;
 		case TOKEN_LENGTH:

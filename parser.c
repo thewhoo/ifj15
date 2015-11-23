@@ -589,7 +589,7 @@ bool DECL_OR_ASSIGN()
         // There must be an assignment
         if (token->type == TOKEN_ASSIGN)
         {
-            expression(var, func->ins_list, false);
+            expression(var, func->ins_list);
         }
         // Auto derivation error
         else
@@ -626,7 +626,7 @@ bool DECL_ASSIGN(TVariable *var)
     // We must initialize the variable
     if(token->type == TOKEN_ASSIGN)
     {
-        expression(var, func->ins_list, false);
+        expression(var, func->ins_list);
         token = get_token();
         return true;
     }
@@ -659,7 +659,7 @@ bool ASSIGN()
         if(token->type == TOKEN_ASSIGN)
         {
             // Use a custom list if it is specified
-            expression(var, func->ins_list, true);
+            expression(var, func->ins_list);
 
             token = get_token();
             if(token->type == TOKEN_SEMICOLON)
@@ -743,7 +743,7 @@ bool IF_STATEMENT()
         if(token->type == TOKEN_LROUND_BRACKET)
         {
             // Evaluate condition
-            expression(var, func->ins_list, false);
+            expression(var, func->ins_list);
             token = get_token();
 
             if(token->type == TOKEN_RROUND_BRACKET)
@@ -1035,7 +1035,7 @@ bool FOR_STATEMENT()
 
         // Add instruction for expression evaluation under loop label
         unget_token(token);
-        expression(expr, frame->ins_list, false);
+        expression(expr, frame->ins_list);
 
         // Add conditional jump under evaluation
         TList_item *condJump = createInstruction(INS_CJMP, expr, NULL, NULL);
@@ -1065,7 +1065,7 @@ bool FOR_STATEMENT()
             if(token->type == TOKEN_ASSIGN)
             {
                 // Place assign instruction in temporary list
-                expression(var, tempList, false);
+                expression(var, tempList);
 
                 token = get_token();
             }
@@ -1126,7 +1126,7 @@ bool RETURN()
     if(token->type == TOKEN_RETURN)
     {
         G.g_return->var_type = func->return_type;
-        expression(G.g_return, func->ins_list, false);
+        expression(G.g_return, func->ins_list);
 
         token = get_token();
 

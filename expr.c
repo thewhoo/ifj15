@@ -62,7 +62,6 @@ TStack *ins_stack;
 /*
 TODO
 	Uklízet po sobe
-	Odstranit f_is_possible
 	Zkontrolovat precedenční tabulku
 ZEPTAT SE
 	kdo nastavví global_return? (matěj?)
@@ -591,9 +590,6 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 	tok = get_token();
 	h_item = htab_lookup(G.g_globalTab, tok->data);
 	f_stored = h_item->data.function;
-	if (!f_stored->defined) {
-		my_exit_error(E_SEMANTIC_DEF, 10);
-	}
 	skip_token(TOKEN_LROUND_BRACKET);
 	f_sto_param_count = f_stored->params_stack->used;
 	for(int i = 0; i < f_sto_param_count; i++) {

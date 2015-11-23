@@ -63,8 +63,7 @@ TStack *ins_stack;
 TODO
 	Uklízet po sobe
 	Odstranit f_is_possible
-	nesprávný počet parametrů!
-		potřeba vyřešit jinak, naházet do stacku a následně zkontrolovat
+	Zkontrolovat precedenční tabulku
 ZEPTAT SE
 	Matějovi o "auto a =..." (sežere token navíc)
 	kdo nastavví global_return? (matěj?)
@@ -253,7 +252,7 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
 			my_exit_error(E_SEMANTIC_TYPES, 23);
 		}
-		if (addr1->var_type == TYPE_PSEUDO) {
+		if (addr1->var_type == TYPE_AUTO) {
 			addr1->var_type = addr2->var_type;
 		}
 	}

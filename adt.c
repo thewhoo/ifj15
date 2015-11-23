@@ -33,7 +33,7 @@ TVariable* token_to_const(TToken *token)
 
     char *name = gmalloc(strlen(token->data) + PREFIX_LEN + 1);
 
-    if(token->type == TYPE_STRING_VALUE)
+    if(token->type == TOKEN_STRING_VALUE)
         strcpy(name, "str_");
     else
         strcpy(name, "num_");

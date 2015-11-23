@@ -1022,6 +1022,10 @@ bool FOR_STATEMENT()
         if(!DECL_OR_ASSIGN())
             return false;
 
+        // Create another pseudo frame for the for loop body
+        createPseudoFrame(T_BLOCK);
+        frame = stack_top(G.g_frameStack);
+
         // Create loop label
         TList_item *loopLabel = createInstruction(INS_LAB, NULL, NULL, NULL);
         list_insert(frame->ins_list, loopLabel);
@@ -1097,6 +1101,8 @@ bool FOR_STATEMENT()
         condJump->addr2 = loopEnd;
 
         // Clean up
+        killPseudoFrame();
+        stack_pop(G.g_frameStack);
         killPseudoFrame();
         stack_pop(G.g_frameStack);
 

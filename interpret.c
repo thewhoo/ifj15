@@ -228,15 +228,20 @@ void map_params(htab_t *tab, TStack* decl_params)
     {
         fprintf(stderr, "Wrong number of parameters!\n");
         exit_error(10);
-    } //delete later
+    } //delete later maybe
 
     htab_item *param;
     TVariable *dest, *src;
 
     for(int i=0; i<decl_params->used; i++)
     {
-        param = htab_lookup(tab, ((TVariable*) decl_params->data[i])->name);
-        dest = param->data.variable;
+        param = htab_insert(tab, ((TVariable*)decl_params->data[i])->name);
+        dest = malloc(sizeof(TVariable));
+        dest->name = ((TVariable*)decl_params->data[i])->name;
+        dest->constant = 0;
+        dest->initialized = 1; 
+        dest->var_type = ((TVariable*)decl_params->data[i])->var_type;
+        param->data.variable = dest;
         src = fparams_stack->data[i];
         if(dest->var_type == TYPE_INT)
         {
@@ -254,7 +259,6 @@ void map_params(htab_t *tab, TStack* decl_params)
         }
         else
             dest->data.str = src->data.str;
-        dest->initialized = 1; 
     }
 
     stack_clear(fparams_stack);
@@ -280,6 +284,7 @@ void interpret_loop(Tins_list *ins_list)
     char* ret_str;
     TVariable *var1, *var2, *var3;
     htab_item *func;
+    htab_item *item;
     htab_t *new_tab = NULL;
 
     TList_item *ins = ins_list->first;
@@ -320,13 +325,21 @@ void interpret_loop(Tins_list *ins_list)
                             get_var(ins->addr2), get_var(ins->addr3));
                 break;
             case(INS_PUSH_TAB):
-                new_tab = htab_copy(ins->addr1);
+                new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
+                break;
+
+            case(INS_PUSH_VAR):
+                new_tab = stack_top(active_frame);
+                item = htab_insert(new_tab, ((TVariable *)ins->addr1)->name);
+                var1 = gmalloc(sizeof(TVariable));
+                memcpy(var1, ins->addr1, sizeof(TVariable));
+                item->data.variable = var1;
                 break;
 
             case(INS_POP_TAB):
                 htab_free((htab_t*)stack_top(active_frame));
-                stack_pop(active_frame);
+                stack_pop(active_frame);  //cleaning?
                 break;
 
             case(INS_JMP):
@@ -359,7 +372,7 @@ void interpret_loop(Tins_list *ins_list)
                 print_instructions(ins);
                 #endif
                 active_frame = stack_init();
-                new_tab = htab_copy(func->data.function->local_tab);
+                new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
                 map_params(new_tab, func->data.function->params_stack);
                 //map pushed f arguments to f parameters
@@ -418,6 +431,7 @@ void interpret_loop(Tins_list *ins_list)
                     var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
                 var1->initialized = 1;
                 break;
+
             case(INS_SUBSTR):
                 var1 = (TVariable*)fparams_stack->data[0];
                 var2 = (TVariable*)fparams_stack->data[1];
@@ -435,6 +449,7 @@ void interpret_loop(Tins_list *ins_list)
                 var3->data.str = ret_str;
                 var3->initialized = 1;
                 break;
+
             case(INS_CONCAT):
                 var2 = get_var(ins->addr2);
                 var3 = get_var(ins->addr3);
@@ -445,6 +460,7 @@ void interpret_loop(Tins_list *ins_list)
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
+
             case(INS_FIND):
                 var2 = get_var(ins->addr2);
                 var3 = get_var(ins->addr3);
@@ -459,6 +475,7 @@ void interpret_loop(Tins_list *ins_list)
                 var1->data.i = ret_int;
                 var1->initialized = 1;
                 break;
+
             case(INS_SORT):
                 //create copy of string, sort do not affect original string
                 var2 = get_var(ins->addr2);
@@ -469,9 +486,11 @@ void interpret_loop(Tins_list *ins_list)
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
+
             case(INS_CIN):
                 cin(get_var(ins->addr1));
                break;
+
             case(INS_COUT):
                 var1 = get_var(ins->addr1);
                 if(!var1->initialized)
@@ -502,7 +521,7 @@ void interpret()
         exit_error(3);
 
     //copy of main symbol table
-    htab_t *main_tab = htab_copy(func_main->data.function->local_tab);
+    htab_t *main_tab = htab_init(HTAB_SIZE);
     TStack *func_main_frame = stack_init();
     stack_push(func_main_frame, main_tab);
     active_frame = func_main_frame;

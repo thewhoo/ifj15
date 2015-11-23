@@ -124,7 +124,7 @@ void storeFunction(TFunction *f)
 
         // Make sure found function has not already been defined
         if(found->defined)
-            exit_error(E_SEMANTIC_OTHERS);
+            exit_error(E_SEMANTIC_DEF);
 
         // Check if return type matches
         if(!(found->return_type == f->return_type))

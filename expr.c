@@ -30,7 +30,7 @@
 #include "shared.h"
 
 #define RULE_COUNTER 13
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* st\in   +   -   *   /   (   )   id  <   >   <=  >=  ==  != */
@@ -62,10 +62,8 @@ TStack *ins_stack;
 /*
 TODO
 	Uklízet po sobe
-	Odstranit f_is_possible
 	Zkontrolovat precedenční tabulku
 ZEPTAT SE
-	Matějovi o "auto a =..." (sežere token navíc)
 	kdo nastavví global_return? (matěj?)
 	nacpat všude const a co nejmenší datové typy?
 	Matěj mi dává při modulo funkci jako návrat STRING
@@ -288,7 +286,7 @@ int t_compare(const TVariable *var, const int type)
 int type_after_operation(const int *operator_type, const TVariable *var_1, const TVariable *var_2)
 {
 	/* Auto type in expression */
-	if ((var_1->var_type == TYPE_PSEUDO) || (var_2->var_type == TYPE_PSEUDO)) {
+	if ((var_1->var_type == TYPE_AUTO) || (var_2->var_type == TYPE_AUTO)) {
 		my_exit_error(E_AUTO_TYPE, 21);
 	}
 	/* String XOR String */
@@ -463,7 +461,9 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 	#ifdef DEBUG_MODE
 		printf("expr: ");
 	#endif
-	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
+	TVariable *stTop;
+	stTop = stack_top(ins_stack);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, stTop, NULL);
 	list_insert(act_ins_list, actual_ins);
 }
 
@@ -552,8 +552,8 @@ int token_type_2_var_type(const int *n)
 TVariable *get_next_para(const int operand_type)
 {
 	TVariable *new_var;
-	TToken *tok;	
-	
+	TToken *tok;
+
 	tok = get_token();
 	if (!token_is_operand(tok)) {
 		my_exit_error(E_SYNTAX, 8);
@@ -590,9 +590,6 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 	tok = get_token();
 	h_item = htab_lookup(G.g_globalTab, tok->data);
 	f_stored = h_item->data.function;
-	if (!f_stored->defined) {
-		my_exit_error(E_SEMANTIC_DEF, 10);
-	}
 	skip_token(TOKEN_LROUND_BRACKET);
 	f_sto_param_count = f_stored->params_stack->used;
 	for(int i = 0; i < f_sto_param_count; i++) {
@@ -872,7 +869,7 @@ void expr_init()
 	ins_stack = stack_init();
 }
 
-void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
+void expression(TVariable *ret_var, Tins_list *act_ins_list)
 {
 	#ifdef DEBUG_MODE
 	printf("expr: --START--\n");
@@ -883,7 +880,6 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible)
 	unget_token(tok);
 	#endif
 
-	(void)f_is_possible;
 	switch (its_function()) {
 		case not_function:
 			infix_2_postfix();

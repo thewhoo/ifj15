@@ -65,7 +65,7 @@ void expr_init();
   * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
 
-void expression(TVariable *ret_var, Tins_list *act_ins_list, bool f_is_possible);
+void expression(TVariable *ret_var, Tins_list *act_ins_list);
 
 #endif //EXPR_H
 

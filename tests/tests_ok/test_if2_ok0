@@ -1,0 +1,13 @@
+int main()
+{
+    if(("abc" > "qwe") + ("qwe"< "abc"))
+    {
+        cout << "no, thanks\n";
+    }
+    else
+    {
+        cout << "else, surprisingly\n";
+    }
+
+    return 42;
+}

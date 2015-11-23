@@ -236,7 +236,7 @@ void map_params(htab_t *tab, TStack* decl_params)
     for(int i=0; i<decl_params->used; i++)
     {
         param = htab_insert(tab, ((TVariable*)decl_params->data[i])->name);
-        dest = malloc(sizeof(TVariable));
+        dest = gmalloc(sizeof(TVariable));
         dest->name = ((TVariable*)decl_params->data[i])->name;
         dest->constant = 0;
         dest->initialized = 1; 

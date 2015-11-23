@@ -24,26 +24,38 @@
 #include "stack.h"
 #include "shared.h"
 
+//using prefix num_ / str_
+#define PREFIX_LEN 4
+
 TVariable* token_to_const(TToken *token)
 {
     htab_item *tmp;
 
-    tmp = htab_lookup(G.g_constTab, token->data);
+    char *name = gmalloc(strlen(token->data) + PREFIX_LEN + 1);
+
+    if(token->type == TOKEN_STRING_VALUE)
+        strcpy(name, "str_");
+    else
+        strcpy(name, "num_");
+    strcat(name, token->data);
+
+    tmp = htab_lookup(G.g_constTab, name);
     if(tmp != NULL)
+    {
+        gfree(name);
         return tmp->data.variable;
-    
-    
+    }
+
     TVariable* var = gmalloc(sizeof(TVariable));
 
     var->initialized = 1;
     var->constant = 1;
-    var->name = gmalloc(strlen(token->data) + 1);
-    strcpy(var->name, token->data);
+    var->name = name;
 
     if(token->type == TOKEN_STRING_VALUE)
     {
         var->var_type = TYPE_STRING;
-        var->data.str = var->name;
+        var->data.str = token->data;
     }
     else if(token->type == TOKEN_DOUBLE_VALUE)
     {
@@ -55,7 +67,7 @@ TVariable* token_to_const(TToken *token)
         var->var_type = TYPE_INT;
         var->data.i = strtol(token->data, NULL, 10);
     }
-
+    
     tmp = htab_insert(G.g_constTab, var->name);
     tmp->data.variable = var;
 

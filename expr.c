@@ -65,16 +65,16 @@ TODO
 	Zkontrolovat precedenční tabulku
 ZEPTAT SE
 	kdo nastavví global_return? (matěj?)
+	rozloučit se s GLOBAL_RET :-(
 	nacpat všude const a co nejmenší datové typy?
-	Matěj mi dává při modulo funkci jako návrat STRING
-	podvat se dopředu, jestli jde o funkci, hledat (
+	Matěj mi dává při modulo funkci jako návrat STRING (nenastavená GLOBAL_RET)
 POZNAMKY
 	stack implementovany polem
 	Neprelivat zasobniky, pristup pres index
 OMEZENÍ
 	Maximálně 10 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 11 12 20 24+
+	Aktuální volné error_pos_in_code 20 24+
 OTESTOVAT
 	Přepisuji návratovou auto proměnnou výrazu?
 	Přepisuji návratovou auto proměnnou funkce?
@@ -89,6 +89,11 @@ void my_exit_error(const int error_type, const int error_pos_in_code)
 	#endif
 	(void)error_pos_in_code;
 	exit_error(error_type);
+}
+
+int token_is(const TToken *tok, const int token_type)
+{
+	return tok->type == token_type;
 }
 
 void charlady()
@@ -136,6 +141,7 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 #ifdef DEBUG_MODE
 void print_ins_type(const int *type)
 {
+	printf("expr: ");
 	switch (*type) {
 	case INS_ASSIGN:
 		printf("INS_ASSIGN");
@@ -249,7 +255,11 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 
 	if (ins_type == INS_ASSIGN) {
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
-			my_exit_error(E_SEMANTIC_TYPES, 23);
+			if (strcmp(addr1->name, "GLOBAL_RET")) {
+				my_exit_error(E_SEMANTIC_TYPES, 23);
+			} else {
+				my_exit_error(E_SEMANTIC_OTHERS, 11);
+			}
 		}
 		if (addr1->var_type == TYPE_AUTO) {
 			addr1->var_type = addr2->var_type;
@@ -459,9 +469,6 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			stack_push(ins_stack, new_t_var);
 		}
 	}
-	#ifdef DEBUG_MODE
-		printf("expr: ");
-	#endif
 	TVariable *stTop;
 	stTop = stack_top(ins_stack);
 	actual_ins = create_ins(INS_ASSIGN, ret_var, stTop, NULL);
@@ -557,7 +564,11 @@ TVariable *get_next_para(const int operand_type)
 
 	tok = get_token();
 	if (!token_is_operand(tok)) {
-		my_exit_error(E_SYNTAX, 8);
+		if (token_is(tok, TOKEN_RROUND_BRACKET)) {
+			my_exit_error(E_SEMANTIC_TYPES, 12);
+		} else {
+			my_exit_error(E_SYNTAX, 8);
+		}
 	}
 	new_var = gmalloc(sizeof(TVariable));
 	new_var = find_var(tok);
@@ -665,12 +676,12 @@ int its_function()
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, tok->data);
-			if (item != NULL) {
-				answer = external_function;
-			} else {
-                if (!find_var(tok)) {
+			if (item == NULL) {
+				if (!find_var(tok)) {
                     my_exit_error(E_SEMANTIC_DEF, 9);
                 }
+			} else {
+                answer = external_function;
 			}
 			break;
 		case TOKEN_LENGTH:
@@ -745,11 +756,6 @@ void transfer_rest_of_expr_stack()
 	}
 }
 
-int token_is(const TToken *tok, const int token_type)
-{
-	return tok->type == token_type;
-}
-
 void check_expr_integrity(const TToken *tok, int *last_type)
 {
 	switch (*last_type) {
@@ -767,12 +773,12 @@ void check_expr_integrity(const TToken *tok, int *last_type)
 				}
 				break;
 		case TOKEN_LROUND_BRACKET:
-				if (!token_is_operand(tok)) {
+				if (!token_is_operand(tok) && !token_is(tok, TOKEN_LROUND_BRACKET)) {
 					my_exit_error(E_SYNTAX, 16);
 				}
 				break;
 		case TOKEN_RROUND_BRACKET:
-				if (!token_is_operator(tok)) {
+				if (!token_is_operator(tok) && !token_is(tok, TOKEN_RROUND_BRACKET)) {
 					my_exit_error(E_SYNTAX, 17);
 				}
 				break;
@@ -786,7 +792,7 @@ void check_expr_integrity(const TToken *tok, int *last_type)
 		case TOKEN_GREATER_EQUAL:
 		case TOKEN_LESS:
 		case TOKEN_LESS_EQUAL:
-				if (!(token_is_operand(tok))) {
+				if (!(token_is_operand(tok)) && !token_is(tok, TOKEN_LROUND_BRACKET)) {
 					my_exit_error(E_SYNTAX, 18);
 				}
 				break;

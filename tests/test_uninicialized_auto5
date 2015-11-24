@@ -6,7 +6,7 @@ int func(int k)
 
 int main()
 {
-	int a;
+	auto a;
 	int b = a + 1;  // a is not initialized
 	cout << b << "\n";
 	return 1;

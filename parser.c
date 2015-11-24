@@ -221,7 +221,7 @@ void storeNewVariable(TFunction *f, TVariable *v)
 
 void storeNewConstant(TVariable *c)
 {
-    if(c->var_type = TYPE_STRING)
+    if(c->var_type == TYPE_STRING)
     {
         if(htab_lookup(G.g_constTabStr, c->name))
             return;

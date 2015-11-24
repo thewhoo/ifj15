@@ -3,3 +3,4 @@ ifj_test
 dokumentace.pdf
 lex
 *.cbp
+*.o

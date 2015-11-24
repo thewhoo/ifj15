@@ -62,8 +62,7 @@ TStack *ins_stack;
 
 /*
 TODO
-	Uklízet po sobe
-	Zkontrolovat precedenční tabulku
+	Uklízet po sobe? NEVER!
 ZEPTAT SE
 	nacpat všude const a co nejmenší datové typy?
 POZNAMKY
@@ -72,12 +71,7 @@ POZNAMKY
 OMEZENÍ
 	Maximálně 10 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 20 24+
-OTESTOVAT
-	Přepisuji návratovou auto proměnnou výrazu?
-	Přepisuji návratovou auto proměnnou funkce?
-	Dostanou se pseudo proměnné do výrazu?
-	Správná typová kontrola parametrů funkcí?
+	Aktuální volné error_pos_in_code 25+
 */
 
 void my_exit_error(const int error_type, const int error_pos_in_code)
@@ -123,8 +117,7 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 		var = gmalloc(sizeof(TVariable));
 		var->initialized = 1;
 		var->constant = 1;
-		var->name = gmalloc(strlen(t_name) + 1);
-		strcpy(var->name, t_name);
+		var->name = t_name;
 		var->var_type = *t_x_type;
 		h_item = htab_insert(G.g_exprTab, t_name);
 		h_item->data.variable = var;
@@ -467,9 +460,7 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			stack_push(ins_stack, new_t_var);
 		}
 	}
-	TVariable *stTop; // smazat
-	stTop = stack_top(ins_stack);  // smazat
-	actual_ins = create_ins(INS_ASSIGN, ret_var, stTop, NULL);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
 	list_insert(act_ins_list, actual_ins);
 }
 
@@ -568,9 +559,7 @@ TVariable *get_next_para(const int operand_type)
 			my_exit_error(E_SYNTAX, 8);
 		}
 	}
-	new_var = gmalloc(sizeof(TVariable));
 	new_var = find_var(tok);
-
 	if (operation_table[operand_type][new_var->var_type] == ER) {
 			my_exit_error(E_SEMANTIC_TYPES, 5);
     }
@@ -582,6 +571,12 @@ void skip_token(int token_type)
 	TToken *tok;
 
 	tok = get_token();
+	if ((token_type != TOKEN_RROUND_BRACKET) && token_is(tok, TOKEN_RROUND_BRACKET)) {
+	    my_exit_error(E_SEMANTIC_TYPES, 20);
+	}
+	if (token_is(tok, TOKEN_COMMA) && (token_type != TOKEN_COMMA)) {
+	    my_exit_error(E_SEMANTIC_TYPES, 24);
+	}
 	if (tok->type != token_type) {
 		my_exit_error(E_SYNTAX, 7);
 	}

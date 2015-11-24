@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -O2 -std=c99
-CFLAGS_GDB=-Wall -Wextra -pedantic -g -std=c99
+CFLAGS_DBG=-Wall -Wextra -pedantic -g -std=c99
 PROJECT=ifj
 
 SRC_FILES = $(wildcard *.c)
@@ -22,10 +22,10 @@ release: $(OBJ_FILES)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 dbg: $(DBG_OBJ_FILES)
-	$(CC) $(CFLAGS)  $^ -o $(PROJECT)
+	$(CC) $(CFLAGS_DBG)  $^ -o $(PROJECT)
 
 %.dbg.o: %.c
-	$(CC) $(CFLAGS) -DDEBUG_MODE -c $< -o $@
+	$(CC) $(CFLAGS_DBG) -DDEBUG_MODE -c $< -o $@
 
 pack:
 	tar -czf xposto02.tgz $(SRC_FILES) $(HEADER_FILES) Makefile

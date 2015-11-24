@@ -56,6 +56,7 @@ typedef struct s_function
     Tins_list *ins_list;
     struct hash_tab *local_tab;
     TStack *params_stack;
+    TVariable *return_var;
 } TFunction;
 
 

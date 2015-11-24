@@ -30,6 +30,8 @@
 #include "interpret.h"
 #include "expr.h"
 
+#define RETURN_VAR_NAME "return"
+
 TToken* token;
 
 // Forward declarations of state functions
@@ -224,7 +226,7 @@ void storeNewConstant(TVariable *c)
         if(htab_lookup(G.g_constTabStr, c->name))
             return;
 
-        htab_item *newConst = htab_init(G.g_constTabStr, c->name);
+        htab_item *newConst = htab_insert(G.g_constTabStr, c->name);
         newConst->data.variable = c;
 
     }
@@ -233,7 +235,7 @@ void storeNewConstant(TVariable *c)
         if(htab_lookup(G.g_constTabNum, c->name))
             return;
 
-        htab_item *newConst = htab_init(G.g_constTabNum, c->name);
+        htab_item *newConst = htab_insert(G.g_constTabNum, c->name);
         newConst->data.variable = c;
     }
 }
@@ -272,6 +274,9 @@ TFunction *getNewFunction()
     f->ins_list = list_init();
     f->local_tab = htab_init(HTAB_SIZE);
     f->params_stack = stack_init();
+    f->return_var = getNewVariable();
+    f->return_var->name = RETURN_VAR_NAME;
+    f->return_var->constant = true;
 
     return f;
 }
@@ -1150,8 +1155,8 @@ bool RETURN()
 
     if(token->type == TOKEN_RETURN)
     {
-        G.g_return->var_type = func->return_type;
-        expression(G.g_return, func->ins_list);
+        func->return_var->var_type = func->return_type;
+        expression(func->return_var, func->ins_list);
 
         token = get_token();
 

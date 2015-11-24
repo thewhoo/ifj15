@@ -28,8 +28,10 @@
 #include "ial.h"
 #include "interpret.h"
 #include "shared.h"
+#include "time.h"
 
 #define RULE_COUNTER 13
+//#define TIMING
 //#define DEBUG_MODE
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
@@ -64,10 +66,11 @@ TODO
 	Uklízet po sobe
 	Zkontrolovat precedenční tabulku
 ZEPTAT SE
-	kdo nastavví global_return? (matěj?)
-	rozloučit se s GLOBAL_RET :-(
+	a) kdo nastavví global_return? (matěj?)
+	a) rozloučit se s GLOBAL_RET :-(
+	a) Matěj mi dává při modulo funkci jako návrat STRING (nenastavená GLOBAL_RET)
 	nacpat všude const a co nejmenší datové typy?
-	Matěj mi dává při modulo funkci jako návrat STRING (nenastavená GLOBAL_RET)
+	
 POZNAMKY
 	stack implementovany polem
 	Neprelivat zasobniky, pristup pres index
@@ -255,7 +258,7 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 
 	if (ins_type == INS_ASSIGN) {
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
-			if (strcmp(addr1->name, "GLOBAL_RET")) {
+			if (strcmp(addr1->name, "RETURN")) {
 				my_exit_error(E_SEMANTIC_TYPES, 23);
 			} else {
 				my_exit_error(E_SEMANTIC_OTHERS, 11);
@@ -615,7 +618,7 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 	}
 	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
 	list_insert(act_ins_list, actual_ins);
-	actual_ins = create_ins(INS_ASSIGN, ret_var, G.g_return, NULL);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, f_stored->return_var, NULL);
 	list_insert(act_ins_list, actual_ins);
 	skip_token(TOKEN_RROUND_BRACKET);
 }
@@ -659,7 +662,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(INS_PUSH, var_3, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(ins_type, ret_var, G.g_return, NULL); /* SUBSTR obsahuje parametry ASSIGN */
+			actual_ins = create_ins(ins_type, ret_var, NULL, NULL); /* SUBSTR obsahuje parametry ASSIGN */
 			list_insert(act_ins_list, actual_ins);
 	}
 	skip_token(TOKEN_RROUND_BRACKET);
@@ -890,10 +893,13 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	printf("\n");
 	unget_token(tok);
 	#endif
+	#ifdef TIMING
+	clock_t tic = clock();
+	#endif
 
 	switch (its_function()) {
-		case not_function:
-			infix_2_postfix();
+		case not_function:			
+			infix_2_postfix();			
 			generate_code(ret_var, act_ins_list);
 			break;
 		case external_function:
@@ -904,7 +910,11 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	}
 	charlady();
 
-	#ifdef DEBUG_MODE
+	#ifdef TIMING
+	clock_t toc = clock();
+    printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
+	#endif
+	#ifdef DEBUG_MODE	
 	printf("expr: --END--\n");
 	#endif
 }

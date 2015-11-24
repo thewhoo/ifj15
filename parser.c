@@ -146,8 +146,8 @@ void storeFunction(TFunction *f)
             if(providedVar->var_type != foundVar->var_type)
                 exit_error(E_SEMANTIC_DEF);
         }
-        // Replace forward declaration with definition
-        gfree(result->data.function);
+        // Replace forward declaration with definition (and update the return var address)
+        f->return_var = found->return_var;
         result->data.function = f;
     }
     else

@@ -1,0 +1,10 @@
+int main()
+{
+	auto a = 4;
+	int b = a + 4;
+	
+	cout << "Out:" << b << "\n";
+	
+	return 0;
+}
+

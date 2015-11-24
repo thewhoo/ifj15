@@ -214,8 +214,6 @@ void storeNewVariable(TFunction *f, TVariable *v)
     if(htab_lookup(f->local_tab, v->name))
         exit_error(E_SEMANTIC_DEF);
 
-    pushVar(v);
-
     htab_item *newVar = htab_insert(f->local_tab, v->name);
     newVar->data.variable = v;
 
@@ -566,6 +564,7 @@ bool DECL_OR_ASSIGN()
     logger("enter DECL_OR_ASSIGN");
     // Create new variable "object"
     TVariable *var = getNewVariable();
+    pushVar(var);
     // The variable belongs to the function or block on top of the frame stack
     TFunction *func = stack_top(G.g_frameStack);
 

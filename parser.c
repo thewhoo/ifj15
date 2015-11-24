@@ -219,13 +219,23 @@ void storeNewVariable(TFunction *f, TVariable *v)
 
 void storeNewConstant(TVariable *c)
 {
-    // Check if the constant already has an entry
-    if(htab_lookup(G.g_constTab, c->name))
-        return;
+    if(c->var_type = TYPE_STRING)
+    {
+        if(htab_lookup(G.g_constTabStr, c->name))
+            return;
 
-    htab_item *newConst = htab_insert(G.g_constTab, c->name);
-    newConst->data.variable = c;
+        htab_item *newConst = htab_init(G.g_constTabStr, c->name);
+        newConst->data.variable = c;
 
+    }
+    else
+    {
+        if(htab_lookup(G.g_constTabNum, c->name))
+            return;
+
+        htab_item *newConst = htab_init(G.g_constTabNum, c->name);
+        newConst->data.variable = c;
+    }
 }
 
 void pushVar(TVariable *v)
@@ -1141,7 +1151,6 @@ bool RETURN()
     if(token->type == TOKEN_RETURN)
     {
         G.g_return->var_type = func->return_type;
-        pushVar(G.g_return);
         expression(G.g_return, func->ins_list);
 
         token = get_token();

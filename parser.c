@@ -360,12 +360,16 @@ bool FUNCTION_DECL()
     else
         return false;
 
-    // If all params were processed, process the function block
+    // If all params were processed, store function and process the function block
     if(FUNC_DECL_PARAMS(currentFunc))
     {
         if (token->type == TOKEN_RROUND_BRACKET)
         {
             token = get_token();
+
+            // Store the complete function "object" in the global table
+            storeFunction(currentFunc);
+            logger("stored function in G.globalTab");
 
             // Function has been declared but not defined
             if(token->type == TOKEN_SEMICOLON)
@@ -380,10 +384,6 @@ bool FUNCTION_DECL()
                 if(!NESTED_BLOCK(true))
                     return false;
             }
-
-            // Store the complete function "object" in the global table
-            storeFunction(currentFunc);
-            logger("stored function in G.globalTab");
         }
     }
 

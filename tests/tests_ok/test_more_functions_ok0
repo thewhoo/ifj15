@@ -6,13 +6,13 @@ int fu(int g)
 
 int fun(int h)
 {
-	h=7+fu(h);
+	h=fu(h);
 	return h;
 }
 
 int func(int k)
 {
-	k=5+fun(k);
+	k=fun(k);
 	return k;
 }
 

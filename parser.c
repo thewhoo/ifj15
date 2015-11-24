@@ -214,6 +214,8 @@ void storeNewVariable(TFunction *f, TVariable *v)
     if(htab_lookup(f->local_tab, v->name))
         exit_error(E_SEMANTIC_DEF);
 
+    pushVar(v);
+
     htab_item *newVar = htab_insert(f->local_tab, v->name);
     newVar->data.variable = v;
 
@@ -613,7 +615,6 @@ bool DECL_OR_ASSIGN()
         // There must be an assignment
         if (token->type == TOKEN_ASSIGN)
         {
-            pushVar(var);
             expression(var, func->ins_list);
         }
         // Auto derivation error
@@ -651,7 +652,6 @@ bool DECL_ASSIGN(TVariable *var)
     // We must initialize the variable
     if(token->type == TOKEN_ASSIGN)
     {
-        pushVar(var);
         expression(var, func->ins_list);
         token = get_token();
         return true;
@@ -685,7 +685,6 @@ bool ASSIGN()
         if(token->type == TOKEN_ASSIGN)
         {
             // Use a custom list if it is specified
-            pushVar(var);
             expression(var, func->ins_list);
 
             token = get_token();
@@ -770,7 +769,6 @@ bool IF_STATEMENT()
         if(token->type == TOKEN_LROUND_BRACKET)
         {
             // Evaluate condition
-            pushVar(var);
             expression(var, func->ins_list);
             token = get_token();
 
@@ -1063,7 +1061,6 @@ bool FOR_STATEMENT()
 
         // Add instruction for expression evaluation under loop label
         unget_token(token);
-        pushVar(expr);
         expression(expr, frame->ins_list);
 
         // Add conditional jump under evaluation
@@ -1094,7 +1091,6 @@ bool FOR_STATEMENT()
             if(token->type == TOKEN_ASSIGN)
             {
                 // Place assign instruction in temporary list
-                pushVar(var);
                 expression(var, tempList);
 
                 token = get_token();

@@ -4,7 +4,7 @@ int main()
     string sub;
     
     s = "qwerty";
-    sub = substr(s, 4, 5);
+    sub = substr(s, 1, 2);
     cout << sub << "\n";
 
     s = "";

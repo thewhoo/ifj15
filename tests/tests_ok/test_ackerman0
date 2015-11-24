@@ -1,0 +1,40 @@
+int ackerman(int m, int n)
+{
+    if(m) 
+    {
+        if(n) 
+        {
+            int x = n - 1;
+            int y = m - 1;
+            int v = ackerman(m, x);
+            int b = ackerman(y,v);
+            return b;
+        }
+        else
+        { 
+            m = m - 1; 
+            int x = ackerman(m, 1); 
+            return x;
+        }
+
+    }
+    else
+    { 
+        return n + 1;
+    }
+    
+}
+
+int main()
+{
+    for(int m = 0; m <= 4; m = m +1)
+    {
+        for(int n = 0; n < 5 - m; n = n +1)
+        {
+            int a = ackerman(m,n);
+            cout << "A " << m << " " << n << " " << a << "\n";
+        }
+    }
+
+    return 42;
+}

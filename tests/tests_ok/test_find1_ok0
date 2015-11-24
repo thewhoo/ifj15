@@ -1,0 +1,10 @@
+int main()
+{
+	string a;
+	a="kon koen kooas";
+	int b;
+	b=find(a,"koen");
+	cout << b << "\n";
+
+return 0;
+}

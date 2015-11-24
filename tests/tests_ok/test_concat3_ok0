@@ -1,0 +1,12 @@
+int main()
+{
+	string a;
+	a="kon koen kooas";
+	string b;
+	b="kooas";
+	cout << a << "\n";
+	a=concat("pes", "kon");
+	cout << a << "\n";
+
+return 0;
+}

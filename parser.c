@@ -173,6 +173,7 @@ TList_item *createPseudoFrame(int type)
     f->ins_list = current->ins_list;
     f->local_tab = htab_init(HTAB_SIZE);
     f->params_stack = NULL;
+    f->return_var = NULL;
 
     // Push this on the frameStack
     stack_push(G.g_frameStack, f);
@@ -1147,17 +1148,26 @@ bool RETURN()
     logger("enter RETURN");
     // Currently processed function
     TFunction *func = stack_top(G.g_frameStack);
+    TFunction *frame = func;
 
     if(token->type == TOKEN_RETURN)
     {
+        // If the function return var is undefined, we are in a pseudo frame and need to place it in the parent function
+        int fsOffset = 2;
+        while(!(func->return_var))
+        {
+            func = G.g_frameStack->data[G.g_frameStack->used - fsOffset];
+            fsOffset++;
+        }
+
         func->return_var->var_type = func->return_type;
-        expression(func->return_var, func->ins_list);
+        expression(func->return_var, frame->ins_list);
 
         token = get_token();
 
         // Generate return instructions
         TList_item *ins = createInstruction(INS_RET, NULL, NULL, NULL);
-        list_insert(func->ins_list, ins);
+        list_insert(frame->ins_list, ins);
 
         if(token->type == TOKEN_SEMICOLON)
         {

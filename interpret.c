@@ -435,17 +435,18 @@ void interpret_loop(Tins_list *ins_list)
             case(INS_SUBSTR):
                 var1 = (TVariable*)fparams_stack->data[0];
                 var2 = (TVariable*)fparams_stack->data[1];
-                var3 = get_var(ins->addr1);
+                var3 = (TVariable*)fparams_stack->data[2];
                 stack_clear(fparams_stack);
                 if(var2->var_type == TYPE_INT)
                     int1 = var2->data.i;
                 else
                     int1 = (int)var2->data.d;
-                if(var2->var_type == TYPE_INT)
-                    int2 = (int)var2->data.i;
+                if(var3->var_type == TYPE_INT)
+                    int2 = (int)var3->data.i;
                 else
-                    int2 = (int)var2->data.d;
+                    int2 = (int)var3->data.d;
                 ret_str = substr(var1->data.str, int1, int2);
+                var3 = get_var(ins->addr1);
                 var3->data.str = ret_str;
                 var3->initialized = 1;
                 break;

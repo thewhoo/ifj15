@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -pedantic -g -std=c99
+CFLAGS=-Wall -Wextra -pedantic -O2 -std=c99
+CFLAGS_GDB=-Wall -Wextra -pedantic -g -std=c99
 PROJECT=ifj
 
 SRC_FILES = $(wildcard *.c)

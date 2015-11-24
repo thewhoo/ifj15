@@ -33,9 +33,6 @@ struct TGlobal
 
   // Global FrameStack
   TStack *g_frameStack;
-
-  // Global return var
-  TVariable *g_return;
 };
 
 extern struct TGlobal G;

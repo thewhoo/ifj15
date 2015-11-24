@@ -32,7 +32,6 @@
 
 #define RULE_COUNTER 13
 //#define TIMING
-//#define DEBUG_MODE
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* st\in   +   -   *   /   (   )   id  <   >   <=  >=  ==  != */
@@ -47,8 +46,8 @@ const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* >  */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* <= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
 /* >= */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
-/* == */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI },
-/* != */ { LO, LO, LO, LO, LO, HI, LO, HI, HI, HI, HI, HI, HI }
+/* == */ { LO, LO, LO, LO, LO, HI, LO, LO, LO, LO, LO, HI, HI },
+/* != */ { LO, LO, LO, LO, LO, HI, LO, LO, LO, LO, LO, HI, HI }
 };
 const char operation_table[4][4] = {
 /* dst\src  i   d   s   a  */
@@ -66,11 +65,7 @@ TODO
 	Uklízet po sobe
 	Zkontrolovat precedenční tabulku
 ZEPTAT SE
-	a) kdo nastavví global_return? (matěj?)
-	a) rozloučit se s GLOBAL_RET :-(
-	a) Matěj mi dává při modulo funkci jako návrat STRING (nenastavená GLOBAL_RET)
 	nacpat všude const a co nejmenší datové typy?
-	
 POZNAMKY
 	stack implementovany polem
 	Neprelivat zasobniky, pristup pres index
@@ -258,7 +253,7 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 
 	if (ins_type == INS_ASSIGN) {
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
-			if (strcmp(addr1->name, "RETURN")) {
+			if (strcmp(addr1->name, "return")) {
 				my_exit_error(E_SEMANTIC_TYPES, 23);
 			} else {
 				my_exit_error(E_SEMANTIC_OTHERS, 11);
@@ -472,8 +467,8 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			stack_push(ins_stack, new_t_var);
 		}
 	}
-	TVariable *stTop;
-	stTop = stack_top(ins_stack);
+	TVariable *stTop; // smazat
+	stTop = stack_top(ins_stack);  // smazat
 	actual_ins = create_ins(INS_ASSIGN, ret_var, stTop, NULL);
 	list_insert(act_ins_list, actual_ins);
 }
@@ -898,8 +893,8 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	#endif
 
 	switch (its_function()) {
-		case not_function:			
-			infix_2_postfix();			
+		case not_function:
+			infix_2_postfix();
 			generate_code(ret_var, act_ins_list);
 			break;
 		case external_function:
@@ -914,7 +909,7 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	clock_t toc = clock();
     printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
 	#endif
-	#ifdef DEBUG_MODE	
+	#ifdef DEBUG_MODE
 	printf("expr: --END--\n");
 	#endif
 }

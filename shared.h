@@ -21,8 +21,9 @@
 
 struct TGlobal
 {
-  // Global ConstTab
-  htab_t *g_constTab;
+  // Global ConstTab for strings and numbers
+  htab_t *g_constTabStr;
+  htab_t *g_constTabNum;
 
   // Global GlobalTab
   htab_t *g_globalTab;

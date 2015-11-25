@@ -90,7 +90,7 @@ print_head("IFJ15: Tests without errors.")
 
 for source in [f for f in os.listdir(tests_dir)
               if not f.endswith('.out') and f.startswith('test')]:
-
+    
     to_print = ''
     x = x + 1
     source_path = os.path.join(tests_dir, source)

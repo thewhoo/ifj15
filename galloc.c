@@ -151,19 +151,19 @@ void *gmalloc(int size)
 
 void *grealloc(void *ptr, int size)
 {
-	assert(mem.initialized);
+	//assert(mem.initialized);
 
 	void *newPtr;
 	newPtr = realloc(ptr, size);
 	if (newPtr == NULL)
 		exit_error(E_ALLOC);
 
-	if (newPtr != ptr)
+/*	if (newPtr != ptr)
 	{
 		searchAndRemove(&mem, ptr);
 		insertIntoVector(&mem, newPtr);
 	}
-
+*/
 	return newPtr;
 }
 

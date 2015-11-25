@@ -173,7 +173,7 @@ string write(string data, int p, int isInc){
 // tato funkce byla automaticky generovana skriptem v pythonu, autor neni magor
 int print(string byte){
 	if(byte == "000"){
-        cout << "\x00";
+        cout << "";
     } else { if(byte == "001"){
         cout << "\x01";
     } else { if(byte == "002"){

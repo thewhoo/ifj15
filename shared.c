@@ -28,6 +28,6 @@ void global_init()
 	G.g_constTabNum = htab_init(HTAB_SIZE);
 	G.g_globalTab = htab_init(HTAB_SIZE);
 	G.g_frameStack = stack_init();
-	G.g_exprTab = htab_init(HTAB_SIZE);
+	G.g_exprTab = htab_init(1543);
 }
 

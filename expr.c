@@ -60,16 +60,12 @@ TStack *ins_stack;
 
 /*
 TODO
-	Uklízet po sobe? NEVER!
 ZEPTAT SE
-	nacpat všude const a co nejmenší datové typy?
 POZNAMKY
-	stack implementovany polem
-	Neprelivat zasobniky, pristup pres index
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 28+
+	Aktuální volné error_pos_in_code 29+
 */
 
 void my_exit_error(const int error_type, const int error_pos_in_code)
@@ -583,6 +579,9 @@ void skip_token(int token_type)
 	}
 	if (token_is(tok, TOKEN_COMMA) && (token_type != TOKEN_COMMA)) {
 	    my_exit_error(E_SEMANTIC_TYPES, 24);
+	}
+	if ((token_type == TOKEN_RROUND_BRACKET) && token_is_operand(tok)) {
+		my_exit_error(E_SEMANTIC_TYPES, 28);
 	}
 	if (tok->type != token_type) {
 		my_exit_error(E_SYNTAX, 7);

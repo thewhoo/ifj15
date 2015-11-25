@@ -130,11 +130,13 @@ char *sort(TVariable *var)
 
 unsigned int hash_function(const char *str, unsigned htab_size)
 {
-    unsigned int h = 0;
-    const unsigned char *p;
-    for(p = (const unsigned char*)str; *p != '\0'; p++)
-        h = 65599*h + *p;
-    return h % htab_size;
+    unsigned int hash = 0;
+    int c;
+    //sdbm
+    while((c = *str++))
+        hash = c + (hash << 6) +(hash << 16) - hash;
+
+    return hash % htab_size;
 }
 
 htab_t *htab_init(unsigned int size)
@@ -225,9 +227,8 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
         item = item->next;
     }
 
-    item->key = gmalloc(strlen(key) + 1);
+    item->key = key;
 
-    strcpy((char*)item->key, key);
     item->next = NULL;
 
     return item; 
@@ -269,7 +270,7 @@ void htab_remove(htab_t* tab, const char* key)
     else //prostredny/posledny prvok
         prev_item->next = item->next;
 
-    gfree((char*)item->key);
+    //gfree((char*)item->key);
     gfree(item);
 }
 
@@ -282,7 +283,8 @@ void htab_clear(htab_t *tab)
         {
             tmp = tab->list[i];
             tab->list[i] = tab->list[i]->next;
-            gfree((char*)tmp->key);
+            free((void*)tmp->data.variable);
+            //gfree((char*)tmp->key);
             gfree(tmp);
         }       
 }

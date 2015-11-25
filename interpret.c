@@ -331,10 +331,15 @@ void interpret_loop(Tins_list *ins_list)
 
             case(INS_PUSH_VAR):
                 new_tab = stack_top(active_frame);
-                item = htab_insert(new_tab, ((TVariable *)ins->addr1)->name);
-                var1 = gmalloc(sizeof(TVariable));
-                memcpy(var1, ins->addr1, sizeof(TVariable));
-                item->data.variable = var1;
+                item = htab_lookup(new_tab, ((TVariable *)ins->addr1)->name);
+                if(item == NULL)
+                {
+                    item = htab_insert(new_tab, ((TVariable *)ins->addr1)->name);
+                    var1 = gmalloc(sizeof(TVariable));
+                    item->data.variable = var1;
+                    memcpy(var1, ins->addr1, sizeof(TVariable));
+                }
+                item->data.variable->initialized = 0;
                 break;
 
             case(INS_POP_TAB):

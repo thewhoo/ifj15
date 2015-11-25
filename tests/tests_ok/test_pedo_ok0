@@ -1,0 +1,142 @@
+int main()
+{
+int a;
+cout << "Enter your age\n";
+cin >> a;
+
+if (a<4)
+{
+cout << "\n\n\t\tToo young to talk? Too young to testify!\n\n\n
+
+
+
+                                                   `.-//:.`\n
+                                                .+yhhhhhhddhy+:`\n
+             ``                               .sdhyhhhddddhhhhhh+`\n
+        .+syhdddhyo:`            ``````      -dhhhdmmhyyyhhmdhhhdy`\n
+      .shyhhdhhhhdddds:``.:+osyhddmmmdddhhyysmhhhmdo///////+dmhhhmo\n
+     .dydmyyyhdmmdhhdmNddddhhhhhhhhhhhhhhhhhhhhhhmmdhs+/////+Ndhhhd`\n
+     sdhy:---://odNmdhyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhdmmdyo//+mdhhhm`\n
+     hdhy-----:sddhyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhhdmmyymhhhdh\n
+     +Nhhs---+ddyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhhmmhhhdd.\n
+     `omhhyohmyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhdmmdh-\n
+       :dddmdyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhdhhhhhhhhhhhhhhhdm:\n
+        .oNhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhyssyhmmdhhhhhhhhhhhhhmo\n
+         sdyyyhhyyyhhyyyyyyyyyyyyyyyyyyhs-`     .+mmdhhhhhhhhhhhhm+\n
+        -myhy/.    `:sdhyyyyyyyyyyyyyyho`   ``    -mmhhhhhhhhhhhhhm:\n
+        shhs`         /mhyyyyyyyyyyyyyh.   .dN+    yNdhhhhhhhhhhhhdd`\n
+       .myd-   -yy.   `smyyyyyyyyyyyyyh:    :/.   `hNhhhhhhhhhhhhhhm/\n
+       /myd:   .ys.   `ymyyyyyyyyyyyyyyh/`       .yNdhhhhhhhhhhhhhhdd`\n
+       sdyhh-        `oNhyyyyyyyyyyyyyyyhyo/--:+ymmdhhhhhhhhhhhhhhhhm/\n 
+       ydyyydy/.``.:odmhyyysssooo++++++++oymmmdddhhhhhhhhhhhhhhhhhhhdh`\n
+      `hhyyyyyhdddmdhddh+//:/ymNNmho/::::::/+hmdhhhhhhhhhhhhhhhhhhhhhm+\n
+      .myyyyyyyyyyyhmy+/:::/dMMMMMMMy::::::::/yNdhhhhhhhhhhhhhhhhhhhhhm/\n
+      -myyyyyyyyyyymy:/:::::sNMMMMMm+::::::::/+mmhhhhhhhhhhhhhhhhhhhhhhd+`\n
+      sdyyyyyyyyyyymh:::::://+shdhs++////////+sNdhhhhhhhhhhhhhhhhhhhhhhhdy.\n
+     :myyyyyyyyyyyyymh+///+oshddhhhhdhhhhhhhdmmdhhhhhhhhhhhhhhhhhhhhhddhhdm/\n
+    -mhyyyyyyyyyyyyyyhddhmmmdo:------:omyyhNhhhhhhhhhhhhhhhhhhhhhhhhhdmNmddNy-\n
+  `+mhhhdhyyyyhyyyyyyyyyydmyy/--------omyyhNhhhhhhhhhhhhhhhhhhhhhhhhhhhdhhhhm//`\n
+  /oso/:ymyyydNhyyyhyyyyyyNdyh/-------ddyymmhhhhhhhhhhhhhhhhhhhddhhdNdhhdo\n
+        .mdyhNmNhyyNdyyyyyhNyyo:----:ymyyhNdhhhhhhhhhhddhhmNmhhmNmdhmMNmdd`\n
+       :sdNmNdhdNmdNhyyyyyyhNyo:-+hhyyyyhNdhhhhhhhhhhhhmNNmhdNdNddmmmNNm++.\n
+    `/hdyyyhhhhhhdNmyyyyyyyyhmh::oyyyhdmmdhyyyhhhhhhhhhhhdhhhdmdhhhhhhhhd+`\n
+   /ddyyyyyyyhhhhhhyyyyyyyyyyyhyhmmmmmmhhyyyyyyyyhhhhhhhhhhhhhhhhhhhhhhhhdy.\n
+ .ydyyyyyyyyhhhhhhNhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhhhhhhhhdd.\n
+-dhyyyyyyyyhhhhhhhNhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhdhhhhhhhhhhhdd.\n
+dyyyyyhhhhhhhhhddyddyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhmmhhhhhhhhhhhdh`\n
+yyyyyyyhmmdmmdy+` omyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhdNdhhhhhhhhhhhm+\n
+hyyyyyyyyydh-`    :NyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhNdhhhhhhhhhhhdm-\n
+   
+\n 
+\n ";
+}
+
+else 
+{
+  if (a < 13)
+{
+cout << "
+\n\n\t\t\tI watch you, while you sleep!\n\n
+
+
+
+
+                                                        ...\n
+                                                   .+ydmmmmmdyo-\n
+                   ...                           .yNdhhdmmmdhhdmm+ \n
+               `odmmmmmmdho:`     .-:://:::--.-/ymmhdNds+/+sdNdhhNh`\n
+              .mmmmmmmmdhhdmm++ydmmmdddddddmmmmddhhdMs:.....-sMhhhM/\n
+              dNNy:--:+hNmmNNmhhyyyyyyyyhhhhhhhhhhhhdmmmho:..:MdhhM+\n
+              Mmh:..../ymmhyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhdmd++MdhdM.\n
+              mmhs-./hmhyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhdmNdhhNy\n
+              :NdhyhNhyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhmNdmm`\n
+               -dmNmyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhdmMs\n
+                `Nmyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhhdmd`\n
+                +MyyyyyyyyyyyyyyyyyyyyyyyyyyyydNNMNmdhhhhhhhhhhhhhNh\n
+                mdyyyyydmmdhyyyyyyyyyyyyyyyyydMMMMMMMhhhhhhhhhhhhhdM-\n
+               .MhyyyhMMMMMMmyyyyyyyyyyyyyyyydMMMMMMMhhhhhhhhhhhhhhMo\n
+               :MyyyymMMMMMMNyyyyyyyyyyyyyyyyydmNNNmdhhhhhhhhhhhhhhNh\n
+               /MyyyyymNMMNmhyyyyyyyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhhhdM.\n
+               /Myyyyyyyyyyyyyysooosyso/:::::/hdmdhhhhhhhhhhhhhhhhhhNy\n
+               +Myyyyyyyyyydmy/--/mNMMMNy......-/dNhhhhhhhhhhhhhhhhhhNy`\n
+               sNyyyyyyyyyNh-....oMMMMMMN........-Nmhhhhhhhhhhhhhhhhhhmd.\n
+               mdyyyyyyyyyM+.....-ohmmmy:........-mmhhhhhhhhhhhhhhhhhhhmm/\n
+              +Myyyyyyyyyydm+-..-:+shhhhyso+++++sdmhhhhhhhhhhhhhhhhhhhhhdmh/\n
+            `omdyyyyyyyyyyyhdddmddy/:---:/yNddNNdhhhhhhhhhhhhhhhhhhhhdNmdmNMo\n
+            sMmhmmyyyddyyyyyyyymNyy:------smyyNNhhhhhhhhhhhhhhhhhhhhdhmN/.:/-\n
+            ./. oNyydMmyyyNyyyyyMddh:-----ddyyMdhhhhhhhhhhhdmdhhmdhdMNdmm \n
+               `/NNhNmmNdhMyyyyyhNhhdyooshdyyNNhhhhhhhhhmmdNNNmdMNNmNMMMm`\n
+             .+hmhdmmhhdmNNyyyyyyhNmhyhhyyydNmhhhhhhhhhhhdNmhhmNNhhdmmdNh.\n
+           `omdyyyyyyhhhhdhyyyyyyyydmmddmmmmhhyyyyyyhhhhhhhhhhhhhhhhhhhhmd-\n
+          :ddyyyyyyyyhhhhMhyyyyyyyyyyyhhhhyyyyyyyyyyyyhhhhhhhhhhhhhhhhhhhdN+\n
+   
+\n 
+\n ";
+}
+else {
+cout << "
+\n\n\t\t\t\t\tToo old!\n\n
+
+
+                    NmmmNN\n
+               Nmdhhhhhhhhyhm\n
+              dhhhdmmmmmmmdhhym\n
+             dhhdNy+/////+hNdhyd                           NmmddhhddmN\n
+            dhhhNy:::::::/ohNhhhddddddddhhhhhdddmmNNMMnnnmdhhhhdmmmmmddN\n
+            hhhd /:::/oydmmdhhhhhhhhhhhhhhhhhyyyyyyyyyhdmmmdmmhs+////yddN\n
+            dhhd +/ohmmdhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyhdNy/:::::::yhm\n
+            Nhhhdmmmdhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyhdy/::::+hhN\n
+             Nhhhdhhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyhmy//ohhm\n
+              NNdhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyydmhhhm\n
+              NdhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhNmN\n
+             mhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyh\n
+            mhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyd\n
+           NhhhhhhhhhhhhhhmmmmmmmmmmmmmmyyyyyyyyyyyyyyyyyyyyyyyyyyyyyN\n
+           dhhhhhhhhhhhhhdNsso+smmo::::hyyyyyyyyyyyyyyddmmmNNNNNNNmdhd\n
+          mhhhhhhhhhhhhhhdN:    `.    -dyyyyyyyyyyyyyh +/+osmMNyssohmh\n
+          dhhhhhhhhhhhhhhhmN+.      .+dyyyyyyyyyyyyyyy /    .+-    yhyN\n
+         NhhhhhhhhhhhhhhhhhdmdhsoooyhhyyyyyyyyyyyyyyyydN+`       .sdyym\n
+         dhhhhhhhhhhhhhhhhhhhhddmmhs++//////+ossooosssyhmds+:::+ydhyyym\n
+        mhhhhhhhhhhhhhhhhhhhhhdNh+/:::::::sdNN Nmh/://+yddhhhhhhyyyyyyd\n
+       NhhhhhhhhhhhhhhhhhhhhhdNs:::::::::/N       s::::/+hmyyyyyyyyyyyh\n
+      mhhhhhhhhhhhhhhhhhhhhhhd /::::::::::sm    Nh/::::::/Nhyyyyyyyyyyy\n
+     mhhhhhhhhhhhhhhhhhhhhhhhhmh+/:::::///+oyddy+/:::::::+Nyyyyyyyyyyyym\n
+   Nddddhhhhhhhhhhhhhhhhhhhhhhhdddhhhhddysyyhhhysss+///+smhyyyyyyyyyyyyy\n
+   NNNNdhhhhhhhhhhhhhhhhhhhhhhhhhhhdddddmmddhhhhdmdyydhhhyyyyyyyyyyyyyyyh\n
+     Ndhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhyyyhhddddhyyyyyyyyyyyyyyyhyyyyhmdhm\n
+     mhddmhhhddhhhdhhhhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyhyyyyNNhyyyN\n
+     NNNNmddmNmhdmmNdhddhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyNdyymNmNyym\n
+       NNmmdddNmNmhdNNmhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyymNdmmhhmmmNN\n
+     NdhhhhhhhdmdhhhddhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyhNmdhhhhhyyyhmN\n
+    mhhhhhhhhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhhyyyyyyyd\n
+   mhhhhhhhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyymdhhhhhyyyyyyyyhm\n
+  dhhhhhhhhhhhhhhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyymmhhhhhhhyyyyyyyyd\n
+ dhhhhhhhhhhhddhhhhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyN Nmdhhhhhhhyyyyyyd\n
+NddddddddddmmNmddddddddddhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhddddnnnnnNmmmmmmmdhhhhhN\n
+   
+\n 
+\n ";
+}
+}
+return 0;
+}

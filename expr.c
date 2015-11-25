@@ -18,7 +18,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "stack.h"
-#include "galloc.h"
 #include "expr.h"
 #include "lex.h"
 #include "enums.h"
@@ -31,7 +30,6 @@
 #include "time.h"
 
 #define RULE_COUNTER 13
-//#define TIMING
 
 const char prece_table[RULE_COUNTER][RULE_COUNTER] = {
 /* st\in   +   -   *   /   (   )   id  <   >   <=  >=  ==  != */
@@ -69,9 +67,9 @@ POZNAMKY
 	stack implementovany polem
 	Neprelivat zasobniky, pristup pres index
 OMEZENÍ
-	Maximálně 10 000 proměnných výrazu
+	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 25+
+	Aktuální volné error_pos_in_code 28+
 */
 
 void my_exit_error(const int error_type, const int error_pos_in_code)
@@ -99,7 +97,10 @@ char *create_t_name(const int *number)
 {
 	char *s;
 
-	s = gmalloc(sizeof(char)*6);
+	s = malloc(sizeof(char)*11);
+	if (s == NULL) {
+		my_exit_error(E_ALLOC, 25);
+	}
 	sprintf(s, "T%d", *number);
 
 	return s;
@@ -114,7 +115,10 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 	t_name = create_t_name(t_x_var_counter);
 	h_item = htab_lookup(G.g_exprTab, t_name);
 	if(h_item == NULL) {
-		var = gmalloc(sizeof(TVariable));
+		var = malloc(sizeof(TVariable));
+		if (var == NULL) {
+			my_exit_error(E_ALLOC, 26);
+		}
 		var->initialized = 1;
 		var->constant = 1;
 		var->name = t_name;
@@ -256,7 +260,10 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 			addr1->var_type = addr2->var_type;
 		}
 	}
-	ins = gmalloc(sizeof(TList_item));
+	ins = malloc(sizeof(TList_item));
+	if (ins == NULL) {
+		my_exit_error(E_ALLOC, 27);
+	}
 	ins->ins_type = ins_type;
 	ins->addr1 = addr1;
 	ins->addr2 = addr2;
@@ -883,9 +890,6 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	printf("\n");
 	unget_token(tok);
 	#endif
-	#ifdef TIMING
-	clock_t tic = clock();
-	#endif
 
 	switch (its_function()) {
 		case not_function:
@@ -900,10 +904,6 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	}
 	charlady();
 
-	#ifdef TIMING
-	clock_t toc = clock();
-    printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
-	#endif
 	#ifdef DEBUG_MODE
 	printf("expr: --END--\n");
 	#endif

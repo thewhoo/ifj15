@@ -480,12 +480,10 @@ void interpret_loop(Tins_list *ins_list)
                     var1->data.i = ret_int;
                 else
                     var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
-                var1->data.i = ret_int;
                 var1->initialized = 1;
                 break;
 
             case(INS_SORT):
-                //create copy of string, sort do not affect original string
                 var2 = get_var(ins->addr2);
                 if(!var2->initialized)
                     exit_error(E_UNINITIALIZED);

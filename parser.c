@@ -31,6 +31,7 @@
 #include "expr.h"
 
 #define RETURN_VAR_NAME "return"
+#define MAIN_FUNC_NAME "main"
 
 TToken* token;
 
@@ -104,13 +105,24 @@ TList_item *createInstruction(int type, void *addr1, void *addr2, void *addr3)
 
 void checkFunctionDefinitions()
 {
+    TFunction *found;
 
     for(unsigned int i = 0; i < G.g_globalTab->htab_size; i++)
     {
         for(htab_item *item = G.g_globalTab->list[i]; item != NULL; item = item->next)
         {
-            if(!item->data.function->defined)
+	    found = item->data.function;
+
+            // All functions must be defined at some point
+            if(!found->defined)
                 exit_error(E_SEMANTIC_DEF);
+
+            // Main must match the fixed type signature
+            if(!strcmp(found->name, MAIN_FUNC_NAME))
+            {
+                if(!(found->return_type == TYPE_INT && stack_empty(found->params_stack)))
+                    exit_error(E_SYNTAX);
+            }
         }
     }
 }
@@ -118,16 +130,12 @@ void checkFunctionDefinitions()
 
 void storeFunction(TFunction *f)
 {
-    // Check if the function has already been declared
+    // Check if the function has already been declared or defined
     htab_item *result = htab_lookup(G.g_globalTab, f->name);
     if(result)
     {
         // Retrieve found function
         TFunction *found = result->data.function;
-
-        // Make sure found function has not already been defined
-        if(found->defined)
-            exit_error(E_SEMANTIC_DEF);
 
         // Check if return type matches
         if(!(found->return_type == f->return_type))
@@ -146,6 +154,17 @@ void storeFunction(TFunction *f)
             if(providedVar->var_type != foundVar->var_type)
                 exit_error(E_SEMANTIC_DEF);
         }
+
+	if(found->defined)
+	{
+		// A redefinition is wrong!
+		if(f->defined)
+			exit_error(E_SEMANTIC_DEF);
+		// A redeclaration after definition is OK, but don't do anything
+		else
+			return;
+	}
+
         // Replace forward declaration with definition (and update the return var address)
         f->return_var = found->return_var;
         result->data.function = f;
@@ -367,21 +386,27 @@ bool FUNCTION_DECL()
         {
             token = get_token();
 
-            // Store the complete function "object" in the global table
-            storeFunction(currentFunc);
-            logger("stored function in G.globalTab");
-
             // Function has been declared but not defined
             if(token->type == TOKEN_SEMICOLON)
             {
                 currentFunc->defined = false;
-                token = get_token();
+
+		// Store the complete function "object" in the global table
+            	storeFunction(currentFunc);
+            	logger("stored function in G.globalTab");
+
+		token = get_token();
             }
             // Process function block if the function is defined
             else
             {
                 currentFunc->defined = true;
-                if(!NESTED_BLOCK(true))
+
+		// Store the complete function "object" in the global table
+            	storeFunction(currentFunc);
+            	logger("stored function in G.globalTab");
+
+		if(!NESTED_BLOCK(true))
                     return false;
             }
         }

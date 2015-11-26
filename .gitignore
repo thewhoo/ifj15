@@ -4,3 +4,5 @@ dokumentace.pdf
 lex
 *.cbp
 *.o
+*.tgz
+*.tar.gz

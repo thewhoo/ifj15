@@ -1,0 +1,6 @@
+int main()
+{
+    int a;
+    string s = substr("qwe", a, 44);
+    return 42;
+}

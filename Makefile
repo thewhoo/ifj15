@@ -28,7 +28,7 @@ dbg: $(DBG_OBJ_FILES)
 	$(CC) $(CFLAGS_DBG) -DDEBUG_MODE -c $< -o $@
 
 pack:
-	tar -czf xposto02.tgz $(SRC_FILES) $(HEADER_FILES) Makefile
+	tar -czf xposto02.tgz $(SRC_FILES) $(HEADER_FILES) rozdeleni Makefile
 
 clean:
 	$(RM) $(PROJECT) $(TEST) $(OBJ_FILES) $(DBG_OBJ_FILES)

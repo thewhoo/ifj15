@@ -7,10 +7,6 @@
 % Pavol Plaskon  - xplask00
 % Pavel Pospisil - xpospi88
 % Matej Postolka - xposto02
-%
-% Unless otherwise stated, all code is licensed under a
-% Creative Commons Attribution-ShareAlike 4.0 International License
-%
 
 \documentclass[a4paper, 12pt]{article}
 
@@ -35,7 +31,15 @@
 \fontsize{25}{20}\selectfont{\textsc{Vysoké učení technické v~Brně}}\\
 \vspace{\stretch{0.0075}}
 \fontsize{21}{0}\textsc{\selectfont{Fakulta informačních technologií}}\\
-\vspace{\stretch{0.382}}
+\vspace{\stretch{0.15}}
+%Logo
+\begin{figure}[ht]
+    \begin{center}
+        \scalebox{1}{\includegraphics{logo_bw.eps}}
+    \end{center}
+\end{figure}
+
+\vspace{\stretch{0.2}}
 \LARGE{Dokumentace IFJ15}\\
 \Large{Tým \textit{052}, varianta \textit{a/2/II}}
 \vspace{\stretch{0.618}}
@@ -43,11 +47,11 @@
 
 \begin{large}
 \begin{tabbing}
-    Členové: \= Postolka Matej \quad \= xposto02 \= \kill
-    Leader:  \> Postolka Matej \> xposto02\\
-    Členové: \> Osadský Lukáš  \> xosads00\\
-             \> Plaskoň Pavol  \> xplask00\\
-             \> Pospíšil Pavel \> xpospi88\\
+    Členové: \= Postolka Matej \quad \= xposto02 \quad \= 25\%\kill
+    Leader:  \> Postolka Matej \> xposto02 \> 25\% \\
+    Členové: \> Osadský Lukáš  \> xosads00 \> 25\% \\
+             \> Plaskoň Pavol  \> xplask00 \> 25\% \\
+             \> Pospíšil Pavel \> xpospi88 \> 25\% \\
 \end{tabbing}
 \end{large}
 
@@ -61,8 +65,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   uvod
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Úvodní strana}
+\section{Práce v týmu}
 
-\section{Tabulky}
+\section{Lexikální analyzátor} \label{lexer}
+
+\section{Syntaktický analyzátor} \label{parser}
+
+\section{Interpret} \label{interpret}
+
+\subsection{Řadíci algoritmus -- Heap Sort}
+\subsection{Vyhledávaní podřeťezce}
+\subsection{Tabulka symbolů}
 
 \end{document}

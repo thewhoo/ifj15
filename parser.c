@@ -322,14 +322,12 @@ void pushParam(TFunction *f, TVariable *p)
 
 void storeFuncName(TFunction *f)
 {
-    f->name = gmalloc(strlen(token->data) + 1);
-    strcpy(f->name, token->data);
+    f->name = token->data;
 }
 
 void storeVarName(TVariable *v)
 {
-    v->name = gmalloc(strlen(token->data) + 1);
-    strcpy(v->name, token->data);
+    v->name = token->data;
 }
 
 // ============== End of control functions ===============
@@ -743,20 +741,17 @@ bool HARD_VALUE(TVariable **v)
         {
         case TOKEN_INT_VALUE:
             var->var_type = TYPE_INT;
-            var->name = gmalloc(strlen(token->data) + 1);
-            strcpy(var->name, token->data);
+            var->name = token->data;
             var->data.i = strtod(token->data, NULL);
             break;
         case TOKEN_DOUBLE_VALUE:
             var->var_type = TYPE_DOUBLE;
-            var->name = gmalloc(strlen(token->data) + 1);
-            strcpy(var->name, token->data);
+            var->name = token->data;
             var->data.d = strtod(token->data, NULL);
             break;
         case TOKEN_STRING_VALUE:
             var->var_type = TYPE_STRING;
-            var->name = gmalloc(strlen(token->data) + 1);
-            strcpy(var->name, token->data);
+            var->name = token->data;
             var->data.str = var->name;
             break;
         }

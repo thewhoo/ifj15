@@ -121,7 +121,7 @@ void checkFunctionDefinitions()
             if(!strcmp(found->name, MAIN_FUNC_NAME))
             {
                 if(!(found->return_type == TYPE_INT && stack_empty(found->params_stack)))
-                    exit_error(E_SYNTAX);
+                    exit_error(E_SEMANTIC_DEF);
             }
         }
     }

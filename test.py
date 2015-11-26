@@ -55,7 +55,7 @@ def check_stdout(out, expected):
 def check_stderr(err):
     global to_print
     if 'IFJ15' not in err:
-        to_print = "UNexpected error output: {}\n".format(err)
+        to_print += "UNexpected error output: {}\n".format(err)
         return False
     return True
 
@@ -148,7 +148,6 @@ for source in [f for f in os.listdir(tests_dir)
     c_ret = check_ret_code(ret_code, exp_ret)
     c_out = check_stdout(out.decode('utf-8'), '')
     c_err = check_stderr(err.decode('utf-8'))
-
     if c_ret and c_out and c_err:
         fx_ok = fx_ok + 1
     else:

@@ -325,8 +325,9 @@ void interpret_loop(Tins_list *ins_list)
                             get_var(ins->addr2), get_var(ins->addr3));
                 break;
             case(INS_PUSH_TAB):
-                //printf("size: %d\n", ((TFunction*)ins->addr1)->var_count);
-                new_tab = htab_init(((TFunction*)ins->addr1)->var_count*2 + 1);
+                int1 = ((TFunction*)ins->addr1)->var_count;
+                int1 = int1 + (int1 >> 1) + 1;
+                new_tab = htab_init(int1);
                 stack_push(active_frame, new_tab);
                 break;
 

@@ -1,0 +1,14 @@
+int f1(int a, double b);
+
+int f1(int a, double c);
+
+int main()
+{
+    cout << "xyz\n";
+    return 42;
+}
+
+int f1(int a, double b)
+{
+    return 42;
+}

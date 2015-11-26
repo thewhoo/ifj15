@@ -1,0 +1,19 @@
+int func()
+{
+    return 42;
+}
+
+int main()
+{
+    string a = "42";
+    if(a == "42")
+    {
+        cout << 42 << "\n";
+    }
+    else
+    {
+        cout << "Never mind\n";
+    }
+
+    return 42;
+}

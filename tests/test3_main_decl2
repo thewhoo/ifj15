@@ -1,0 +1,4 @@
+double main(int a, string b)
+{
+    return 3.14;
+}

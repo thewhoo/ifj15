@@ -1,0 +1,14 @@
+string f1()
+{
+    return "42";
+}
+
+int main()
+{
+    string s;
+    s = f1();
+    cout << s << "\n";
+    return 42;
+}
+
+string f1();

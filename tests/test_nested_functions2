@@ -1,0 +1,6 @@
+int main()
+{
+    int f1(){ return 42; }
+
+    return 42;
+}

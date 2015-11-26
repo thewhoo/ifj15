@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include "galloc.h"
 #include "error.h"
-#define INITIAL_SIZE 30
+#define INITIAL_SIZE 1000
 #define AUTORESIZE_COEF 2
 
 typedef struct Vector
@@ -138,37 +138,37 @@ void gcDestroy()
 
 void *gmalloc(int size)
 {
-	assert(mem.initialized);
+//	assert(mem.initialized);
 
 	void *ptr;
 	ptr = malloc(size);
 	if (ptr == NULL)
 		exit_error(E_ALLOC);
 
-	insertIntoVector(&mem, ptr);
+//	insertIntoVector(&mem, ptr);
 	return ptr;
 }
 
 void *grealloc(void *ptr, int size)
 {
-	assert(mem.initialized);
+	//assert(mem.initialized);
 
 	void *newPtr;
 	newPtr = realloc(ptr, size);
 	if (newPtr == NULL)
 		exit_error(E_ALLOC);
 
-	if (newPtr != ptr)
+/*	if (newPtr != ptr)
 	{
 		searchAndRemove(&mem, ptr);
 		insertIntoVector(&mem, newPtr);
 	}
-
+*/
 	return newPtr;
 }
 
 void gfree(void *ptr)
 {
-	searchAndRemove(&mem, ptr);
+//	searchAndRemove(&mem, ptr);
 	free(ptr);
 }

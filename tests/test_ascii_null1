@@ -1,0 +1,5 @@
+int main()
+{
+	cout << "aaa \x00 fdgdgdf \n";
+	return 0;
+}

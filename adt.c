@@ -74,8 +74,7 @@ TFunction* token_to_function(TToken *token)
 {
     TFunction* func = gmalloc(sizeof(TFunction));
 
-    func->name = gmalloc(strlen(token->data) + 1);
-    strcpy(func->name, token->data);
+    func->name = token->data;
     func->defined = 0;
     func->ins_list = list_init();
     func->local_tab = htab_init(HTAB_SIZE);

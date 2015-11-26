@@ -428,8 +428,6 @@ TToken* get_token()
 			{
 				insertIntoString(&buffer, c);
 			}
-            else
-                state = S_ERROR;
 		   break;
 
 //****************************************************
@@ -473,10 +471,15 @@ TToken* get_token()
              
                 if (i == 2)
                 {
+                	if ((a[0] == '0') && (a[1] == '0'))
+						state=S_ERROR;
+					else
+					{
                     char hta = hex_to_ascii(a[0], a[1]);
                     insertIntoString(&buffer, hta);
                     state = S_QUOT;
                     i = 0;
+                	}
                 }
             }
 			else

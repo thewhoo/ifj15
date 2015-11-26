@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     if (fp == NULL)
         exit_error(E_INTERNAL);
 
-    gcInit();
+    //gcInit();
 
     lex_init(fp);
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
     interpret();
 
-    gcDestroy();
+    //gcDestroy();
 
     return 0;
 }

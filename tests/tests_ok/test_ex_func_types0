@@ -1,0 +1,24 @@
+int super_foo(int a, double b, string c)
+{
+	int d = b;
+	double e = a;
+	string s = c;
+	
+	return e;
+}
+
+int main()
+{
+	int f = 5.52;
+	double g = 4;
+	string h = "Ahoj";
+	
+	h = "Nazdar";
+	
+	g = super_foo(g, f, h); 
+	
+	cout << "OK\n";
+	
+	return 0;
+}
+

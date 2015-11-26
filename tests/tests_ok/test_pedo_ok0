@@ -1,0 +1,22 @@
+int main()
+{
+    int a;
+    a = 0;
+
+    if ((a<4) + (10/3))
+    {
+        cout << "Too young\n";
+    }
+
+    else 
+    {
+      if (a < 13)
+        {
+            cout <<"not ok" << "\n";
+        }
+        else {
+        cout << "ok" << "\n";
+        }
+    }
+    return 0;
+}

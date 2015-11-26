@@ -63,6 +63,6 @@ void exit_error(int err)
 
     }
 
-    gcDestroy();
+    //gcDestroy();
     exit(err);
 }

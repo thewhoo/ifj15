@@ -1,0 +1,6 @@
+int main()
+{
+	cout << "Ahoj\ns\tv\"ete\\\x22" << "\n";
+	return 0;	
+}
+

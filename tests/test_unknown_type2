@@ -1,0 +1,9 @@
+int main()
+{
+	itn b = 1;
+	
+	cout << b;
+	
+	return 0;	
+}
+

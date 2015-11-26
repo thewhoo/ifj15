@@ -1,0 +1,38 @@
+int main()
+{
+	double a;
+	double b;
+	double c;
+	double d;
+	double e;
+	double f;
+	double g;
+	double h;
+	string s = "Ahoj";
+	int n = 2 + 14;
+	int n2 = 2.14;
+	
+	a = 3.14;
+	b = 1.5E4;
+	c = 1.3e4;
+	d = 2.457E+3;
+	e = 5.2e+2;
+	f = 1.2E-4;
+	g = 0.1e-1;
+	h = 4;
+	
+	cout << a << "\n";
+	cout << b << "\n";
+	cout << c << "\n";
+	cout << d << "\n";
+	cout << e << "\n";
+	cout << f << "\n";
+	cout << g << "\n";
+	cout << s << "\n";
+	cout << n << "\n";
+	cout << n2 << "\n";
+	
+	
+	return 0;	
+}
+

@@ -224,18 +224,30 @@ void print_variable(const TVariable* var)
 	}
 }
 
-void print_dst_type(const int *t)
+void print_addr_type(const int *t, const int controler)
 {
+	switch (controler) {
+		case 1:
+			printf(" (Dst: ");
+			break;
+		case 2:
+			printf(" Src: ");
+			break;
+				
+	}	
 	switch (*t) {
 		case TYPE_INT:
-			printf(" (Dest is INTEGER)");
+			printf("INTEGER");
 			break;
 		case TYPE_DOUBLE:
-			printf(" (Dest is DOUBLE)");
+			printf("DOUBLE");
 			break;
 		case TYPE_STRING:
-			printf(" (Dest is STRING)");
+			printf("STRING");
 			break;
+	}
+	if (controler == 2) {
+		printf(")");
 	}
 }
 #endif
@@ -276,7 +288,10 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 	}
 	print_variable(addr2);
 	print_variable(addr3);
-	print_dst_type(&addr1->var_type);
+	print_addr_type(&addr1->var_type, 1);
+	if (addr2 != NULL) {
+		print_addr_type(&addr2->var_type, 2);
+	}
 	printf("\n");
 	#endif
 
@@ -458,7 +473,7 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			stack_pop(ins_stack);
 			t_var_type = type_after_operation(&tok->type, var_1, var_2);
 			new_t_var = next_t_var(&t_var_type, &t_var_counter);
-			actual_ins = create_ins(ope_2_ins_type(tok), new_t_var, var_2, var_1);
+			actual_ins = create_ins(ope_2_ins_type(tok), new_t_var, var_2, var_1);			
 			list_insert(act_ins_list, actual_ins);
 			stack_push(ins_stack, new_t_var);
 		}
@@ -565,7 +580,7 @@ TVariable *get_next_para(const int operand_type)
 	new_var = find_var(tok);
 	if (operation_table[operand_type][new_var->var_type] == ER) {
 			my_exit_error(E_SEMANTIC_TYPES, 5);
-    }
+	}
 	return new_var;
 }
 
@@ -575,10 +590,10 @@ void skip_token(int token_type)
 
 	tok = get_token();
 	if ((token_type != TOKEN_RROUND_BRACKET) && token_is(tok, TOKEN_RROUND_BRACKET)) {
-	    my_exit_error(E_SEMANTIC_TYPES, 20);
+		my_exit_error(E_SEMANTIC_TYPES, 20);
 	}
 	if (token_is(tok, TOKEN_COMMA) && (token_type != TOKEN_COMMA)) {
-	    my_exit_error(E_SEMANTIC_TYPES, 24);
+		my_exit_error(E_SEMANTIC_TYPES, 24);
 	}
 	if ((token_type == TOKEN_RROUND_BRACKET) && token_is_operand(tok)) {
 		my_exit_error(E_SEMANTIC_TYPES, 28);
@@ -677,10 +692,10 @@ int its_function()
 			item = htab_lookup(G.g_globalTab, tok->data);
 			if (item == NULL) {
 				if (!find_var(tok)) {
-                    my_exit_error(E_SEMANTIC_DEF, 9);
-                }
+					my_exit_error(E_SEMANTIC_DEF, 9);
+				}
 			} else {
-                answer = external_function;
+				answer = external_function;
 			}
 			break;
 		case TOKEN_LENGTH:
@@ -801,12 +816,24 @@ void check_expr_integrity(const TToken *tok, int *last_type)
 	*last_type = tok->type;
 }
 
+TToken *save_tok(TToken *tok)
+{
+	TToken *tok_push;
+	
+	tok_push = malloc(sizeof(TToken));
+	tok_push->type = tok->type;
+	tok_push->data = tok->data;
+	
+	return tok_push;
+}
+
 void infix_2_postfix()
 {
 	TToken *tok_in;
 	TToken *tok_stack;
+	
 	int bracket_counter;
-	int last_token_type = TOKEN_EOF;
+	int last_token_type = TOKEN_EOF;	
 
 	bracket_counter = 1;
 	tok_in = get_token();
@@ -816,12 +843,12 @@ void infix_2_postfix()
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
 			case TOKEN_STRING_VALUE:
-			case TOKEN_IDENTIFIER:
-				stack_push(gene_stack, tok_in);
+			case TOKEN_IDENTIFIER:				
+				stack_push(gene_stack, save_tok(tok_in));
 				break;
 			case TOKEN_LROUND_BRACKET:
-				bracket_counter++;
-				stack_push(expr_stack, tok_in);
+				bracket_counter++;				
+				stack_push(expr_stack, save_tok(tok_in));
 				break;
 			case TOKEN_RROUND_BRACKET:
 				bracket_counter--;
@@ -832,7 +859,8 @@ void infix_2_postfix()
 				tok_stack = stack_top(expr_stack);
 				stack_pop(expr_stack);
 				while (tok_stack->type != TOKEN_LROUND_BRACKET) {
-					stack_push(gene_stack, tok_stack);
+					
+					stack_push(gene_stack, save_tok(tok_stack));
 					tok_stack = stack_top(expr_stack);
 					stack_pop(expr_stack);
 				}
@@ -849,14 +877,14 @@ void infix_2_postfix()
 			case TOKEN_LESS_EQUAL:
 				tok_stack = stack_top(expr_stack);
 				if (stack_empty(expr_stack) || stack_lower_prio(tok_in, tok_stack)) {
-					stack_push(expr_stack, tok_in);
+					stack_push(expr_stack, save_tok(tok_in));
 				} else {
 					while (!stack_empty(expr_stack) && !stack_lower_prio(tok_in, tok_stack)) {
 						stack_push(gene_stack, tok_stack);
 						stack_pop(expr_stack);
 						tok_stack = stack_top(expr_stack);
 					}
-					stack_push(expr_stack, tok_in);
+					stack_push(expr_stack, save_tok(tok_in));
 				}
 				break;
 		}
@@ -889,7 +917,7 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	printf("\n");
 	unget_token(tok);
 	#endif
-
+	
 	switch (its_function()) {
 		case not_function:
 			infix_2_postfix();

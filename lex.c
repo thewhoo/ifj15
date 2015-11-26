@@ -56,20 +56,22 @@ typedef enum
 
 FILE *fp;
 TToken *token_buffer = NULL;
-
+TToken *token;
 
 void lex_init(FILE *f)
 {
     fp = f;
+    token = gmalloc(sizeof(TToken));
+    token_buffer = NULL;
 }
 
-void unget_token(TToken *token)
+void unget_token(TToken *tok)
 {
-    token_buffer = token;
+    token_buffer = tok;
 }
 
 
-void keyword_check(TToken* token) // compares identifier with keywords
+void keyword_check() // compares identifier with keywords
 {
 	int i;
 	char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
@@ -91,8 +93,6 @@ char hex_to_ascii(char first, char second) //  converts 'xdd' to ascii symbol
 
 TToken* get_token()
 {	
-	TToken* token;
-    
     if(token_buffer != NULL)
     {
         token = token_buffer;
@@ -100,7 +100,6 @@ TToken* get_token()
         return token;
     }
         
-    token = gmalloc(sizeof(TToken));
 	TString buffer; 
 	States state = S_START;
 	char a[2]; // array for hex number
@@ -298,7 +297,7 @@ TToken* get_token()
 				insertIntoString(&buffer, 0);
 				token->type = TOKEN_IDENTIFIER;
 	            token->data = buffer.data;
-				keyword_check(token);
+				keyword_check();
 				ungetc(c,fp);
 				return token;
 			}

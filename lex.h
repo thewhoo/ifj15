@@ -32,9 +32,7 @@ void lex_init(FILE *f);
   * @param token Pointer to token 
   */
 
-char hex_to_ascii(char first, char second);
-
-void unget_token(TToken *token);
+void unget_token(TToken *tok);
 
 TToken* get_token();
 

@@ -28,9 +28,6 @@ struct TGlobal
   // Global GlobalTab
   htab_t *g_globalTab;
   
-  // Global ExprTab
-  htab_t *g_exprTab;
-
   // Global FrameStack
   TStack *g_frameStack;
 };

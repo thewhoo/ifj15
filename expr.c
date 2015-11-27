@@ -12,7 +12,7 @@
  * Creative Commons Attribution-ShareAlike 4.0 International License
  *
  */
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -56,15 +56,17 @@ const char operation_table[4][4] = {
 };
 TStack *in_out_stack;
 TStack *postfix_output_stack;
+TStack *t_vars_stack;
 
 /*
 TODO
+	Tx proměnné do stacku, ne do tabulky
 ZEPTAT SE
 POZNAMKY
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 19 29+
+	Aktuální volné error_pos_in_code 19 21 29+
 */
 
 void my_exit_error(const int error_type, const int error_pos_in_code)
@@ -102,29 +104,21 @@ char *create_t_name(const int *number)
 
 TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 {
-	htab_item *h_item;
-	TVariable* var;
-	char *t_name;
-
-	t_name = create_t_name(t_x_var_counter);
-	h_item = htab_lookup(G.g_exprTab, t_name);
-	if(h_item == NULL) {
+	TVariable *var;
+	if (*t_x_var_counter >= t_vars_stack->used) {
 		var = malloc(sizeof(TVariable));
 		if (var == NULL) {
 			my_exit_error(E_ALLOC, 26);
 		}
 		var->initialized = 1;
 		var->constant = 1;
-		var->name = t_name;
 		var->var_type = *t_x_type;
-		h_item = htab_insert(G.g_exprTab, t_name);
-		h_item->data.variable = var;
-		h_item->data_type = TYPE_VARIABLE;
+		stack_push(t_vars_stack, var);
 		(*t_x_var_counter)++;
 
 		return var;
 	} else {
-		return h_item->data.variable;
+		return t_vars_stack->data[*t_x_var_counter];
 	}
 }
 
@@ -304,10 +298,6 @@ int t_compare(const TVariable *var, const int type)
 
 int type_after_operation(const int *operator_type, const TVariable *var_1, const TVariable *var_2)
 {
-	/* Auto type in expression */
-	if ((var_1->var_type == TYPE_AUTO) || (var_2->var_type == TYPE_AUTO)) {
-		my_exit_error(E_AUTO_TYPE, 21);
-	}
 	/* String XOR String */
 	if (t_compare(var_1, TYPE_STRING) ^ t_compare(var_2, TYPE_STRING)) {
 		my_exit_error(E_SEMANTIC_TYPES, 1);
@@ -328,7 +318,7 @@ int type_after_operation(const int *operator_type, const TVariable *var_1, const
 	return TYPE_INT;
 }
 
-int ope_2_ins_type(const TToken *tok)
+int operator_2_ins_type(const TToken *tok)
 {
 	switch (tok->type) {
 		case TOKEN_MUL:
@@ -465,7 +455,7 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			stack_pop(in_out_stack);
 			t_var_type = type_after_operation(&tok->type, var_1, var_2);
 			new_t_var = next_t_var(&t_var_type, &t_var_counter);
-			actual_ins = create_ins(ope_2_ins_type(tok), new_t_var, var_2, var_1);
+			actual_ins = create_ins(operator_2_ins_type(tok), new_t_var, var_2, var_1);
 			list_insert(act_ins_list, actual_ins);
 			stack_push(in_out_stack, new_t_var);
 		}
@@ -635,7 +625,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 	TVariable *var_3;
 
 	tok = get_token();
-	ins_type = ope_2_ins_type(tok);
+	ins_type = operator_2_ins_type(tok);
 	skip_token(TOKEN_LROUND_BRACKET);
 	switch (ins_type) {
 		case INS_LENGTH:
@@ -664,7 +654,7 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(INS_PUSH_PARAM, var_3, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(ins_type, ret_var, NULL, NULL); /* SUBSTR obsahuje parametry ASSIGN */
+			actual_ins = create_ins(ins_type, ret_var, NULL, NULL); /* SUBSTR with ASSIGN params */
 			list_insert(act_ins_list, actual_ins);
 	}
 	skip_token(TOKEN_RROUND_BRACKET);
@@ -884,7 +874,7 @@ void infix_2_postfix()
 	print_token(tok_in);
 	printf("\n");
 	printf("expr: Postfix  ");
-	stack_print(gene_stack);
+	stack_print(postfix_output_stack);
 	#endif
 	unget_token(tok_in);
 }
@@ -893,6 +883,7 @@ void expr_init()
 {
 	in_out_stack = stack_init();
 	postfix_output_stack = stack_init();
+	t_vars_stack = stack_init();
 }
 
 void expression(TVariable *ret_var, Tins_list *act_ins_list)

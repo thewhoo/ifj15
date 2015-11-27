@@ -1,0 +1,9 @@
+/*
+ER_SYNTAX
+Za operandem neni operator nebo prava zavorka
+*/
+int main()
+{
+	return 3 3;
+}
+

@@ -1,0 +1,14 @@
+/*
+E_LEX
+????
+*/
+int f(int a, int b)
+{
+	return 42;
+}
+int main()
+{
+	int a = f(42!12);
+	return 0;
+}
+

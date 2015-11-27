@@ -63,6 +63,7 @@ TODO
 	Test na low_prio ERR
 ZEPTAT SE
 POZNAMKY
+	Nesahejte mi na kod! :D
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE

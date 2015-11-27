@@ -121,6 +121,7 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 		var->var_type = *t_x_type;
 		h_item = htab_insert(G.g_exprTab, t_name);
 		h_item->data.variable = var;
+		h_item->data_type = TYPE_VARIABLE;
 		(*t_x_var_counter)++;
 
 		return var;

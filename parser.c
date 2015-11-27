@@ -174,6 +174,7 @@ void storeFunction(TFunction *f)
         // Function has not been declared before
         htab_item *newFunc = htab_insert(G.g_globalTab, f->name);
         newFunc->data.function = f;
+	newFunc->data_type = TYPE_FUNCTION;
     }
 
 }
@@ -236,6 +237,7 @@ void storeNewVariable(TFunction *f, TVariable *v)
 
     htab_item *newVar = htab_insert(f->local_tab, v->name);
     newVar->data.variable = v;
+    newVar->data_type = TYPE_VARIABLE;
 
 }
 
@@ -248,6 +250,7 @@ void storeNewConstant(TVariable *c)
 
         htab_item *newConst = htab_insert(G.g_constTabStr, c->name);
         newConst->data.variable = c;
+	newConst->data_type = TYPE_VARIABLE;
 
     }
     else
@@ -257,6 +260,7 @@ void storeNewConstant(TVariable *c)
 
         htab_item *newConst = htab_insert(G.g_constTabNum, c->name);
         newConst->data.variable = c;
+	newConst->data_type = TYPE_VARIABLE;
     }
 }
 
@@ -319,6 +323,7 @@ void pushParam(TFunction *f, TVariable *p)
     htab_item *param = htab_insert(f->local_tab, p->name);
     p->initialized = true;
     param->data.variable = p;
+    param->data_type = TYPE_VARIABLE;
 }
 
 void storeFuncName(TFunction *f)

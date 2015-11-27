@@ -12,7 +12,7 @@
  * Creative Commons Attribution-ShareAlike 4.0 International License
  *
  */
-
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -54,16 +54,13 @@ const char operation_table[4][4] = {
 /*  s   */ {ER, ER, EQ, ER},
 /*  a   */ {EQ, EQ, ER, EQ}
 };
-TStack *expr_stack;
-TStack *gene_stack;
-TStack *ins_stack;
+TStack *in_out_stack;
+TStack *postfix_output_stack;
 
 /*
 TODO
-	Test na low_prio ERR
 ZEPTAT SE
 POZNAMKY
-	Nesahejte mi na kod! :D
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
@@ -86,9 +83,8 @@ int token_is(const TToken *tok, const int token_type)
 
 void charlady()
 {
-	stack_clear(expr_stack);
-	stack_clear(gene_stack);
-	stack_clear(ins_stack);
+	stack_clear(in_out_stack);
+	stack_clear(postfix_output_stack);
 }
 
 char *create_t_name(const int *number)
@@ -236,8 +232,8 @@ void print_addr_type(const int *t, const int controler)
 		case 2:
 			printf(" Src: ");
 			break;
-				
-	}	
+
+	}
 	switch (*t) {
 		case TYPE_INT:
 			printf("INTEGER");
@@ -403,22 +399,16 @@ void postfix_count_test()
 {
 	int counter;
 	TToken *tok;
-	TStack *cache_stack;
 
 	counter = -1;
-	while (!stack_empty(gene_stack)) {
-		tok = stack_top(gene_stack);
+	for (int i = 0; i < postfix_output_stack->used; i++) {
+		tok = postfix_output_stack->data[i];
 		if (token_is_operand(tok)) {
 			counter++;
 		} else {
 			counter--;
 		}
-		stack_pop(gene_stack);
-		stack_push(expr_stack, tok);
 	}
-	cache_stack = gene_stack;
-	gene_stack = expr_stack;
-	expr_stack = cache_stack;
 	if (counter) {
 		my_exit_error(E_SYNTAX, 3);
 	}
@@ -463,25 +453,24 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 
 	t_var_counter = 0;
 	postfix_count_test();
-	while (!stack_empty(gene_stack)) {
-		tok = stack_top(gene_stack);
-		stack_pop(gene_stack);
+	for (int i = 0; i < postfix_output_stack->used; i++) {
+		tok = postfix_output_stack->data[i];
 		if (token_is_operand(tok)) {
 			var_to_push = find_var(tok);
-			stack_push(ins_stack, var_to_push);
+			stack_push(in_out_stack, var_to_push);
 		} else {
-			var_1 = stack_top(ins_stack);
-			stack_pop(ins_stack);
-			var_2 = stack_top(ins_stack);
-			stack_pop(ins_stack);
+			var_1 = stack_top(in_out_stack);
+			stack_pop(in_out_stack);
+			var_2 = stack_top(in_out_stack);
+			stack_pop(in_out_stack);
 			t_var_type = type_after_operation(&tok->type, var_1, var_2);
 			new_t_var = next_t_var(&t_var_type, &t_var_counter);
-			actual_ins = create_ins(ope_2_ins_type(tok), new_t_var, var_2, var_1);			
+			actual_ins = create_ins(ope_2_ins_type(tok), new_t_var, var_2, var_1);
 			list_insert(act_ins_list, actual_ins);
-			stack_push(ins_stack, new_t_var);
+			stack_push(in_out_stack, new_t_var);
 		}
 	}
-	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(ins_stack), NULL);
+	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(in_out_stack), NULL);
 	list_insert(act_ins_list, actual_ins);
 }
 
@@ -536,7 +525,6 @@ void stack_print(/*const */TStack *st)
 	TStack *cache_stack;
 
 	cache_stack = stack_init();
-	printf("expr: Postfix  ");
 	while (!stack_empty(st)) {
 		tok = stack_top(st);
 		print_token(tok);
@@ -765,11 +753,11 @@ int stack_lower_prio(const TToken *token_in, const TToken *token_stack)
 	return 0;
 }
 
-void transfer_rest_of_expr_stack()
+void transfer_rest_of_in_out_stack()
 {
-	while (!stack_empty(expr_stack)) {
-		stack_push(gene_stack, stack_top(expr_stack));
-		stack_pop(expr_stack);
+	while (!stack_empty(in_out_stack)) {
+		stack_push(postfix_output_stack, stack_top(in_out_stack));
+		stack_pop(in_out_stack);
 	}
 }
 
@@ -819,11 +807,11 @@ void check_expr_integrity(const TToken *tok, int *last_type)
 TToken *save_tok(TToken *tok)
 {
 	TToken *tok_push;
-	
+
 	tok_push = malloc(sizeof(TToken));
 	tok_push->type = tok->type;
 	tok_push->data = tok->data;
-	
+
 	return tok_push;
 }
 
@@ -831,9 +819,9 @@ void infix_2_postfix()
 {
 	TToken *tok_in;
 	TToken *tok_stack;
-	
+
 	int bracket_counter;
-	int last_token_type = TOKEN_EOF;	
+	int last_token_type = TOKEN_EOF;
 
 	bracket_counter = 1;
 	tok_in = get_token();
@@ -843,12 +831,12 @@ void infix_2_postfix()
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
 			case TOKEN_STRING_VALUE:
-			case TOKEN_IDENTIFIER:				
-				stack_push(gene_stack, save_tok(tok_in));
+			case TOKEN_IDENTIFIER:
+				stack_push(postfix_output_stack, save_tok(tok_in));
 				break;
 			case TOKEN_LROUND_BRACKET:
-				bracket_counter++;				
-				stack_push(expr_stack, save_tok(tok_in));
+				bracket_counter++;
+				stack_push(in_out_stack, save_tok(tok_in));
 				break;
 			case TOKEN_RROUND_BRACKET:
 				bracket_counter--;
@@ -856,13 +844,13 @@ void infix_2_postfix()
 					unget_token(tok_in);
 					break;
 				}
-				tok_stack = stack_top(expr_stack);
-				stack_pop(expr_stack);
+				tok_stack = stack_top(in_out_stack);
+				stack_pop(in_out_stack);
 				while (tok_stack->type != TOKEN_LROUND_BRACKET) {
-					
-					stack_push(gene_stack, save_tok(tok_stack));
-					tok_stack = stack_top(expr_stack);
-					stack_pop(expr_stack);
+
+					stack_push(postfix_output_stack, save_tok(tok_stack));
+					tok_stack = stack_top(in_out_stack);
+					stack_pop(in_out_stack);
 				}
 				break;
 			case TOKEN_MUL:
@@ -875,26 +863,27 @@ void infix_2_postfix()
 			case TOKEN_GREATER_EQUAL:
 			case TOKEN_LESS:
 			case TOKEN_LESS_EQUAL:
-				tok_stack = stack_top(expr_stack);
-				if (stack_empty(expr_stack) || stack_lower_prio(tok_in, tok_stack)) {
-					stack_push(expr_stack, save_tok(tok_in));
+				tok_stack = stack_top(in_out_stack);
+				if (stack_empty(in_out_stack) || stack_lower_prio(tok_in, tok_stack)) {
+					stack_push(in_out_stack, save_tok(tok_in));
 				} else {
-					while (!stack_empty(expr_stack) && !stack_lower_prio(tok_in, tok_stack)) {
-						stack_push(gene_stack, tok_stack);
-						stack_pop(expr_stack);
-						tok_stack = stack_top(expr_stack);
+					while (!stack_empty(in_out_stack) && !stack_lower_prio(tok_in, tok_stack)) {
+						stack_push(postfix_output_stack, tok_stack);
+						stack_pop(in_out_stack);
+						tok_stack = stack_top(in_out_stack);
 					}
-					stack_push(expr_stack, save_tok(tok_in));
+					stack_push(in_out_stack, save_tok(tok_in));
 				}
 				break;
 		}
 		tok_in = get_token();
 	}
-	transfer_rest_of_expr_stack();
+	transfer_rest_of_in_out_stack();
 	#ifdef DEBUG_MODE
 	printf("expr: Unget token ");
 	print_token(tok_in);
 	printf("\n");
+	printf("expr: Postfix  ");
 	stack_print(gene_stack);
 	#endif
 	unget_token(tok_in);
@@ -902,9 +891,8 @@ void infix_2_postfix()
 
 void expr_init()
 {
-	expr_stack = stack_init();
-	gene_stack = stack_init();
-	ins_stack = stack_init();
+	in_out_stack = stack_init();
+	postfix_output_stack = stack_init();
 }
 
 void expression(TVariable *ret_var, Tins_list *act_ins_list)
@@ -917,7 +905,7 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	printf("\n");
 	unget_token(tok);
 	#endif
-	
+
 	switch (its_function()) {
 		case not_function:
 			infix_2_postfix();
@@ -935,4 +923,3 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 	printf("expr: --END--\n");
 	#endif
 }
-

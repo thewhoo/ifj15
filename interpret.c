@@ -46,7 +46,7 @@ TVariable* get_var(TVariable *var)
     }
 
     fprintf(stderr,"Var not found, should not happen!\n");
-    exit_error(99);
+    exit_error(E_INTERNAL);
     return NULL;
 }
 
@@ -553,7 +553,7 @@ void interpret()
     //find main function in global symbol table
     htab_item *func_main = htab_lookup(G.g_globalTab, "main");
     if(func_main == NULL)
-        exit_error(3);
+        exit_error(E_SEMANTIC_DEF);
 
     //create symbol table for main, push to active frame
     int vars = func_main->data.function->var_count;

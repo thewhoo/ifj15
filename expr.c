@@ -177,8 +177,8 @@ void print_ins_type(const int *type)
 	case INS_LAB:
 		printf("INS_LAB");
 		break;
-	case INS_PUSH:
-		printf("INS_PUSH");
+	case INS_PUSH_PARAM:
+		printf("INS_PUSH_PARAM");
 		break;
 	case INS_CALL:
 		printf("INS_CALL");
@@ -625,7 +625,7 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 		if (i < f_sto_param_count-1) {
 			skip_token(TOKEN_COMMA);
 		}
-		actual_ins = create_ins(INS_PUSH, f_readed_var, NULL, NULL);
+		actual_ins = create_ins(INS_PUSH_PARAM, f_readed_var, NULL, NULL);
 		list_insert(act_ins_list, actual_ins);
 	}
 	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
@@ -668,11 +668,11 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 			var_2 = get_next_para(TYPE_INT);
 			skip_token(TOKEN_COMMA);
 			var_3 = get_next_para(TYPE_INT);
-			actual_ins = create_ins(INS_PUSH, var_1, NULL, NULL);
+			actual_ins = create_ins(INS_PUSH_PARAM, var_1, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(INS_PUSH, var_2, NULL, NULL);
+			actual_ins = create_ins(INS_PUSH_PARAM, var_2, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
-			actual_ins = create_ins(INS_PUSH, var_3, NULL, NULL);
+			actual_ins = create_ins(INS_PUSH_PARAM, var_3, NULL, NULL);
 			list_insert(act_ins_list, actual_ins);
 			actual_ins = create_ins(ins_type, ret_var, NULL, NULL); /* SUBSTR obsahuje parametry ASSIGN */
 			list_insert(act_ins_list, actual_ins);

@@ -38,7 +38,7 @@ enum instructions
     INS_JMP,        //11    dest
     INS_CJMP,       //12    TVar, label
     INS_LAB,        //13
-    INS_PUSH,       //14    src1
+    INS_PUSH_PARAM, //14    src1
     INS_CALL,       //15
     INS_RET,        //16    dest
     INS_PUSH_TAB,   //17    htab_t*

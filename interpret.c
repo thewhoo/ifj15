@@ -372,7 +372,7 @@ void interpret_loop(Tins_list *ins_list)
                 break;
             
             //push var as parameter for following function call
-            case(INS_PUSH):
+            case(INS_PUSH_PARAM):
                 var1 = get_var(ins->addr1);
                 if(!var1->initialized)
                     exit_error(E_UNINITIALIZED);

@@ -224,18 +224,13 @@ void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
 
 void map_params(htab_t *tab, TStack* decl_params)
 {
-    if(decl_params->used != fparams_stack->used)
-    {
-        fprintf(stderr, "Wrong number of parameters!\n");
-        exit_error(10);
-    } //delete later maybe
-
     htab_item *param;
     TVariable *dest, *src;
 
-    for(int i=0; i<decl_params->used; i++)
+    for(int i=0; i < decl_params->used; i++)
     {
         param = htab_insert(tab, ((TVariable*)decl_params->data[i])->name);
+        param->data_type = TYPE_VARIABLE;
         dest = gmalloc(sizeof(TVariable));
         dest->name = ((TVariable*)decl_params->data[i])->name;
         dest->constant = 0;
@@ -258,7 +253,10 @@ void map_params(htab_t *tab, TStack* decl_params)
                 dest->data.d = (double)src->data.i;
         }
         else
-            dest->data.str = src->data.str;
+        {
+            dest->data.str = gmalloc(strlen(src->data.str) + 1);
+            strcpy(dest->data.str, src->data.str);
+        }
     }
 
     stack_clear(fparams_stack);
@@ -314,7 +312,7 @@ void interpret_loop(Tins_list *ins_list)
                 math_ins('/', get_var(ins->addr1), get_var(ins->addr2),
                         get_var(ins->addr3));
                 break;
-
+            //compare instructions
             case(INS_EQ):
             case(INS_NEQ):
             case(INS_GREATER):
@@ -324,27 +322,40 @@ void interpret_loop(Tins_list *ins_list)
                 compare_ins(ins->ins_type, get_var(ins->addr1),
                             get_var(ins->addr2), get_var(ins->addr3));
                 break;
+            //push to active frame new tab for new nested block
             case(INS_PUSH_TAB):
-                new_tab = htab_init(HTAB_SIZE);
+                int1 = ((TFunction*)ins->addr1)->var_count;
+                int1 = int1 + (int1 >> 1) + 1;
+                new_tab = htab_init(int1);
                 stack_push(active_frame, new_tab);
                 break;
-
+            
+            //new var defined - check if isn't already in htable(defined vars
+            //in loops)
             case(INS_PUSH_VAR):
                 new_tab = stack_top(active_frame);
-                item = htab_lookup(new_tab, ((TVariable *)ins->addr1)->name);
+                var1 = ((TVariable*)ins->addr1);
+                item = htab_lookup(new_tab, var1->name);
                 if(item == NULL)
                 {
-                    item = htab_insert(new_tab, ((TVariable *)ins->addr1)->name);
-                    var1 = gmalloc(sizeof(TVariable));
-                    item->data.variable = var1;
-                    memcpy(var1, ins->addr1, sizeof(TVariable));
+                    item = htab_insert(new_tab, var1->name);
+                    item->data_type = TYPE_VARIABLE;
+                    var2 = gmalloc(sizeof(TVariable));
+                    item->data.variable = var2;
+                    memcpy(var2, ins->addr1, sizeof(TVariable));
+                    
+                }
+                else if(item->data.variable->var_type == TYPE_STRING)
+                {
+                    gfree(item->data.variable->data.str);
                 }
                 item->data.variable->initialized = 0;
                 break;
-
+            
+            //leaving nested block, clean up
             case(INS_POP_TAB):
                 htab_free((htab_t*)stack_top(active_frame));
-                stack_pop(active_frame);  //cleaning?
+                stack_pop(active_frame);
                 break;
 
             case(INS_JMP):
@@ -359,14 +370,17 @@ void interpret_loop(Tins_list *ins_list)
 
             case(INS_LAB):
                 break;
-
+            
+            //push var as parameter for following function call
             case(INS_PUSH):
                 var1 = get_var(ins->addr1);
                 if(!var1->initialized)
                     exit_error(E_UNINITIALIZED);
                 stack_push(fparams_stack, var1);
                 break;
-
+            
+            //call function - create new frame, map parameters to function
+            //local vars
             case(INS_CALL):
                 stack_push(gStack, active_frame);
                 stack_push(gStack, ins);
@@ -383,6 +397,9 @@ void interpret_loop(Tins_list *ins_list)
                 //map pushed f arguments to f parameters
                 continue; //after break, continue with new isntr, we want to
                           //begin with first one
+
+            //return from function - clean function frame, when leaving main
+            //func, return 0!
             case(INS_RET):
                 if(stack_empty(gStack))  //end of main func
                 {
@@ -395,7 +412,6 @@ void interpret_loop(Tins_list *ins_list)
                 stack_pop(gStack);
                 active_frame = (TStack*) stack_top(gStack);
                 stack_pop(gStack);
-                //returned value assigned by INS_ASSIGN from "return" var?
                 break;
 
             case(INS_ASSIGN):
@@ -418,8 +434,13 @@ void interpret_loop(Tins_list *ins_list)
                         var1->data.d = (double)var2->data.i;
                 }
                 else
-                    var1->data.str = var2->data.str;
+                {
+                    if(var1->initialized)
+                        gfree(var1->data.str);
 
+                    var1->data.str = gmalloc(strlen(var2->data.str) + 1);
+                    strcpy(var1->data.str, var2->data.str);
+                }
                 var1->initialized = 1;
                 break;
 
@@ -454,6 +475,9 @@ void interpret_loop(Tins_list *ins_list)
                     int2 = (int)var3->data.d;
                 ret_str = substr(var1->data.str, int1, int2);
                 var3 = get_var(ins->addr1);
+                //free old string in var
+                if(var3->initialized)
+                    gfree(var3->data.str);
                 var3->data.str = ret_str;
                 var3->initialized = 1;
                 break;
@@ -465,6 +489,9 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 ret_str = concat(var2, var3);
                 var1 = get_var(ins->addr1);
+                //free old string in var
+                if(var1->initialized)
+                    gfree(var1->data.str);
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
@@ -489,6 +516,9 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 ret_str = sort(var2);
                 var1 = get_var(ins->addr1);
+                //free old string in var
+                if(var1->initialized)
+                    gfree(var1->data.str);
                 var1->data.str = ret_str;
                 var1->initialized = 1;
                 break;
@@ -516,7 +546,6 @@ void interpret_loop(Tins_list *ins_list)
 
 void interpret()
 {
-
     //init global stack for interpret
     gStack = stack_init();
     fparams_stack = stack_init();
@@ -526,8 +555,10 @@ void interpret()
     if(func_main == NULL)
         exit_error(3);
 
-    //copy of main symbol table
-    htab_t *main_tab = htab_init(HTAB_SIZE);
+    //create symbol table for main, push to active frame
+    int vars = func_main->data.function->var_count;
+    vars = vars + (vars >> 1) + 1;
+    htab_t *main_tab = htab_init(vars);
     TStack *func_main_frame = stack_init();
     stack_push(func_main_frame, main_tab);
     active_frame = func_main_frame;

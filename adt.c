@@ -65,6 +65,7 @@ TVariable* token_to_const(TToken *token)
         tmp = htab_insert(G.g_constTabNum, var->name);
     }
     
+    tmp->data_type = TYPE_VARIABLE; 
     tmp->data.variable = var;
 
     return var;

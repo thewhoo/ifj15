@@ -47,10 +47,17 @@ char * sort(TVariable *var);
 /* -----------------Hash tab ------------------- */
 
 #define HTAB_SIZE 97 //planetmath.org/goodhashtableprimes
-  
+
+enum data_types
+{
+    TYPE_VARIABLE,
+    TYPE_FUNCTION,
+};
+
 typedef struct htab_listitem 
 {
     const char *key;
+    int data_type;
     union
     {
         struct s_variable *variable;

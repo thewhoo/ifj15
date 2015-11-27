@@ -1,0 +1,11 @@
+int f(string a)
+{
+    return 4;
+}
+
+int main()
+{
+    int i;
+    i = f(4.55);
+    return 43;
+}

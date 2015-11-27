@@ -1,0 +1,22 @@
+int main()
+{
+    string s = "qwerty";
+    int f;
+
+    f = find(s, "");
+    cout << f << "\n";
+
+    f = find(s, "er");
+    cout << f << "\n";
+    
+    f = find(s, "xx");
+    cout << f << "\n";
+
+    f = find("", "x");
+    cout << f << "\n";
+    
+    f = find("", "");
+    cout << f << "\n";
+
+    return 42;
+}

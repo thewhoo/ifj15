@@ -53,6 +53,7 @@ typedef struct s_function
     char *name;
     int return_type;
     int defined;
+    int var_count;
     Tins_list *ins_list;
     struct hash_tab *local_tab;
     TStack *params_stack;

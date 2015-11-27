@@ -403,7 +403,7 @@ void interpret_loop(Tins_list *ins_list)
             case(INS_RET):
                 if(stack_empty(gStack))  //end of main func
                 {
-                    gcDestroy();
+                    //gcDestroy();
                     exit(0);            //maybe some cleaning?
                 }
 

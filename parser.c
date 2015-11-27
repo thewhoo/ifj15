@@ -111,7 +111,7 @@ void checkFunctionDefinitions()
     {
         for(htab_item *item = G.g_globalTab->list[i]; item != NULL; item = item->next)
         {
-	    found = item->data.function;
+            found = item->data.function;
 
             // All functions must be defined at some point
             if(!found->defined)
@@ -155,15 +155,15 @@ void storeFunction(TFunction *f)
                 exit_error(E_SEMANTIC_DEF);
         }
 
-	if(found->defined)
-	{
-		// A redefinition is wrong!
-		if(f->defined)
-			exit_error(E_SEMANTIC_DEF);
-		// A redeclaration after definition is OK, but don't do anything
-		else
-			return;
-	}
+        if(found->defined)
+        {
+            // A redefinition is wrong!
+            if(f->defined)
+                exit_error(E_SEMANTIC_DEF);
+            // A redeclaration after definition is OK, but don't do anything
+            else
+                return;
+        }
 
         // Replace forward declaration with definition (and update the return var address)
         f->return_var = found->return_var;
@@ -174,7 +174,7 @@ void storeFunction(TFunction *f)
         // Function has not been declared before
         htab_item *newFunc = htab_insert(G.g_globalTab, f->name);
         newFunc->data.function = f;
-	newFunc->data_type = TYPE_FUNCTION;
+        newFunc->data_type = TYPE_FUNCTION;
     }
 
 }
@@ -250,7 +250,7 @@ void storeNewConstant(TVariable *c)
 
         htab_item *newConst = htab_insert(G.g_constTabStr, c->name);
         newConst->data.variable = c;
-	newConst->data_type = TYPE_VARIABLE;
+        newConst->data_type = TYPE_VARIABLE;
 
     }
     else
@@ -260,7 +260,7 @@ void storeNewConstant(TVariable *c)
 
         htab_item *newConst = htab_insert(G.g_constTabNum, c->name);
         newConst->data.variable = c;
-	newConst->data_type = TYPE_VARIABLE;
+        newConst->data_type = TYPE_VARIABLE;
     }
 }
 
@@ -395,22 +395,22 @@ bool FUNCTION_DECL()
             {
                 currentFunc->defined = false;
 
-		// Store the complete function "object" in the global table
-            	storeFunction(currentFunc);
-            	logger("stored function in G.globalTab");
+                // Store the complete function "object" in the global table
+                storeFunction(currentFunc);
+                logger("stored function in G.globalTab");
 
-		token = get_token();
+                token = get_token();
             }
             // Process function block if the function is defined
             else
             {
                 currentFunc->defined = true;
 
-		// Store the complete function "object" in the global table
-            	storeFunction(currentFunc);
-            	logger("stored function in G.globalTab");
+                // Store the complete function "object" in the global table
+                storeFunction(currentFunc);
+                logger("stored function in G.globalTab");
 
-		if(!NESTED_BLOCK(true))
+                if(!NESTED_BLOCK(true))
                     return false;
 
                 // printf("parser: total variables in function %s: %d\n",currentFunc->name, currentFunc->var_count);

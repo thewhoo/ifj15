@@ -167,6 +167,7 @@ htab_t* htab_copy(htab_t* old_tab)
         {
             // insert new empty item in hash tab
             new_item = htab_insert(new_tab, old_item->key);
+            new_item->data_type = old_item->data_type;
             // copy variable 
             var_copy = gmalloc(sizeof(TVariable));
             memcpy(var_copy, old_item->data.variable, sizeof(TVariable));   
@@ -283,9 +284,14 @@ void htab_clear(htab_t *tab)
         {
             tmp = tab->list[i];
             tab->list[i] = tab->list[i]->next;
-            free((void*)tmp->data.variable);
-            //gfree((char*)tmp->key);
-            gfree(tmp);
+            if(tmp->data_type == TYPE_VARIABLE)
+            {
+                if(tmp->data.variable->var_type == TYPE_STRING)
+                    gfree(tmp->data.variable->data.str);
+                gfree((void*)tmp->data.variable);
+            }
+            //gfree((void*)tmp->key);
+            gfree((void*)tmp);
         }       
 }
 

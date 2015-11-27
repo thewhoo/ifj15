@@ -111,7 +111,7 @@ void checkFunctionDefinitions()
     {
         for(htab_item *item = G.g_globalTab->list[i]; item != NULL; item = item->next)
         {
-	    found = item->data.function;
+            found = item->data.function;
 
             // All functions must be defined at some point
             if(!found->defined)
@@ -155,15 +155,15 @@ void storeFunction(TFunction *f)
                 exit_error(E_SEMANTIC_DEF);
         }
 
-	if(found->defined)
-	{
-		// A redefinition is wrong!
-		if(f->defined)
-			exit_error(E_SEMANTIC_DEF);
-		// A redeclaration after definition is OK, but don't do anything
-		else
-			return;
-	}
+        if(found->defined)
+        {
+            // A redefinition is wrong!
+            if(f->defined)
+                exit_error(E_SEMANTIC_DEF);
+            // A redeclaration after definition is OK, but don't do anything
+            else
+                return;
+        }
 
         // Replace forward declaration with definition (and update the return var address)
         f->return_var = found->return_var;
@@ -174,6 +174,7 @@ void storeFunction(TFunction *f)
         // Function has not been declared before
         htab_item *newFunc = htab_insert(G.g_globalTab, f->name);
         newFunc->data.function = f;
+        newFunc->data_type = TYPE_FUNCTION;
     }
 
 }
@@ -200,7 +201,7 @@ TList_item *createPseudoFrame(int type)
     // Create the instruction
     if(type == T_BLOCK)
     {
-        TList_item *ins = createInstruction(INS_PUSH_TAB, f->local_tab, NULL, NULL);
+        TList_item *ins = createInstruction(INS_PUSH_TAB, f, NULL, NULL);
         list_insert(f->ins_list, ins);
         return ins;
     }
@@ -210,7 +211,7 @@ TList_item *createPseudoFrame(int type)
         TList_item *ins1 = createInstruction(INS_CJMP, NULL, NULL, NULL);
         list_insert(f->ins_list, ins1);
         // We still need to push local table
-        TList_item *ins2 = createInstruction(INS_PUSH_TAB, f->local_tab, NULL, NULL);
+        TList_item *ins2 = createInstruction(INS_PUSH_TAB, f, NULL, NULL);
         list_insert(f->ins_list, ins2);
         return ins1;
     }
@@ -236,6 +237,7 @@ void storeNewVariable(TFunction *f, TVariable *v)
 
     htab_item *newVar = htab_insert(f->local_tab, v->name);
     newVar->data.variable = v;
+    newVar->data_type = TYPE_VARIABLE;
 
 }
 
@@ -248,6 +250,7 @@ void storeNewConstant(TVariable *c)
 
         htab_item *newConst = htab_insert(G.g_constTabStr, c->name);
         newConst->data.variable = c;
+        newConst->data_type = TYPE_VARIABLE;
 
     }
     else
@@ -257,6 +260,7 @@ void storeNewConstant(TVariable *c)
 
         htab_item *newConst = htab_insert(G.g_constTabNum, c->name);
         newConst->data.variable = c;
+        newConst->data_type = TYPE_VARIABLE;
     }
 }
 
@@ -297,6 +301,7 @@ TFunction *getNewFunction()
     f->return_var = getNewVariable();
     f->return_var->name = RETURN_VAR_NAME;
     f->return_var->constant = true;
+    f->var_count = 0;
 
     return f;
 }
@@ -318,6 +323,7 @@ void pushParam(TFunction *f, TVariable *p)
     htab_item *param = htab_insert(f->local_tab, p->name);
     p->initialized = true;
     param->data.variable = p;
+    param->data_type = TYPE_VARIABLE;
 }
 
 void storeFuncName(TFunction *f)
@@ -389,23 +395,25 @@ bool FUNCTION_DECL()
             {
                 currentFunc->defined = false;
 
-		// Store the complete function "object" in the global table
-            	storeFunction(currentFunc);
-            	logger("stored function in G.globalTab");
+                // Store the complete function "object" in the global table
+                storeFunction(currentFunc);
+                logger("stored function in G.globalTab");
 
-		token = get_token();
+                token = get_token();
             }
             // Process function block if the function is defined
             else
             {
                 currentFunc->defined = true;
 
-		// Store the complete function "object" in the global table
-            	storeFunction(currentFunc);
-            	logger("stored function in G.globalTab");
+                // Store the complete function "object" in the global table
+                storeFunction(currentFunc);
+                logger("stored function in G.globalTab");
 
-		if(!NESTED_BLOCK(true))
+                if(!NESTED_BLOCK(true))
                     return false;
+
+                // printf("parser: total variables in function %s: %d\n",currentFunc->name, currentFunc->var_count);
             }
         }
     }
@@ -591,6 +599,8 @@ bool DECL_OR_ASSIGN()
     pushVar(var);
     // The variable belongs to the function or block on top of the frame stack
     TFunction *func = stack_top(G.g_frameStack);
+    // Increment function var count
+    (func->var_count)++;
 
     // Received identifier, expecting declaration or declaration with assignment
     if (token->type == TOKEN_INT || token->type == TOKEN_DOUBLE || token->type == TOKEN_STRING)

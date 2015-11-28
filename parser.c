@@ -194,6 +194,7 @@ TList_item *createPseudoFrame(int type)
     f->local_tab = htab_init(HTAB_SIZE);
     f->params_stack = NULL;
     f->return_var = NULL;
+    f->var_count = 0;
 
     // Push this on the frameStack
     stack_push(G.g_frameStack, f);
@@ -313,6 +314,7 @@ TVariable *getNewVariable()
     v->var_type = 0;
     v->name = NULL;
     v->initialized = 0;
+    v->constant = false;
 
     return v;
 }

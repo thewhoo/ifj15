@@ -45,7 +45,9 @@ int main(int argc, char **argv)
     parse();
 
     fclose(fp);
-
+	
+	expr_destroy();
+	
     interpret();
 
     //gcDestroy();

@@ -55,6 +55,7 @@ enum {
 };
 
 void expr_init();
+void expr_destroy();
 
 /**
   * @brief Zpracovani vyrazu

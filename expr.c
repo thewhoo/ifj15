@@ -89,19 +89,6 @@ void charlady()
 	stack_clear(postfix_output_stack);
 }
 
-char *create_t_name(const int *number)
-{
-	char *s;
-
-	s = malloc(sizeof(char)*11);
-	if (s == NULL) {
-		my_exit_error(E_ALLOC, 25);
-	}
-	sprintf(s, "T%d", *number);
-
-	return s;
-}
-
 TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 {
 	TVariable *var;
@@ -448,7 +435,7 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 		if (token_is_operand(tok)) {
 			var_to_push = find_var(tok);
 			stack_push(in_out_stack, var_to_push);
-		} else {
+		} else {			
 			var_1 = stack_top(in_out_stack);
 			stack_pop(in_out_stack);
 			var_2 = stack_top(in_out_stack);
@@ -458,6 +445,8 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 			actual_ins = create_ins(operator_2_ins_type(tok), new_t_var, var_2, var_1);
 			list_insert(act_ins_list, actual_ins);
 			stack_push(in_out_stack, new_t_var);
+			free(tok->data);  // uvolneni tokenu s operatorem
+			free(tok);  // uvolneni tokenu s operatorem
 		}
 	}
 	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(in_out_stack), NULL);

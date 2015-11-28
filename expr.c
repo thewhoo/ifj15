@@ -57,6 +57,7 @@ const char operation_table[4][4] = {
 TStack *in_out_stack;
 TStack *postfix_output_stack;
 TStack *t_vars_stack;
+TToken *token;
 
 /*
 TODO
@@ -81,12 +82,6 @@ void my_exit_error(const int error_type, const int error_pos_in_code)
 int token_is(const TToken *tok, const int token_type)
 {
 	return tok->type == token_type;
-}
-
-void charlady()
-{
-	stack_clear(in_out_stack);
-	stack_clear(postfix_output_stack);
 }
 
 TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
@@ -391,7 +386,7 @@ void postfix_count_test()
 	}
 }
 
-TVariable *find_var(/*const */TToken *tok)
+TVariable *find_var(/*const */TToken *tok, const int clean_data_if_found)
 {
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
@@ -399,6 +394,9 @@ TVariable *find_var(/*const */TToken *tok)
 				TFunction *f = G.g_frameStack->data[i];
 				htab_item *found = htab_lookup(f->local_tab, tok->data);
 				if(found) {
+					if (clean_data_if_found == 1) {
+						free(tok->data);
+					}
 					return found->data.variable;
 				}
 			}
@@ -433,9 +431,11 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 	for (int i = 0; i < postfix_output_stack->used; i++) {
 		tok = postfix_output_stack->data[i];
 		if (token_is_operand(tok)) {
-			var_to_push = find_var(tok);
+			var_to_push = find_var(tok, 1);
+			//free(tok->data);
+			free(tok);
 			stack_push(in_out_stack, var_to_push);
-		} else {			
+		} else {
 			var_1 = stack_top(in_out_stack);
 			stack_pop(in_out_stack);
 			var_2 = stack_top(in_out_stack);
@@ -450,7 +450,9 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 		}
 	}
 	actual_ins = create_ins(INS_ASSIGN, ret_var, stack_top(in_out_stack), NULL);
+	stack_pop(in_out_stack);
 	list_insert(act_ins_list, actual_ins);
+	stack_clear(postfix_output_stack);  //zasobnik obsahuje prvky NULL
 }
 
 #ifdef DEBUG_MODE
@@ -506,18 +508,17 @@ void stack_print(/*const */TStack *st)
 	cache_stack = stack_init();
 	while (!stack_empty(st)) {
 		tok = stack_top(st);
-		print_token(tok);
+		print_token(token);
 		printf("  ");
-		stack_push(cache_stack, tok);
+		stack_push(cache_stack, token);
 		stack_pop(st);
 	}
 	while (!stack_empty(cache_stack)) {
 		tok = stack_top(cache_stack);
-		stack_push(st, tok);
+		stack_push(st, token);
 		stack_pop(cache_stack);
 	}
 	stack_free(cache_stack);
-	printf("\n");
 }
 #endif
 
@@ -537,17 +538,16 @@ int token_type_2_var_type(const int *n)
 TVariable *get_next_para(const int operand_type)
 {
 	TVariable *new_var;
-	TToken *tok;
 
-	tok = get_token();
-	if (!token_is_operand(tok)) {
-		if (token_is(tok, TOKEN_RROUND_BRACKET)) {
+	token = get_token();
+	if (!token_is_operand(token)) {
+		if (token_is(token, TOKEN_RROUND_BRACKET)) {
 			my_exit_error(E_SEMANTIC_TYPES, 12);
 		} else {
 			my_exit_error(E_SYNTAX, 8);
 		}
 	}
-	new_var = find_var(tok);
+	new_var = find_var(token, 1);
 	if (operation_table[operand_type][new_var->var_type] == ER) {
 			my_exit_error(E_SEMANTIC_TYPES, 5);
 	}
@@ -556,26 +556,23 @@ TVariable *get_next_para(const int operand_type)
 
 void skip_token(int token_type)
 {
-	TToken *tok;
-
-	tok = get_token();
-	if ((token_type != TOKEN_RROUND_BRACKET) && token_is(tok, TOKEN_RROUND_BRACKET)) {
+	token = get_token();
+	if ((token_type != TOKEN_RROUND_BRACKET) && token_is(token, TOKEN_RROUND_BRACKET)) {
 		my_exit_error(E_SEMANTIC_TYPES, 20);
 	}
-	if (token_is(tok, TOKEN_COMMA) && (token_type != TOKEN_COMMA)) {
+	if (token_is(token, TOKEN_COMMA) && (token_type != TOKEN_COMMA)) {
 		my_exit_error(E_SEMANTIC_TYPES, 24);
 	}
-	if ((token_type == TOKEN_RROUND_BRACKET) && token_is_operand(tok)) {
+	if ((token_type == TOKEN_RROUND_BRACKET) && token_is_operand(token)) {
 		my_exit_error(E_SEMANTIC_TYPES, 28);
 	}
-	if (tok->type != token_type) {
+	if (token->type != token_type) {
 		my_exit_error(E_SYNTAX, 7);
 	}
 }
 
 void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 {
-	TToken *tok;
 	TList_item *actual_ins;
 	htab_item *h_item;
 	TFunction *f_stored;
@@ -583,8 +580,8 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 	TVariable *f_stored_var;
 	TVariable *f_readed_var;
 
-	tok = get_token();
-	h_item = htab_lookup(G.g_globalTab, tok->data);
+	token = get_token();
+	h_item = htab_lookup(G.g_globalTab, token->data);
 	f_stored = h_item->data.function;
 	skip_token(TOKEN_LROUND_BRACKET);
 	f_sto_param_count = f_stored->params_stack->used;
@@ -606,15 +603,14 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 
 void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 {
-	TToken *tok;
 	TList_item *actual_ins;
 	int ins_type;
 	TVariable *var_1;
 	TVariable *var_2;
 	TVariable *var_3;
 
-	tok = get_token();
-	ins_type = operator_2_ins_type(tok);
+	token = get_token();
+	ins_type = operator_2_ins_type(token);
 	skip_token(TOKEN_LROUND_BRACKET);
 	switch (ins_type) {
 		case INS_LENGTH:
@@ -652,16 +648,15 @@ void generate_internal_function(TVariable *ret_var, Tins_list *act_ins_list)
 int its_function()
 {
 	int answer;
-	TToken *tok;
 	htab_item *item;
 
 	answer = not_function;
-	tok = get_token();
-	switch (tok->type) {
+	token = get_token();
+	switch (token->type) {
 		case TOKEN_IDENTIFIER:
-			item = htab_lookup(G.g_globalTab, tok->data);
+			item = htab_lookup(G.g_globalTab, token->data);
 			if (item == NULL) {
-				if (!find_var(tok)) {
+				if (!find_var(token, 0)) {
 					my_exit_error(E_SEMANTIC_DEF, 9);
 				}
 			} else {
@@ -675,7 +670,7 @@ int its_function()
 		case TOKEN_SORT:
 			answer = internal_function;
 	}
-	unget_token(tok);
+	unget_token(token);
 
 	return answer;
 }
@@ -783,52 +778,51 @@ void check_expr_integrity(const TToken *tok, int *last_type)
 	*last_type = tok->type;
 }
 
-TToken *save_tok(TToken *tok)
+TToken *save_tok()
 {
 	TToken *tok_push;
 
 	tok_push = malloc(sizeof(TToken));
-	tok_push->type = tok->type;
-	tok_push->data = tok->data;
+	tok_push->type = token->type;
+	tok_push->data = token->data;
 
 	return tok_push;
 }
 
 void infix_2_postfix()
 {
-	TToken *tok_in;
-	TToken *tok_stack;
+	TToken *token_stack;
 
 	int bracket_counter;
 	int last_token_type = TOKEN_EOF;
 
 	bracket_counter = 1;
-	tok_in = get_token();
-	while ((tok_in->type != TOKEN_SEMICOLON) && (bracket_counter)) {
-		check_expr_integrity(tok_in, &last_token_type);
-		switch (tok_in->type) {
+	token = get_token();
+	while ((token->type != TOKEN_SEMICOLON) && (bracket_counter)) {
+		check_expr_integrity(token, &last_token_type);
+		switch (token->type) {
 			case TOKEN_INT_VALUE:
 			case TOKEN_DOUBLE_VALUE:
 			case TOKEN_STRING_VALUE:
 			case TOKEN_IDENTIFIER:
-				stack_push(postfix_output_stack, save_tok(tok_in));
+				stack_push(postfix_output_stack, save_tok());
 				break;
 			case TOKEN_LROUND_BRACKET:
 				bracket_counter++;
-				stack_push(in_out_stack, save_tok(tok_in));
+				stack_push(in_out_stack, save_tok());
 				break;
 			case TOKEN_RROUND_BRACKET:
 				bracket_counter--;
 				if (!bracket_counter) {
-					unget_token(tok_in);
+					unget_token(token);
 					break;
 				}
-				tok_stack = stack_top(in_out_stack);
+				token_stack = stack_top(in_out_stack);
 				stack_pop(in_out_stack);
-				while (tok_stack->type != TOKEN_LROUND_BRACKET) {
-
-					stack_push(postfix_output_stack, save_tok(tok_stack));
-					tok_stack = stack_top(in_out_stack);
+				while (!token_is(token_stack, TOKEN_LROUND_BRACKET))
+				{
+					stack_push(postfix_output_stack, token_stack);
+					token_stack = stack_top(in_out_stack);
 					stack_pop(in_out_stack);
 				}
 				break;
@@ -842,30 +836,30 @@ void infix_2_postfix()
 			case TOKEN_GREATER_EQUAL:
 			case TOKEN_LESS:
 			case TOKEN_LESS_EQUAL:
-				tok_stack = stack_top(in_out_stack);
-				if (stack_empty(in_out_stack) || stack_lower_prio(tok_in, tok_stack)) {
-					stack_push(in_out_stack, save_tok(tok_in));
+				token_stack = stack_top(in_out_stack);
+				if (stack_empty(in_out_stack) || stack_lower_prio(token, token_stack)) {
+					stack_push(in_out_stack, save_tok());
 				} else {
-					while (!stack_empty(in_out_stack) && !stack_lower_prio(tok_in, tok_stack)) {
-						stack_push(postfix_output_stack, tok_stack);
+					while (!stack_empty(in_out_stack) && !stack_lower_prio(token, token_stack)) {
+						stack_push(postfix_output_stack, token_stack);
 						stack_pop(in_out_stack);
-						tok_stack = stack_top(in_out_stack);
+						token_stack = stack_top(in_out_stack);
 					}
-					stack_push(in_out_stack, save_tok(tok_in));
+					stack_push(in_out_stack, save_tok());
 				}
 				break;
 		}
-		tok_in = get_token();
+		token = get_token();
 	}
 	transfer_rest_of_in_out_stack();
 	#ifdef DEBUG_MODE
 	printf("expr: Unget token ");
-	print_token(tok_in);
+	print_token(token);
 	printf("\n");
 	printf("expr: Postfix  ");
 	stack_print(postfix_output_stack);
 	#endif
-	unget_token(tok_in);
+	unget_token(token);
 }
 
 void expr_init()
@@ -875,15 +869,22 @@ void expr_init()
 	t_vars_stack = stack_init();
 }
 
+void expr_destroy()
+{
+	stack_free(in_out_stack);
+	stack_free(postfix_output_stack);
+	stack_free(t_vars_stack);
+}
+
 void expression(TVariable *ret_var, Tins_list *act_ins_list)
 {
 	#ifdef DEBUG_MODE
 	printf("expr: --START--\n");
-	TToken *tok = get_token();
+	token = get_token();
 	printf("expr: First token ");
-	print_token(tok);
+	print_token(token);
 	printf("\n");
-	unget_token(tok);
+	unget_token(token);
 	#endif
 
 	switch (its_function()) {
@@ -897,9 +898,4 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 		case internal_function:
 			generate_internal_function(ret_var, act_ins_list);
 	}
-	charlady();
-
-	#ifdef DEBUG_MODE
-	printf("expr: --END--\n");
-	#endif
 }

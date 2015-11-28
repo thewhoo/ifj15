@@ -35,10 +35,11 @@ TVariable* token_to_const(TToken *token)
         tmp = htab_lookup(G.g_constTabStr, token->data);
     else
         tmp = htab_lookup(G.g_constTabNum, token->data);
-    
-    if(tmp != NULL)
-        return tmp->data.variable;
 
+    if(tmp != NULL) {
+        free(token->data);
+        return tmp->data.variable;
+	}
 
     TVariable* var = gmalloc(sizeof(TVariable));
 
@@ -64,8 +65,8 @@ TVariable* token_to_const(TToken *token)
         var->data.i = strtol(token->data, NULL, 10);
         tmp = htab_insert(G.g_constTabNum, var->name);
     }
-    
-    tmp->data_type = TYPE_VARIABLE; 
+
+    tmp->data_type = TYPE_VARIABLE;
     tmp->data.variable = var;
 
     return var;

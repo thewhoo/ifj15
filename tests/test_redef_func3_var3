@@ -1,0 +1,12 @@
+int foo(int foo)
+{
+    int a = foo;
+    return a;
+}
+
+int main()
+{
+    int a = foo(4);
+    int foo = a;
+    return foo;
+}

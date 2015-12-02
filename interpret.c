@@ -112,7 +112,8 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
 
 void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
 {
-    int result, a, b;
+    int result;
+    double a,b;
 
     if(!src1->initialized || !src2->initialized)
         exit_error(E_UNINITIALIZED);

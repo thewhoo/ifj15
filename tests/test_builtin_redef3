@@ -1,0 +1,6 @@
+int length(int a);
+
+int main()
+{
+    return 42;
+}

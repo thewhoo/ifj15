@@ -1,0 +1,13 @@
+string func( string p1, int p2, double p4 ) {
+	string s = concat( p1, "asd" );
+	return s;
+}
+
+int main() {
+	string x = func( "lol", 3.4, 5.2 );
+
+	if( x == "lolasd" )
+	{
+	}else {}
+		return 0;
+}

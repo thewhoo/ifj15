@@ -1,0 +1,9 @@
+int main()
+{
+    if("12")
+    {}
+    else
+    {}
+
+    return 32;
+}

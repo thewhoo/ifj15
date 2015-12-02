@@ -10,5 +10,6 @@ Pokyny:
     - Dokumentaciu k svojej casti projektu ulozte do suboru:
       aboutWhat_author.doc
     - obrazky vytvarajte vo formate eps 
-      (prip. konverzia: `convert x.jpg eps3:xy.eps`)
+      (prip. konverzia: 'convert x.jpg eps3:xy.eps')
     - Zmeny obsahu v castich, ktore ste neimplementovali nie su pripustne
+    

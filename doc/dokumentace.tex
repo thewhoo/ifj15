@@ -17,6 +17,8 @@
 \usepackage{times}
 \usepackage{graphics}
 \usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning}
 \pagenumbering{arabic}
 
 \providecommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
@@ -47,11 +49,11 @@
 
 \begin{large}
 \begin{tabbing}
-    Členové: \= Postolka Matej \quad \= xposto02 \quad \= 25\%\kill
-    Leader:  \> Postolka Matej \> xposto02 \> 25\% \\
-    Členové: \> Osadský Lukáš  \> xosads00 \> 25\% \\
-             \> Plaskoň Pavol  \> xplask00 \> 25\% \\
-             \> Pospíšil Pavel \> xpospi88 \> 25\% \\
+    Další členové: \quad \= Postolka Matej \quad \= xposto02 \quad \= 25 \%\kill
+    Vedoucí týmu:  \> Postolka Matej \> xposto02 \> 25 \% \\
+    Další členové: \> Osadský Lukáš  \> xosads00 \> 25 \% \\
+             \> Plaskoň Pavol  \> xplask00 \> 25 \% \\
+             \> Pospíšil Pavel \> xpospi88 \> 25 \% \\
 \end{tabbing}
 \end{large}
 
@@ -66,15 +68,45 @@
 %                   uvod
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Práce v týmu}
-
++ vývojový cyklus? speciální techniky
 \section{Lexikální analyzátor} \label{lexer}
+[Diagram konečného automatu lexikálního analyzátoru]
+Challenge? (přepis automatu pomocí latex balíčků)
+zdroj: http://tex.stackexchange.com/questions/20784/which-package-can-be-used-to-draw-automata
+\begin{tikzpicture}[shorten >=1pt,node distance=2cm,on grid,auto] 
+   \node[state,initial] (q_0)   {$q_0$}; 
+   \node[state] (q_1) [above right=of q_0] {$q_1$}; 
+   \node[state] (q_2) [below right=of q_0] {$q_2$}; 
+   \node[state,accepting](q_3) [below right=of q_1] {$q_3$};
+    \path[->] 
+    (q_0) edge  node {0} (q_1)
+          edge  node [swap] {1} (q_2)
+    (q_1) edge  node  {1} (q_3)
+          edge [loop above] node {0} ()
+    (q_2) edge  node [swap] {0} (q_3) 
+          edge [loop below] node {1} ();
+\end{tikzpicture}
 
 \section{Syntaktický analyzátor} \label{parser}
-
+[LL gramatika]
+Super práce to opisovat :D
+\begin{verbatim}
+IFJ15 LL GRAMMAR RULES
+<PROG>=<FUNCTION_DECL><PROG>
+?<PROG>=\varepsilon (může být prázdný soubor syntakticky správně?)
+<FUNCTION_DECL>=<DATA_TYPE>t_identifier(<FUNC_DECL_PARAMS>)<NESTED_BLOCK>
+<DATA_TYPE>t_int
+<DATA_TYPE>t_double
+<DATA_TYPE>t_string
+<DATA_TYPE>t_auto
+<FUNC_DECL_PARAMS>
+\end{verbatim}
 \section{Interpret} \label{interpret}
 
 \subsection{Řadíci algoritmus -- Heap Sort}
 \subsection{Vyhledávaní podřeťezce}
 \subsection{Tabulka symbolů}
 
+\section{Trololo} \label{trololo}
++kontrola čitelnosti a komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
 \end{document}

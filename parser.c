@@ -379,7 +379,7 @@ bool FUNCTION_DECL()
         storeFuncName(currentFunc);
         token = get_token();
     }
-    // Builtin function redefinition (this must be handled separately as it not a syntax error)
+    // Builtin function redefinition (this must be handled separately as it is not a syntax error)
     else if(token->type == TOKEN_LENGTH || token->type == TOKEN_SUBSTR || token->type == TOKEN_CONCAT || token->type == TOKEN_FIND || token->type == TOKEN_SORT)
         exit_error(E_SEMANTIC_DEF);
     // Syntax error
@@ -523,6 +523,10 @@ bool FUNC_DECL_PARAMS_NEXT(TFunction *func)
     if (token->type == TOKEN_COMMA)
     {
         token = get_token();
+        // This is not ideal, but i'm too lazy to rewrite the grammar...
+        if(token->type == TOKEN_RROUND_BRACKET)
+            return false;
+
         return FUNC_DECL_PARAMS(func);
     }
 

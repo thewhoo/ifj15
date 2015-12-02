@@ -794,6 +794,7 @@ bool IF_STATEMENT()
     TVariable *var = getNewVariable();
     var->initialized = true;
     var->constant = true;
+    var->name = "";
 
     if(token->type == TOKEN_IF)
     {
@@ -1071,6 +1072,7 @@ bool FOR_STATEMENT()
         TVariable *expr = getNewVariable();
         expr->initialized = true;
         expr->constant = true;
+        expr->name = "";
 
         token = get_token();
 

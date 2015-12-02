@@ -1,0 +1,9 @@
+int main()
+{
+    if("qwe")
+    {}
+    else
+    {}
+
+    return 42;
+}

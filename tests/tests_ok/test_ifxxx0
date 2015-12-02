@@ -1,0 +1,11 @@
+int main()
+{
+    if(2.33 <= 2.34)
+    {
+        cout << "ok\n";
+    }
+    else
+    {}
+
+    return 42;
+}

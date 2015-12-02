@@ -1,0 +1,10 @@
+int f(int i)
+{
+    return 42;
+}
+
+int main()
+{
+    int a = f(10,);
+    return 42;
+}

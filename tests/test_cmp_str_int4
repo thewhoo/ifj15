@@ -1,0 +1,8 @@
+int main()
+{
+    if("qwe" < 11)
+    {}
+    else
+    {}
+    return 42;
+}

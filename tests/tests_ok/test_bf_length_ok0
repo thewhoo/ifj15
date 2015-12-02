@@ -16,5 +16,13 @@ int main()
     x = length(s);
     cout << x <<"\n"; 
 
+    s = "";
+    x = length(s);
+    cout << x <<"\n"; 
+
+    s = "x\nz";
+    x = length(s);
+    cout << x <<"\n"; 
+
     return 42;
 }

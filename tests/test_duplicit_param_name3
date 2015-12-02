@@ -1,0 +1,9 @@
+int f(int a, int a)
+{
+    return 42;
+}
+
+int main()
+{
+    return 42;
+}

@@ -1,0 +1,14 @@
+int main()
+{
+    if(2 == 2.1)
+    {
+        cout << "ok\n";
+    }
+    else
+    {
+        cout << "not ok\n";
+    }
+
+    return 42;
+
+}

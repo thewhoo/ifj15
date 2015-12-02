@@ -1,0 +1,5 @@
+int main()
+{
+    cout << ;
+    return 42;
+}

@@ -1,0 +1,8 @@
+int main()
+{
+    int a = "qwe" < "asd";
+    double b = ("qwe" < "asd") * 3 + 1;
+
+    cout << b << "\n";
+    return 42;
+}

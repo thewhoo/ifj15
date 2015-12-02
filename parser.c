@@ -321,6 +321,10 @@ TVariable *getNewVariable()
 
 void pushParam(TFunction *f, TVariable *p)
 {
+    // Param or function with same name already declared, error!
+    if(htab_lookup(f->local_tab, p->name) || htab_lookup(G.g_globalTab, p->name) || !strcmp(p->name, f->name))
+        exit_error(E_SEMANTIC_DEF);
+
     stack_push(f->params_stack, p);
     htab_item *param = htab_insert(f->local_tab, p->name);
     p->initialized = true;
@@ -375,6 +379,9 @@ bool FUNCTION_DECL()
         storeFuncName(currentFunc);
         token = get_token();
     }
+    // Builtin function redefinition (this must be handled separately as it not a syntax error)
+    else if(token->type == TOKEN_LENGTH || token->type == TOKEN_SUBSTR || token->type == TOKEN_CONCAT || token->type == TOKEN_FIND || token->type == TOKEN_SORT)
+        exit_error(E_SEMANTIC_DEF);
     // Syntax error
     else
         return false;
@@ -497,6 +504,9 @@ bool FUNC_DECL_PARAMS(TFunction *func)
             return false;
 
     }
+    // If auto arrives, its a semantic error and must be handled separately
+    else if(token->type == TOKEN_AUTO)
+        exit_error(E_SEMANTIC_OTHERS);
 
     // No more params, all good
     else if(token->type == TOKEN_RROUND_BRACKET)

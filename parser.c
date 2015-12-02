@@ -1007,7 +1007,7 @@ bool CIN()
                 list_insert(func->ins_list, ins);
 
                 token = get_token();
-                if(CIN_NEXT() && (token->type == TOKEN_SEMICOLON))
+                if(CIN_NEXT())
                 {
                     token = get_token();
                     return true;
@@ -1044,11 +1044,8 @@ bool CIN_NEXT()
             list_insert(func->ins_list, ins);
 
             token = get_token();
-            if(CIN_NEXT() && (token->type == TOKEN_SEMICOLON))
-            {
-                token = get_token();
+            if(CIN_NEXT())
                 return true;
-            }
         }
     }
     else if(token->type == TOKEN_SEMICOLON)

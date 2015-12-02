@@ -206,6 +206,7 @@ void cin(TVariable* in)
 
         double_num = strtod(buffer.data, NULL);
         in->data.d = double_num;
+        free(buffer.data);
     }
     else if(in->var_type == TYPE_INT)
     {
@@ -227,6 +228,7 @@ void cin(TVariable* in)
 
         int_num = strtol(buffer.data, NULL, 10);       
         in->data.i = int_num;
+        free(buffer.data);
     }
     else
     {

@@ -232,8 +232,8 @@ void killPseudoFrame()
 
 void storeNewVariable(TFunction *f, TVariable *v)
 {
-    // Check for redeclaration
-    if(htab_lookup(f->local_tab, v->name))
+    // Check for redeclaration or clash with function name
+    if(htab_lookup(f->local_tab, v->name) || htab_lookup(G.g_globalTab, v->name))
         exit_error(E_SEMANTIC_DEF);
 
     htab_item *newVar = htab_insert(f->local_tab, v->name);

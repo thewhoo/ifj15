@@ -543,6 +543,7 @@ void interpret_loop(Tins_list *ins_list)
         }
 
     }
+    exit_error(E_UNINITIALIZED); //called function's body is empty
 }
 
 void interpret()

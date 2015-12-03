@@ -1,18 +1,19 @@
 #!/usr/bin/env python
+"""
+ IFJ 15 Test Suite
+ Author: Pavol Plaskon <xplask00@stud.fit.vutbr.cz>
+ Last modified: 3.12.2015
 
-# IFJ 15 Test Suite
-# Author: Pavol Plaskon <xplask00@stud.fit.vutbr.cz>
-# Last modified: 3.12.2015
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+"""
 
 import os
 import subprocess
@@ -30,21 +31,6 @@ def print_test_head(n, source):
     global to_print
     to_print += "-------------------------------------\n"
     to_print += "TEST {}: {}\n".format(n, source)
-
-
-def set_cin_cout(source):
-    if 'cin_string' in source:
-        ret = ''.join([chr(random.randint(33, 126)) for i in
-            range(random.randint(0,10))])
-        return ret, ret
-    if 'cin_int' in source:
-        ret = random.randint(0, 1000000)
-        return str(ret), str(ret)
-    if 'cin_double' in source:
-        ret = random.uniform(0.0, 1000000)
-        ret_str = '{:g}'.format(ret)
-        return ret_str, ret_str
-    return '', ''
 
 
 def check_ret_code(returned, expected):
@@ -67,11 +53,13 @@ def check_stdout(out, expected):
 
 
 def check_stderr(err):
+    """Expect 'IFJ15' in error output."""
     global to_print
     if 'IFJ15' not in err:
         to_print += "UNexpected error output: {}\n".format(err)
         return False
     return True
+
 
 def print_statistics(n, n_ok, n_fail, fails):
     print("-------------------------------------")
@@ -83,8 +71,9 @@ def print_statistics(n, n_ok, n_fail, fails):
         for k, v in sorted(fails.items()):
             print("TEST {}: {}".format(k,v))
 
+
 if not(os.path.isfile('ifj') and os.access('ifj', os.X_OK)):
-    print("No executable file found, try 'make'.")
+    print("No executable file named 'ifj' found, try 'make'.")
     sys.exit()
 
 
@@ -112,7 +101,9 @@ for source in [f for f in os.listdir(tests_dir)
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
 
-    expected_out = open(source_path + '.out', 'r').read()
+    with open(source_path + '.out', 'r') as f_out:
+        expected_out = f_out.read()
+
     out, err = proc.communicate()
     
     ret_code = proc.returncode
@@ -120,7 +111,7 @@ for source in [f for f in os.listdir(tests_dir)
     print_test_head(x, source)
     c_ret = check_ret_code(ret_code, 0)
     c_out = check_stdout(out.decode('utf-8'), expected_out)
-    c_err = err is not True
+    c_err = not err
 
     if c_ret and c_out and c_err:
         x_ok = x_ok + 1
@@ -151,9 +142,10 @@ for source in [f for f in os.listdir(tests_dir)
     to_print = ''
     fx = fx + 1
     source_path = os.path.join(tests_dir, source)
-    proc = subprocess.Popen(["./ifj", source_path],
+    proc = subprocess.Popen(['./ifj', source_path],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
+
     out, err = proc.communicate()
     ret_code = proc.returncode
     
@@ -161,8 +153,8 @@ for source in [f for f in os.listdir(tests_dir)
     exp_ret = source[-2:] if source[-2].isdigit() else source[-1]
     c_ret = check_ret_code(ret_code, exp_ret)
     c_out = check_stdout(out.decode('utf-8'), '')
-    c_err = check_stderr(err.decode('utf-8'))
-    if c_ret and c_out and c_err:
+    # c_err = check_stderr(err.decode('utf-8'))
+    if c_ret and c_out: # and c_err:
         fx_ok = fx_ok + 1
     else:
         print(to_print)

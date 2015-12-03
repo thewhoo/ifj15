@@ -14,7 +14,7 @@ def print_head(text):
 
 def print_test_head(n, source):
     global to_print
-    to_print += "-------------------------------\n"
+    to_print += "-------------------------------------\n"
     to_print += "TEST {}: {}\n".format(n, source)
 
 
@@ -60,7 +60,7 @@ def check_stderr(err):
     return True
 
 def print_statistics(n, n_ok, n_fail, fails):
-    print("-------------------------------")
+    print("-------------------------------------")
     print("Number of tests: {}\nSucceed tests: {}\nFAILED: {}\n"
           .format(n, n_ok, n_fail))
 
@@ -155,10 +155,10 @@ for source in [f for f in os.listdir(tests_dir)
         fx_fail = fx_fail + 1
         ffails[fx] = source
 
-print("---------------------------------")
-print("------------RESULTS--------------")
+print("-------------------------------------")
+print("-----------RESULTS-------------------")
 print("Tests without errors:")
 print_statistics(x, x_ok, x_fail, fails)
-print("---------------------------------")
+print("-------------------------------------")
 print("Tests with some error:")
 print_statistics(fx, fx_ok, fx_fail, ffails)

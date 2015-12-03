@@ -61,7 +61,6 @@ TToken *token;
 
 /*
 TODO
-	Tx proměnné do stacku, ne do tabulky
 ZEPTAT SE
 POZNAMKY
 OMEZENÍ
@@ -69,6 +68,207 @@ OMEZENÍ
 INTERNÍ INFORMACE
 	Aktuální volné error_pos_in_code 19 21 29+
 */
+
+/* BEGIN DEBUG FUNCTIONS */
+#ifdef DEBUG_MODE
+void print_ins_type(const int *type)
+{
+	switch (*type) {
+		case INS_ASSIGN:
+			printf("INS_ASSIGN");
+			break;
+		case INS_ADD:
+			printf("INS_ADD");
+			break;
+		case INS_SUB:
+			printf("INS_SUB");
+			break;
+		case INS_MUL:
+			printf("INS_MUL");
+			break;
+		case INS_DIV:
+			printf("INS_DIV");
+			break;
+		case INS_EQ:
+			printf("INS_EQ");
+			break;
+		case INS_NEQ:
+			printf("INS_NEQ");
+			break;
+		case INS_GREATER:
+			printf("INS_GREATER");
+			break;
+		case INS_GREATEQ:
+			printf("INS_GREATEQ");
+			break;
+		case INS_LESSER:
+			printf("INS_LESSER");
+			break;
+		case INS_LESSEQ:
+			printf("INS_LESSEQ");
+			break;
+		case INS_JMP:
+			printf("INS_JMP");
+			break;
+		case INS_CJMP:
+			printf("INS_CJMP");
+			break;
+		case INS_LAB:
+			printf("INS_LAB");
+			break;
+		case INS_PUSH_PARAM:
+			printf("INS_PUSH_PARAM");
+			break;
+		case INS_CALL:
+			printf("INS_CALL");
+			break;
+		case INS_RET:
+			printf("INS_RET");
+			break;
+		case INS_PUSH_TAB:
+			printf("INS_PUSH_TAB");
+			break;
+		case INS_POP_TAB:
+			printf("INS_POP_TAB");
+			break;
+		case INS_LENGTH:
+			printf("INS_LENGTH");
+			break;
+		case INS_SUBSTR:
+			printf("INS_SUBSTR");
+			break;
+		case INS_CONCAT:
+			printf("INS_CONCAT");
+			break;
+		case INS_FIND:
+			printf("INS_FIND");
+			break;
+		case INS_SORT:
+			printf("INS_SORT");
+			break;
+		case INS_CIN:
+			printf("INS_CIN");
+			break;
+		case INS_COUT:
+			printf("INS_COUT");
+			break;
+		}
+}
+
+void print_variable(const TVariable *var)
+{
+	if (var != NULL) {		
+		if (var->name == NULL) {
+			printf("%d[NULL] ", var->var_type);
+		} else {
+			printf("%d[%s] ", var->var_type, var->name);
+		}		
+	} else {
+		printf("NULL ");
+	}
+}
+
+void print_token(const TToken *tok)
+{
+	printf("%d[", tok->type);
+	switch (tok->type) {
+		case TOKEN_MUL:
+			printf("*");
+			break;
+		case TOKEN_DIV:
+			printf("/");
+			break;
+		case TOKEN_ADD:
+			printf("+");
+			break;
+		case TOKEN_SUB:
+			printf("-");
+			break;
+		case TOKEN_EQUAL:
+			printf("==");
+			break;
+		case TOKEN_NOT_EQUAL:
+			printf("!=");
+			break;
+		case TOKEN_GREATER:
+			printf(">");
+			break;
+		case TOKEN_GREATER_EQUAL:
+			printf(">=");
+			break;
+		case TOKEN_LESS:
+			printf("<");
+			break;
+		case TOKEN_LESS_EQUAL:
+			printf("<=");
+			break;
+		case TOKEN_SEMICOLON:
+			printf(";");
+			break;
+		default:
+			printf("%s", tok->data);
+	}	
+	printf("]");
+}
+
+void stack_print(/*const */TStack *st)
+{
+	TToken *tok;
+	TStack *cache_stack;
+
+	cache_stack = stack_init();
+	while (!stack_empty(st)) {
+		tok = stack_top(st);
+		print_token(tok);
+		printf("  ");
+		stack_push(cache_stack, tok);
+		stack_pop(st);
+	}
+	while (!stack_empty(cache_stack)) {
+		tok = stack_top(cache_stack);
+		stack_push(st, tok);
+		stack_pop(cache_stack);
+	}
+	stack_free(cache_stack);
+}
+
+void after_infix()
+{
+	printf("expr: Unget token ");
+	print_token(token);
+	printf("\n");
+	printf("expr: Postfix  ");
+	stack_print(postfix_output_stack);
+	printf("\n");
+}
+void before_start()
+{
+	printf("expr: --START--\n");
+	printf("expr: hint TYPE[VALUE]\n");
+	token = get_token();
+	printf("expr: First token ");
+	print_token(token);
+	printf("\n");
+	unget_token(token);
+}
+void print_ins(const int *ins_type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
+{
+	printf("expr: ");
+	print_ins_type(ins_type);
+	printf(" ");
+	if (*ins_type != INS_CALL) {
+		print_variable(addr1);
+	} else {
+		htab_item *item;
+		item = (htab_item*)addr1;
+		printf(" %s", item->data.function->name);
+	}
+	print_variable(addr2);
+	print_variable(addr3);	
+	printf("\n");
+}
+#endif
+/* END DEBUG FUNCTIONS */
 
 void my_exit_error(const int error_type, const int error_pos_in_code)
 {
@@ -104,129 +304,6 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 	}
 }
 
-#ifdef DEBUG_MODE
-void print_ins_type(const int *type)
-{
-	printf("expr: ");
-	switch (*type) {
-	case INS_ASSIGN:
-		printf("INS_ASSIGN");
-		break;
-	case INS_ADD:
-		printf("INS_ADD");
-		break;
-	case INS_SUB:
-		printf("INS_SUB");
-		break;
-	case INS_MUL:
-		printf("INS_MUL");
-		break;
-	case INS_DIV:
-		printf("INS_DIV");
-		break;
-	case INS_EQ:
-		printf("INS_EQ");
-		break;
-	case INS_NEQ:
-		printf("INS_NEQ");
-		break;
-	case INS_GREATER:
-		printf("INS_GREATER");
-		break;
-	case INS_GREATEQ:
-		printf("INS_GREATEQ");
-		break;
-	case INS_LESSER:
-		printf("INS_LESSER");
-		break;
-	case INS_LESSEQ:
-		printf("INS_LESSEQ");
-		break;
-	case INS_JMP:
-		printf("INS_JMP");
-		break;
-	case INS_CJMP:
-		printf("INS_CJMP");
-		break;
-	case INS_LAB:
-		printf("INS_LAB");
-		break;
-	case INS_PUSH_PARAM:
-		printf("INS_PUSH_PARAM");
-		break;
-	case INS_CALL:
-		printf("INS_CALL");
-		break;
-	case INS_RET:
-		printf("INS_RET");
-		break;
-	case INS_PUSH_TAB:
-		printf("INS_PUSH_TAB");
-		break;
-	case INS_POP_TAB:
-		printf("INS_POP_TAB");
-		break;
-	case INS_LENGTH:
-		printf("INS_LENGTH");
-		break;
-	case INS_SUBSTR:
-		printf("INS_SUBSTR");
-		break;
-	case INS_CONCAT:
-		printf("INS_CONCAT");
-		break;
-	case INS_FIND:
-		printf("INS_FIND");
-		break;
-	case INS_SORT:
-		printf("INS_SORT");
-		break;
-	case INS_CIN:
-		printf("INS_CIN");
-		break;
-	case INS_COUT:
-		printf("INS_COUT");
-		break;
-	}
-}
-
-void print_variable(const TVariable* var)
-{
-	if (var != NULL) {
-		printf(" %s", var->name);
-	} else {
-		printf(" NULL");
-	}
-}
-
-void print_addr_type(const int *t, const int controler)
-{
-	switch (controler) {
-		case 1:
-			printf(" (Dst: ");
-			break;
-		case 2:
-			printf(" Src: ");
-			break;
-
-	}
-	switch (*t) {
-		case TYPE_INT:
-			printf("INTEGER");
-			break;
-		case TYPE_DOUBLE:
-			printf("DOUBLE");
-			break;
-		case TYPE_STRING:
-			printf("STRING");
-			break;
-	}
-	if (controler == 2) {
-		printf(")");
-	}
-}
-#endif
-
 TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
 {
 	TList_item *ins;
@@ -251,23 +328,8 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 	ins->addr1 = addr1;
 	ins->addr2 = addr2;
 	ins->addr3 = addr3;
-
 	#ifdef DEBUG_MODE
-	print_ins_type(&ins_type);
-	if (ins_type != INS_CALL) {
-		print_variable(addr1);
-	} else {
-		htab_item *item;
-		item = (htab_item*)addr1;
-		printf(" %s", item->data.function->name);
-	}
-	print_variable(addr2);
-	print_variable(addr3);
-	print_addr_type(&addr1->var_type, 1);
-	if (addr2 != NULL) {
-		print_addr_type(&addr2->var_type, 2);
-	}
-	printf("\n");
+	print_ins(&ins_type, addr1, addr2, addr3);
 	#endif
 
 	return ins;
@@ -454,73 +516,6 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 	list_insert(act_ins_list, actual_ins);
 	stack_clear(postfix_output_stack);  //zasobnik obsahuje prvky NULL
 }
-
-#ifdef DEBUG_MODE
-void print_token(const TToken *tok)
-{
-	switch (tok->type) {
-		case TOKEN_MUL:
-			printf("*");
-			break;
-		case TOKEN_DIV:
-			printf("/");
-			break;
-		case TOKEN_ADD:
-			printf("+");
-			break;
-		case TOKEN_SUB:
-			printf("-");
-			break;
-		case TOKEN_EQUAL:
-			printf("==");
-			break;
-		case TOKEN_NOT_EQUAL:
-			printf("!=");
-			break;
-		case TOKEN_GREATER:
-			printf(">");
-			break;
-		case TOKEN_GREATER_EQUAL:
-			printf(">=");
-			break;
-		case TOKEN_LESS:
-			printf("<");
-			break;
-		case TOKEN_LESS_EQUAL:
-			printf("<=");
-			break;
-		case TOKEN_IDENTIFIER:
-		case TOKEN_STRING_VALUE:
-		case TOKEN_INT_VALUE:
-		case TOKEN_DOUBLE_VALUE:
-			printf("%s", tok->data);
-			break;
-		default:
-			printf("%d %s", tok->type, tok->data);
-	}
-}
-
-void stack_print(/*const */TStack *st)
-{
-	TToken *tok;
-	TStack *cache_stack;
-
-	cache_stack = stack_init();
-	while (!stack_empty(st)) {
-		tok = stack_top(st);
-		print_token(token);
-		printf("  ");
-		stack_push(cache_stack, token);
-		stack_pop(st);
-	}
-	while (!stack_empty(cache_stack)) {
-		tok = stack_top(cache_stack);
-		stack_push(st, token);
-		stack_pop(cache_stack);
-	}
-	stack_free(cache_stack);
-}
-#endif
 
 int token_type_2_var_type(const int *n)
 {
@@ -853,11 +848,7 @@ void infix_2_postfix()
 	}
 	transfer_rest_of_in_out_stack();
 	#ifdef DEBUG_MODE
-	printf("expr: Unget token ");
-	print_token(token);
-	printf("\n");
-	printf("expr: Postfix  ");
-	stack_print(postfix_output_stack);
+	after_infix();
 	#endif
 	unget_token(token);
 }
@@ -877,16 +868,10 @@ void expr_destroy()
 }
 
 void expression(TVariable *ret_var, Tins_list *act_ins_list)
-{
+{	
 	#ifdef DEBUG_MODE
-	printf("expr: --START--\n");
-	token = get_token();
-	printf("expr: First token ");
-	print_token(token);
-	printf("\n");
-	unget_token(token);
+	before_start();
 	#endif
-
 	switch (its_function()) {
 		case not_function:
 			infix_2_postfix();
@@ -898,4 +883,8 @@ void expression(TVariable *ret_var, Tins_list *act_ins_list)
 		case internal_function:
 			generate_internal_function(ret_var, act_ins_list);
 	}
+	#ifdef DEBUG_MODE
+	printf("expr: --END--\n");
+	#endif
 }
+

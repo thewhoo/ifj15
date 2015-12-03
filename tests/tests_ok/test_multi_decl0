@@ -1,6 +1,6 @@
 int f1(int a, double b);
 
-int f1(int a, double c);
+int f1(int a, double b);
 
 int main()
 {

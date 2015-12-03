@@ -151,7 +151,7 @@ void storeFunction(TFunction *f)
             if(providedVar == NULL || foundVar == NULL)
                 exit_error(E_SEMANTIC_DEF);
 
-            if(providedVar->var_type != foundVar->var_type)
+            if((providedVar->var_type != foundVar->var_type) || strcmp(providedVar->name, foundVar->name))
                 exit_error(E_SEMANTIC_DEF);
         }
 

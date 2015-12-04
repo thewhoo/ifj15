@@ -1,0 +1,12 @@
+int main()
+{
+		int a = 4;
+		int b = 2;		
+		int c;
+		
+		c = (a <= b) + (a >= b) + (a != b);
+		cout << c << "\n";
+		
+		return 0;
+}
+

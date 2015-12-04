@@ -61,15 +61,13 @@ TToken *token;
 
 /*
 TODO
-	kontrola chyb 20 24 28
-	nepoužité hodnoty precedencni tabulky (rround, id, less_e)
-	radek 720??
+	Nepouzivane hodnoty precedencni tabulky (rround, id, less_e)
 ZEPTAT SE
 POZNAMKY
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 9 19 21 22 29+
+	Aktuální volné error_pos_in_code 22+
 */
 
 /* BEGIN DEBUG FUNCTIONS */
@@ -293,7 +291,7 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 	if (*t_x_var_counter >= t_vars_stack->used) {
 		var = malloc(sizeof(TVariable));
 		if (var == NULL) {
-			my_exit_error(E_ALLOC, 26);
+			my_exit_error(E_ALLOC, 10);
 		}
 		var->initialized = 1;
 		var->constant = 1;
@@ -314,7 +312,7 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 	if (ins_type == INS_ASSIGN) {
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
 			if (strcmp(addr1->name, "return")) {
-				my_exit_error(E_SEMANTIC_TYPES, 23);
+				my_exit_error(E_SEMANTIC_TYPES, 21);
 			} else {
 				my_exit_error(E_SEMANTIC_OTHERS, 11);
 			}
@@ -325,7 +323,7 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 	}
 	ins = malloc(sizeof(TList_item));
 	if (ins == NULL) {
-		my_exit_error(E_ALLOC, 27);
+		my_exit_error(E_ALLOC, 9);
 	}
 	ins->ins_type = ins_type;
 	ins->addr1 = addr1;
@@ -541,10 +539,10 @@ void skip_token(int token_type)
 		my_exit_error(E_SEMANTIC_TYPES, 20);
 	}
 	if (token_is(token, TOKEN_COMMA) && (token_type != TOKEN_COMMA)) {
-		my_exit_error(E_SEMANTIC_TYPES, 24);
+		my_exit_error(E_SEMANTIC_TYPES, 19);
 	}
 	if ((token_type == TOKEN_RROUND_BRACKET) && token_is_operand(token)) {
-		my_exit_error(E_SEMANTIC_TYPES, 28);
+		my_exit_error(E_SYNTAX, 6);
 	}
 	if (token->type != token_type) {
 		my_exit_error(E_SYNTAX, 7);

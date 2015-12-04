@@ -687,14 +687,8 @@ int stack_lower_prio(const TToken *tok_st)
 
 	x = token_to_op_type(token);
 	y = token_to_op_type(tok_st);
-	switch (prece_table[y][x]) {
-		case HI:
-		case EQ:
-			return 0;
-		case LO:
-			return 1;
-		case ER:
-			my_exit_error(E_SYNTAX, 13);
+	if (prece_table[y][x] == LO) {
+		return 1;
 	}
 	return 0;
 }

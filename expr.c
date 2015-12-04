@@ -664,10 +664,6 @@ int token_to_op_type(const TToken *tok)
 			return oper_div;
 		case TOKEN_LROUND_BRACKET:
 			return oper_lr_bracket;
-		case TOKEN_RROUND_BRACKET:
-			return oper_rr_bracket;
-		case TOKEN_IDENTIFIER:
-			return oper_id;
 		case TOKEN_LESS:
 			return oper_less;
 		case TOKEN_GREATER:
@@ -684,13 +680,13 @@ int token_to_op_type(const TToken *tok)
 	return 0;
 }
 
-int stack_lower_prio(const TToken *token_in, const TToken *token_stack)
+int stack_lower_prio(const TToken *tok_st)
 {
 	int x;
 	int y;
 
-	x = token_to_op_type(token_in);
-	y = token_to_op_type(token_stack);
+	x = token_to_op_type(token);
+	y = token_to_op_type(tok_st);
 	switch (prece_table[y][x]) {
 		case HI:
 		case EQ:
@@ -813,10 +809,10 @@ void infix_2_postfix()
 			case TOKEN_LESS:
 			case TOKEN_LESS_EQUAL:
 				token_stack = stack_top(in_out_stack);
-				if (stack_empty(in_out_stack) || stack_lower_prio(token, token_stack)) {
+				if (stack_empty(in_out_stack) || stack_lower_prio(token_stack)) {
 					stack_push(in_out_stack, save_tok());
 				} else {
-					while (!stack_empty(in_out_stack) && !stack_lower_prio(token, token_stack)) {
+					while (!stack_empty(in_out_stack) && !stack_lower_prio(token_stack)) {
 						stack_push(postfix_output_stack, token_stack);
 						stack_pop(in_out_stack);
 						token_stack = stack_top(in_out_stack);

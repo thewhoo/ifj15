@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -O2 -std=c99
 CFLAGS_DBG=-Wall -Wextra -pedantic -g -std=c99
+COVERAGE_FLAGS=-Wall -Wextra -pedantic -fprofile-arcs -ftest-coverage -fPIC -O0 -std=c99
 PROJECT=ifj
 
 SRC_FILES = $(wildcard *.c)
@@ -9,11 +10,14 @@ OBJ_FILES = $(patsubst %.c, %.o, $(SRC_FILES))
 
 DBG_OBJ_FILES = $(patsubst %.c, %.dbg.o, $(SRC_FILES))
 
-.PHONY: all pack clean
+.PHONY: all pack clean coverage
 
 all: clean release
 
 debug: clean dbg
+
+coverage: CFLAGS = $(COVERAGE_FLAGS)
+coverage: clean release
 
 release: $(OBJ_FILES)
 	$(CC) $(CFLAGS) $^ -o $(PROJECT)

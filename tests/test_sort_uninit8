@@ -1,0 +1,6 @@
+int main()
+{
+    string s;
+    s = sort(s);
+    return 42;
+}

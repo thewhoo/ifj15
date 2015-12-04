@@ -1,0 +1,7 @@
+int main()
+{
+    string s;
+    s = substr("qwerty", 2.2, 2.2);
+    cout << s << "\n";
+    return 42;
+}

@@ -1,0 +1,48 @@
+int main()
+{
+    double a = 3.4 - 2.2;
+    cout << a << 3.14 << "\n";
+
+    if("q" != "d")
+    {
+        cout << "ok\n";
+    }
+    else
+    {}
+
+    if("b" >= "a")
+    {
+        cout << "ok\n";
+    }
+    else
+    {}
+    
+    if("a" >= "a")
+    {
+        cout << "ok\n";
+    }
+    else
+    {}
+    
+    if("a" <= "b")
+    {
+        cout << "ok\n";
+    }
+    else
+    {}
+    
+    if("b" <= "b")
+    {
+        cout << "ok\n";
+    }
+    else
+    {}
+
+    double x = "a" >= "c";
+    int f = "a" <= "f";
+
+    cout << x << f << "\n";
+
+    return 42;
+
+}

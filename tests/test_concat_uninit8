@@ -1,0 +1,7 @@
+int main()
+{
+    string s;
+    s = concat(s, "qew");
+    return 42;
+}
+

@@ -1,0 +1,6 @@
+int main()
+{
+    string s;
+    s = concat("qwe", s);
+    return 42;
+}

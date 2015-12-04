@@ -1,0 +1,6 @@
+int main()
+{
+    string s;
+    s = length(s);
+    return 42;
+}

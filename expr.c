@@ -61,12 +61,15 @@ TToken *token;
 
 /*
 TODO
+	kontrola chyb 20 24 28
+	nepoužité hodnoty precedencni tabulky (rround, id, less_e)
+	radek 720??
 ZEPTAT SE
 POZNAMKY
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 19 21 29+
+	Aktuální volné error_pos_in_code 9 19 21 22 29+
 */
 
 /* BEGIN DEBUG FUNCTIONS */
@@ -452,7 +455,7 @@ TVariable *find_var(/*const */TToken *tok, const int clean_data_if_found)
 {
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
-			for(int i=G.g_frameStack->used-1; i >= 0; i--) {
+			for(int i = G.g_frameStack->used-1; i >= 0; i--) {
 				TFunction *f = G.g_frameStack->data[i];
 				htab_item *found = htab_lookup(f->local_tab, tok->data);
 				if(found) {
@@ -463,17 +466,12 @@ TVariable *find_var(/*const */TToken *tok, const int clean_data_if_found)
 				}
 			}
 			my_exit_error(E_SEMANTIC_DEF, 4);
-			break;
 		case TOKEN_STRING_VALUE:
 		case TOKEN_INT_VALUE:
 		case TOKEN_DOUBLE_VALUE:
 			return token_to_const(tok);
 	}
-	/* Volani funkce pamametricke bez parametru */
-	if (tok->type == TOKEN_RROUND_BRACKET) {
-		my_exit_error(E_SEMANTIC_TYPES, 6);
-	}
-	my_exit_error(E_SEMANTIC_DEF, 22);
+	
 	return 0;
 }
 
@@ -515,19 +513,6 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 	stack_pop(in_out_stack);
 	list_insert(act_ins_list, actual_ins);
 	stack_clear(postfix_output_stack);  //zasobnik obsahuje prvky NULL
-}
-
-int token_type_2_var_type(const int *n)
-{
-	switch (*n) {
-		case TOKEN_INT:
-				return TYPE_INT;
-		case TOKEN_DOUBLE:
-				return TYPE_DOUBLE;
-		case TOKEN_STRING:
-				return TYPE_STRING;
-	}
-	return 0;
 }
 
 TVariable *get_next_para(const int operand_type)
@@ -651,9 +636,7 @@ int its_function()
 		case TOKEN_IDENTIFIER:
 			item = htab_lookup(G.g_globalTab, token->data);
 			if (item == NULL) {
-				if (!find_var(token, 0)) {
-					my_exit_error(E_SEMANTIC_DEF, 9);
-				}
+				find_var(token, 0);
 			} else {
 				answer = external_function;
 			}
@@ -866,6 +849,8 @@ void expr_destroy()
 	stack_free(postfix_output_stack);
 	stack_free(t_vars_stack);
 }
+
+
 
 void expression(TVariable *ret_var, Tins_list *act_ins_list)
 {	

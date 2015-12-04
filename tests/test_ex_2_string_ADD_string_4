@@ -1,0 +1,7 @@
+int main()
+{
+	string s = "A" * "B";
+
+	return 0;
+}
+

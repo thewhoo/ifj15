@@ -1,0 +1,8 @@
+int main()
+{
+	double a;
+	a=10e2;
+	cout << a <<"\n";
+	return 0;
+
+}

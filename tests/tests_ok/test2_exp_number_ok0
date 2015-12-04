@@ -1,0 +1,7 @@
+int main()
+{
+	double a = 514e-2;
+	cout << a<< "\n";
+	return 0;
+
+}

@@ -1,0 +1,13 @@
+int main()
+{
+	int a;
+	if ( 5 >= 1)
+	{
+		a=5;
+	}
+	else {
+		a=1;
+	}
+    cout << a << "\n";
+    return 0;
+}

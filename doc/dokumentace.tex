@@ -104,8 +104,27 @@ IFJ15 LL GRAMMAR RULES
 \section{Interpret} \label{interpret}
 
 \subsection{Řadíci algoritmus -- Heap Sort}
-\subsection{Vyhledávaní podřeťezce}
-\subsection{Tabulka symbolů}
+Funkce pro seřazeni prvků v poli.
+
+\subsection{Vyhledávaní podřeťezce -- Knuth-Morris-Pratt}
+Vyhledáni podreťezce v řeťezci ve vestavěné funkci \texttt{find} je řešeno
+algoritmom Knuth-Morris-Pratt. Základem algoritmu je vytvorení masky, tzv.
+\texttt{Fail vector}. Je to pole celých čísel o délke hledaného textu. Ke
+každému písmenu hledaného řeťezce je přirazeno číslo, které určuje index, kam
+se má program vrátit v prípade nezhody znaků.
+
+\subsection{Tabulka s rozptylenými položkami}
+Datová struktúra použitá pro tabulky symbolů. Výhodou je rychlost vzhledávaní
+položek. Základem je pole ukazatelů na
+jednotlivé položky. Položky obsahují svůj klíč, data a ukazatel na dalši
+položku, aby mohli být propojené v jednosmerne vázaný lineárni
+seznam (seznam synonym). V prípade ideálni hashovací funkce není propojení v
+seznam potřebné, čas prístupu k položkám konstantní. Nalezení takové
+funkce je ale problematické. V prípade konfliktů se čas nalezení položky
+prodloužuje o prohledání lineárního seznamu.
+
+
+
 
 \section{Trololo} \label{trololo}
 +kontrola čitelnosti a komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)

@@ -392,7 +392,10 @@ void interpret_loop(Tins_list *ins_list)
                 print_instructions(ins);
                 #endif
                 active_frame = stack_init();
-                new_tab = htab_init(HTAB_SIZE);
+                int1 = func->data.function->var_count;
+                int1 = int1 + (int1 >> 1) + 1;
+                new_tab = htab_init(int1);
+                //new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
                 map_params(new_tab, func->data.function->params_stack);
                 //map pushed f arguments to f parameters

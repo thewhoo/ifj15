@@ -282,7 +282,7 @@ void interpret_loop(Tins_list *ins_list)
     int ret_int, int1, int2;
     char* ret_str;
     TVariable *var1, *var2, *var3;
-    htab_item *func;
+    TFunction *func;
     htab_item *item;
     htab_t *new_tab = NULL;
 
@@ -386,18 +386,18 @@ void interpret_loop(Tins_list *ins_list)
                 stack_push(gStack, active_frame);
                 stack_push(gStack, ins);
 
-                func = (htab_item*)ins->addr1;
-                ins = func->data.function->ins_list->first;
+                func = (TFunction*)((htab_item*)ins->addr1)->data.function;
+                ins = func->ins_list->first;
                 #ifdef DEBUG_MODE
                 print_instructions(ins);
                 #endif
                 active_frame = stack_init();
-                int1 = func->data.function->var_count;
+                int1 = func->var_count;
                 int1 = int1 + (int1 >> 1) + 1;
                 new_tab = htab_init(int1);
                 //new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
-                map_params(new_tab, func->data.function->params_stack);
+                map_params(new_tab, func->params_stack);
                 //map pushed f arguments to f parameters
                 continue; //after break, continue with new isntr, we want to
                           //begin with first one

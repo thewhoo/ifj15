@@ -572,7 +572,7 @@ void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 		actual_ins = create_ins(INS_PUSH_PARAM, f_readed_var, NULL, NULL);
 		list_insert(act_ins_list, actual_ins);
 	}
-	actual_ins = create_ins(INS_CALL, (TVariable*)h_item, NULL, NULL);
+	actual_ins = create_ins(INS_CALL, (TVariable*)(h_item->data.function), NULL, NULL);
 	list_insert(act_ins_list, actual_ins);
 	actual_ins = create_ins(INS_ASSIGN, ret_var, f_stored->return_var, NULL);
 	list_insert(act_ins_list, actual_ins);

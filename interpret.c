@@ -61,7 +61,7 @@ void clean_active_frame()
 void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
 {
     double a, b;
-//Check if var is STRING????????
+    
     if(!src1->initialized || !src2->initialized)
         exit_error(E_UNINITIALIZED);
 
@@ -80,30 +80,30 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
     {
         case('+'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = (double)a+b;
+                dest->data.d = a + b;
             else
-                dest->data.i = (int)a+b;
+                dest->data.i = (int)(a + b);
             break;
         case('-'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = (double)a-b;
+                dest->data.d = a - b;
             else
-                dest->data.i = (int)a-b;
+                dest->data.i = (int)(a - b);
             break;
         case('*'):
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = (double)a*b;
+                dest->data.d = a * b;
             else
-                dest->data.i = (int)a*b;
+                dest->data.i = (int)(a * b);
             break;
         case('/'):
             if(b == 0)
                 exit_error(E_ZERO_DIVISION);
 
             if(dest->var_type == TYPE_DOUBLE)
-                dest->data.d = (double)a/b;
+                dest->data.d = a/b;
             else
-                dest->data.i = (int)a/b;
+                dest->data.i = (int)(a/b);
             break;
     }
 
@@ -113,18 +113,15 @@ void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
 void compare_ins(int type, TVariable* dest, TVariable *src1, TVariable* src2)
 {
     int result;
-    double a,b;
+    double a, b;
 
     if(!src1->initialized || !src2->initialized)
         exit_error(E_UNINITIALIZED);
 
-    //Check for dest type?  double a = 3 > 4 ..but result of comapring must be
-    //INT
-
     if(src1->var_type == TYPE_DOUBLE)
         a = src1->data.d;
     else
-        a = src1->data.i;
+        a = src1->data.i;  //if src is string, some random values ar in a and b
 
     if(src2->var_type == TYPE_DOUBLE)
         b = src2->data.d;

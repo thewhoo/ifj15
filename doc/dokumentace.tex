@@ -91,6 +91,7 @@ Section "Implementace interpretu jazyka IFJ15" a pod lex, syn, sem, int?
 Větší řádkování?
 Sjednotit popisy automatu    = VS ASS   == VS EQ
      i=2
+pravidla prece tabulky jako text?
 
 Zadání:
 dokumentace.pdf      4-7 stran
@@ -145,6 +146,33 @@ který je zároveň vstupem do syntaktické analýzy.
 \section{Syntaktický analyzátor} \label{parser}
 
 \textcolor{red}{Syntaktická a sémantická analýza?}
+Syntaktická analýza a sémantická analýza
+
+Syntaktický a sémantický analyzátor, neboli parser, představuje ústřední část
+naší implementace interpretu jazyka IFJ15. Parser se volá prakticky ihned po
+spuštění programu a přejímá řízení do doby, než dojde k úplnému zpracování
+zdrojového souboru.
+
+Syntaktická analýza je implementována rekurzivním sestupem, který je řízen
+pravidly naší LL gramatiky. Neterminální symboly představují tokeny přijaté od
+lexikálního analyzátoru. Ten je volán přímo z parseru vždy, když je třeba
+zpracovat další token. Se syntaktickou analýzou je současně vykonávána také
+analýza sémantická. Při deklaraci nebo definici funkce (jazyk IFJ15 podporuje v
+globálním prostoru pouze funkce) se do globální tabulky symbolů ukládá datová
+struktura reprezentující danou funkci.
+
+Poté dochází ke zpracování těla dané funkce (za předpokladu, že jde o definici
+funkce). Přímo během rekurzivního sestupu se tak vykonávají všechny potřebné
+sémantické kontroly a naplňuje se lokální tabulka symbolů. Taktéž se generují
+vnitřní instrukce, které se ukládají do instrukčního seznamu příslušné funkce.
+Pokud se během syntaktické analýzy narazí na výraz, je řízení programu předáno
+modulu pro vyhodnocování výrazů (expr), který pomocí precedenční analýzy
+provede vyhodnocení daného výrazu a poté předá řízení zpět parseru.
+
+Po zpracování celého zdrojového souboru se provádí závěrečné sémantické
+kontroly. Kontroluje se například to, zda došlo během zpracování zdrojového
+souboru k definici všech deklarovaných funkcí. Tímto je syntaktická a
+sémantická analýza ukončena a parser předá řízení interpretu.
 
 \subsection{Zpracování výrazů}
 \textcolor{red}{A FUNKCÍ! Má jediná chvíle slávy?}
@@ -188,7 +216,6 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \section{Diagram konečného automatu lexikální analýzy} \label{automat}
 \begin{center}
 \begin{tikzpicture}[scale=0.165]
-\small
 \tikzstyle{every node}+=[inner sep=0pt]
 \draw [black] (40,-55) circle (3);
 \draw (40,-55) node {\em start};
@@ -196,7 +223,7 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw (7,-114.5) node {\em +*-};
 \draw [black] (7,-114.5) circle (2.4);
 \draw [black] (41.4,-89.7) circle (3);
-\draw (41.4,-89.7) node {\em ()\{\}};
+\draw (41.4,-89.7) node {\em (){}};
 \draw [black] (41.4,-89.7) circle (2.4);
 \draw [black] (7,-87.3) circle (3);
 \draw (7,-87.3) node {\em =};
@@ -220,13 +247,13 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw (77,-5.6) node {\em cin};
 \draw [black] (77,-5.6) circle (2.4);
 \draw [black] (94.1,-21.3) circle (3);
-\draw (94.1,-21.3) node {\em leseq};
+\draw (94.1,-21.3) node {\em $\leq$};
 \draw [black] (94.1,-21.3) circle (2.4);
 \draw [black] (37.7,-9.6) circle (3);
 \draw (37.7,-9.6) node {\em cout};
 \draw [black] (37.7,-9.6) circle (2.4);
 \draw [black] (62.2,-11.7) circle (3);
-\draw (62.2,-11.7) node {\em greq};
+\draw (62.2,-11.7) node {\em $\geq$};
 \draw [black] (62.2,-11.7) circle (2.4);
 \draw [black] (6.2,-105) circle (3);
 \draw (6.2,-105) node {\em eq};
@@ -234,7 +261,7 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw [black] (10.5,-64.6) circle (3);
 \draw (10.5,-64.6) node {\em !};
 \draw [black] (6.2,-54.3) circle (3);
-\draw (6.2,-54.3) node {\em neq};
+\draw (6.2,-54.3) node {\em !=};
 \draw [black] (6.2,-54.3) circle (2.4);
 \draw [black] (10.5,-76.3) circle (3);
 \draw (10.5,-76.3) node {\em eof};
@@ -246,8 +273,8 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw [black] (78.6,-82.8) circle (2.4);
 \draw [black] (76,-107.1) circle (3);
 \draw (76,-107.1) node {\em esc};
-\draw [black] (101.2,-125.5) circle (3);
-\draw (101.2,-125.5) node {\em hex};
+\draw [black] (94.1,-126.4) circle (3);
+\draw (94.1,-126.4) node {\em hex\#1};
 \draw [black] (58.5,-82.8) circle (3);
 \draw (58.5,-82.8) node {\em int};
 \draw [black] (58.5,-82.8) circle (2.4);
@@ -272,6 +299,8 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw [black] (6.2,-124) circle (3);
 \draw (6.2,-124) node {\em , ;};
 \draw [black] (6.2,-124) circle (2.4);
+\draw [black] (92.2,-109.8) circle (3);
+\draw (92.2,-109.8) node {\em hex\#2};
 \draw [black] (37.248,-53.835) arc (274.78927:-13.21073:2.25);
 \draw (30.64,-49.4) node [above] {\em whitespace};
 \fill [black] (39.25,-52.11) -- (39.68,-51.27) -- (38.69,-51.35);
@@ -285,7 +314,7 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw (28.29,-88.23) node [right] {\em +*-};
 \draw [black] (40.848,-57.877) arc (15.10729:-10.48651:65.261);
 \fill [black] (42.01,-86.76) -- (42.65,-86.07) -- (41.67,-85.89);
-\draw (43.61,-72.24) node [right] {\em ()\{\}};
+\draw (43.61,-72.24) node [right] {\em (){}};
 \draw [black] (42.702,-53.697) arc (114.04706:77.68068:50.557);
 \fill [black] (74.09,-50.47) -- (73.41,-49.81) -- (73.2,-50.79);
 \draw (57.98,-49.01) node [above] {\em /};
@@ -352,21 +381,15 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw [black] (93.018,-87.318) arc (-79.48009:-124.66418:16.135);
 \fill [black] (80.9,-84.73) -- (81.27,-85.59) -- (81.84,-84.77);
 \draw (86.14,-87.81) node [below] {\em ''};
-\draw [black] (95.237,-89.424) arc (-16.18725:-71.83235:25.191);
-\fill [black] (78.9,-106.34) -- (79.82,-106.56) -- (79.5,-105.61);
-\draw (89.69,-101.37) node [right] {\em /};
-\draw [black] (77.637,-104.586) arc (145.66136:126.31904:67.716);
-\fill [black] (93.44,-88.22) -- (92.5,-88.29) -- (93.1,-89.1);
-\draw (84.32,-94.26) node [left] {\em n t \textbackslash ''};
-\draw [black] (101.606,-128.461) arc (35.54413:-252.45587:2.25);
-\draw (96.39,-132.51) node [below] {\em isdigit};
-\fill [black] (99.1,-127.62) -- (98.16,-127.68) -- (98.74,-128.5);
-\draw [black] (100.367,-122.618) arc (-164.56024:-179.96188:124.712);
-\fill [black] (95.87,-89.5) -- (95.37,-90.3) -- (96.37,-90.3);
-\draw (96.32,-106.37) node [left] {\em i=2};
-\draw [black] (78.779,-108.23) arc (66.39614:41.33311:58.489);
-\fill [black] (99.28,-123.2) -- (99.12,-122.27) -- (98.37,-122.93);
-\draw (90.85,-114.09) node [above] {\em x};
+\draw [black] (94.409,-89.103) arc (-31.44361:-56.576:52.458);
+\fill [black] (78.55,-105.52) -- (79.49,-105.5) -- (78.94,-104.66);
+\draw (87.91,-99.66) node [right] {\em /};
+\draw [black] (77.103,-104.311) arc (155.88922:116.09118:33.931);
+\fill [black] (93.15,-87.7) -- (92.21,-87.6) -- (92.65,-88.5);
+\draw (83.14,-93.13) node [left] {\em n t \ ''};
+\draw [black] (91.24,-125.501) arc (-110.98777:-162.6877:24.35);
+\fill [black] (91.24,-125.5) -- (90.67,-124.75) -- (90.31,-125.68);
+\draw (81.67,-120.89) node [left] {\em x};
 \draw [black] (42.397,-56.803) arc (51.17912:16.10584:46.023);
 \fill [black] (57.76,-79.89) -- (58.02,-78.99) -- (57.06,-79.26);
 \draw (52.47,-65.83) node [right] {\em isdigit};
@@ -412,6 +435,12 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 \draw [black] (39.965,-58) arc (-1.6638:-50.53252:86.323);
 \fill [black] (8.55,-122.13) -- (9.48,-122.01) -- (8.85,-121.24);
 \draw (31.9,-94.56) node [right] {\em , ;};
+\draw [black] (92.923,-112.711) arc (12.32751:0.73156:53.253);
+\fill [black] (92.92,-112.71) -- (92.61,-113.6) -- (93.58,-113.39);
+\draw (94.46,-117.91) node [right] {\em isxdigit};
+\draw [black] (96.738,-89.379) arc (12.73097:-30.77723:24.511);
+\fill [black] (96.74,-89.38) -- (96.43,-90.27) -- (97.4,-90.05);
+\draw (97.74,-98.83) node [right] {\em isxdigit};
 \end{tikzpicture}
 \end{center}
 \newpage

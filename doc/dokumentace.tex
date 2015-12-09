@@ -10,20 +10,25 @@
 
 \documentclass[a4paper, 12pt]{article}
 
+% Použité nbalíčky
 \usepackage[left=2cm,text={17cm, 24cm},top=3cm]{geometry}
 \usepackage[czech]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[IL2]{fontenc}
-\usepackage{times}
+%\usepackage{times}
 \usepackage{graphics}
 \usepackage{url}
-% START Pozadavky automatu
+% Požadavky automatu
 \usepackage{pgf}
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
-% END Pozadavky automatu
-\pagenumbering{arabic}
+% Požadavky tabulky
+\usepackage{tabu}
 
+% SMAZAT!!!!!!!
+\usepackage{color}
+
+\pagenumbering{arabic}
 \providecommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
 
 \begin{document}
@@ -53,7 +58,7 @@
 \begin{large}
 \begin{tabbing}
     Další členové: \quad \= Postolka Matej \quad \= xposto02 \quad \= 25 \%\kill
-    Vedoucí týmu:  \> Postolka Matej \> xposto02 \> 25 \% \\
+    Vedoucí týmu:  \> Postolka Matěj \> xposto02 \> 25 \% \\
     Další členové: \> Osadský Lukáš  \> xosads00 \> 25 \% \\
              \> Plaskoň Pavol  \> xplask00 \> 25 \% \\
              \> Pospíšil Pavel \> xpospi88 \> 25 \% \\
@@ -67,128 +72,90 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \tableofcontents
 \newpage
+\textcolor{red}{Default font (tento) mi přijde krajšie, ještě se domluvíme}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   uvod
+%                   Úvod
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Práce v týmu}
-+ vývojový cyklus? speciální techniky
-\section{Lexikální analyzátor} \label{lexer}
-\subsection{Diagram konečného automatu lexikálního analyzátoru}
-
-% ****************************************
-
-\begin{center}
-\begin{tikzpicture}[scale=0.2]
-\tikzstyle{every node}+=[inner sep=0pt]
-\draw [black] (21.7,-65.3) circle (3);
-\draw (21.7,-65.3) node {$start$};
-\draw [black] (43,-35.5) circle (3);
-\draw (43,-35.5) node {$-$};
-\draw [black] (43,-42.1) circle (3);
-\draw (43,-42.1) node {$/$};
-\draw [black] (43,-48.8) circle (3);
-\draw (43,-48.8) node {$+$};
-\draw [black] (43,-55.3) circle (3);
-\draw (43,-55.3) node {$*$};
-\draw [black] (43,-61.9) circle (3);
-\draw (43,-61.9) node {$<$};
-\draw [black] (43,-69.7) circle (3);
-\draw (43,-69.7) node {$($};
-\draw [black] (43,-76.3) circle (3);
-\draw (43,-76.3) node {$>$};
-\draw [black] (43,-82.8) circle (3);
-\draw (43,-82.8) node {$)$};
-\draw [black] (43,-89.5) circle (3);
-\draw (43,-89.5) node {$=$};
-\draw [black] (43,-96.2) circle (3);
-\draw (43,-96.2) node {$!$};
-\draw [black] (43,-102.7) circle (3);
-\draw (43,-102.7) node {$\{$};
-\draw [black] (43,-109.3) circle (3);
-\draw (43,-109.3) node {$\}$};
-\draw [black] (43,-116) circle (3);
-\draw (43,-116) node {$,$};
-\draw [black] (43,-122.7) circle (3);
-\draw (43,-122.7) node {$;$};
-\draw [black] (43,-129.3) circle (3);
-\draw (43,-129.3) node {$eof$};
-\draw [black] (53.7,-67.6) circle (3);
-\draw (53.7,-67.6) node {$"$};
-\draw [black] (21.137,-62.355) arc (-172.77362:-258.33811:23.919);
-\fill [black] (40.03,-35.92) -- (39.15,-35.59) -- (39.35,-36.57);
-\draw (24.82,-44.06) node [left] {$-$};
-\draw [black] (21.688,-62.302) arc (-183.74044:-261.36985:21.614);
-\fill [black] (40.01,-42.34) -- (39.15,-41.97) -- (39.3,-42.96);
-\draw (26.8,-47.63) node [left] {$/$};
-\draw [black] (22.706,-62.476) arc (156.60402:98.92214:22.694);
-\fill [black] (40.01,-49.07) -- (39.15,-48.7) -- (39.3,-49.69);
-\draw (28.57,-53.05) node [above] {$+$};
-\draw [black] (23.632,-63.007) arc (136.44053:93.85804:24.903);
-\fill [black] (40,-55.32) -- (39.17,-54.88) -- (39.24,-55.87);
-\draw (30.11,-57.12) node [above] {$*$};
-\draw [black] (24.417,-64.029) arc (112.53366:85.60493:33.937);
-\fill [black] (40.02,-61.54) -- (39.26,-60.98) -- (39.19,-61.98);
-\draw (31.64,-61.26) node [above] {$<$};
-\draw [black] (40.192,-75.245) arc (-111.54859:-123.07796:89.674);
-\fill [black] (40.19,-75.25) -- (39.63,-74.49) -- (39.26,-75.42);
-\draw (30.92,-72.02) node [below] {$>$};
-\draw [black] (40.425,-81.261) arc (-121.90507:-136.90772:82.857);
-\fill [black] (40.43,-81.26) -- (40.01,-80.41) -- (39.48,-81.26);
-\draw [black] (40.638,-87.65) arc (-129.1442:-148.14957:79.776);
-\fill [black] (40.64,-87.65) -- (40.33,-86.76) -- (39.7,-87.53);
-\draw (30.57,-79.94) node [left] {$=$};
-\draw [black] (40.777,-94.185) arc (-133.32547:-157.51596:75.618);
-\fill [black] (40.78,-94.19) -- (40.54,-93.27) -- (39.85,-94);
-\draw (29.8,-83.45) node [left] {$!$};
-\draw [black] (40.736,-100.732) arc (-132.41049:-168.26487:60.719);
-\fill [black] (40.74,-100.73) -- (40.48,-99.82) -- (39.81,-100.56);
-\draw (28.27,-87.17) node [left] {$\{$};
-\draw [black] (40.663,-107.42) arc (-130.41558:-177.92202:53.951);
-\fill [black] (40.66,-107.42) -- (40.38,-106.52) -- (39.73,-107.28);
-\draw (26.38,-90.93) node [left] {$\}$};
-\draw [black] (40.809,-113.951) arc (-134.42097:-180.00269:63.915);
-\fill [black] (40.81,-113.95) -- (40.59,-113.03) -- (39.89,-113.75);
-\draw (25.88,-93.99) node [left] {$,$};
-\draw [black] (40.676,-120.803) arc (-130.69976:-188.58246:57.915);
-\fill [black] (40.68,-120.8) -- (40.4,-119.9) -- (39.74,-120.66);
-\draw (23.39,-97.85) node [left] {$;$};
-\draw [black] (40.761,-127.304) arc (-133.03769:-190.14614:65.115);
-\fill [black] (40.76,-127.3) -- (40.52,-126.39) -- (39.83,-127.12);
-\draw (22.65,-100.97) node [left] {$eof$};
-\draw [black] (40.012,-69.434) arc (-96.13723:-107.20593:81.86);
-\fill [black] (40.01,-69.43) -- (39.27,-68.85) -- (39.16,-69.85);
-\draw (31.72,-68.78) node [below] {$($};
-\draw [black] (24.694,-65.118) arc (92.69275:79.08513:110.303);
-\fill [black] (50.76,-66.99) -- (50.07,-66.35) -- (49.88,-67.33);
-\draw (37.88,-64.72) node [above] {$"$};
-\draw [black] (18.798,-64.586) arc (283.89909:-4.10091:2.25);
-\draw (15.99,-59.51) node [left] {$white\mbox{ }space$};
-\fill [black] (20.5,-62.56) -- (20.8,-61.67) -- (19.82,-61.91);
-\draw [black] (11.9,-65.3) -- (18.7,-65.3);
-\fill [black] (18.7,-65.3) -- (17.9,-64.8) -- (17.9,-65.8);
-\end{tikzpicture}
-\end{center}
-% ****************************************
-\begin{figure}%[ht]
-    \begin{center}
-        \scalebox{0.9}{\includegraphics{lex.eps}}
-    \end{center}
-\end{figure}
-% ****************************************
-
-\section{Syntaktický analyzátor} \label{parser}
-\subsection{LL gramatika}
-Dodá Matěj
+\section{Úvod} \label{uvod}
+Obecný pokec o stvoření světa
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   UNDER CONSTRUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{TODO} \label{todo}
 \begin{verbatim}
-IFJ15 LL GRAMMAR RULES
-<PROG>=<FUNCTION_DECL><PROG>
-<FUNCTION_DECL>=<DATA_TYPE>t_identifier(<FUNC_DECL_PARAMS>)<NESTED_BLOCK>
-<DATA_TYPE>t_int
-<DATA_TYPE>t_double
-<DATA_TYPE>t_string
-<DATA_TYPE>t_auto
-<FUNC_DECL_PARAMS>
+kontrola čitelnosti kódu
+kontrola komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
+tvorba automatu http://madebyevan.com/fsm/
+vývojový cyklus? speciální techniky
+instrukční sadu?
+Section "Implementace interpretu jazyka IFJ15" a pod lex, syn, sem, int?
+Větší řádkování?
+
+Zadání:
+dokumentace.pdf      4-7 stran
+1. strana            OK
+Diagram automatu    "OK"
+LL-gramatika        "OK"
+prece tabulka       "OK"
+POPIS ZPŮSOBU ŘEŠENÍ Z POHLEDU IFJ
+    návrh
+    implementace
+    vývojový cyklus
+    práce v týmu
+    sleciální techniky
+    algoritmy
+Popis řadícího svého algoritmu
+    řazení
+    hledání v textu
+    tabulky symbolů
+Opět práce v týmu (kdo co jak)
+Literatutra, reference, citace
+!! Nevlastní materiál
+!! Obecné popisy algoritmů
+
+Pavel:
+kontrola prece tabulky X změna za symboly < > = !
+Kontrola stavů konečného automatu
+Upravit automat pro čitelnost
 \end{verbatim}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Práce v týmu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Práce v týmu} \label{team}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Lexikální analyzátor
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Lexikální analyzátor} \label{lexer}
+\textcolor{red}{Lexikální analýza?}
+
+Lexikální analyzátor je vstupní a nejjednodušší \textcolor{red}{Nezdůroazňoval bych} část překladače. Je založen na deterministickém \textcolor{red}{bejvávalo} konečném automatu,
+jehož hlavním úkolem je čtení zdrojového souboru a na základě lexikálních pravidel jazyka rozdělit jednotlivé znaky \textcolor{red}{množiny znaků}
+souboru na lexikální části (lexémy). Rozpoznané lexémy jsou reprezenované strukturou token, která obsahuje informace o typu
+tokenu a jeho data. Jeho vedlejší úlohou je odstraňování všech komentářů a bílých znaků, které \textcolor{red}{neboť} nejsou potřebné pro
+následné zpracování. Princip fungování lexikálního analyzátoru reprezuntuje příloha č.1 \textcolor{red}{A}, ve které je zobrazeno jeho schéma.
+Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem. Jeho výstupem \textcolor{red}{čeho?} je token,
+který je zároveň vstupem do syntaktické analýzy.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Syntaktický analyzátor
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Syntaktický analyzátor} \label{parser}
+
+\textcolor{red}{Syntaktická a sémantická analýza?}
+
+\subsection{Zpracování výrazů}
+\textcolor{red}{A FUNKCÍ! Má jediná chvíle slávy?}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Vestavěné funkce
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Vestavěné funkce????} \label{vestavene}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Interpret
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Interpret} \label{interpret}
 
 \subsection{Řadíci algoritmus -- Heap Sort}
@@ -197,21 +164,377 @@ Funkce pro seřazení prvků v poli.
 \subsection{Vyhledávaní podřetězce -- Knuth-Morris-Pratt}
 Vyhledání podřetězce v řetězci ve vestavěné funkci \texttt{find} je řešeno
 algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
-\texttt{Fail vector}. Je to pole celých čísel o délce hledaného textu. Ke
-každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index, kam
+\texttt{Fail vector}. Je to \textcolor{red}{nevábný počátek věty} pole celých čísel o délce hledaného textu. Ke
+každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index, kam \textcolor{red}{pro návrat programu}
 se má program vrátit v případě neshody znaků.
 
 \subsection{Tabulka s rozptýlenými položkami}
-Datová struktura použitá pro tabulky symbolů. Výhodou je rychlost vyhledávání
+Datová struktura použitá pro tabulky \textcolor{red}{tabulku?} symbolů. \textcolor{red}{Její} Výhodou je rychlost vyhledávání
 položek. Základem je pole ukazatelů na
 jednotlivé položky. Položky obsahují svůj klíč, data a ukazatel na další
 položku, aby mohly být propojené v jednosměrně vázaný lineární
-seznam (seznam synonym). V případě ideální hashovací funkce není propojení v
-seznam potřebné, čas přístupu k položkám konstantní. Nalezení takové
-funkce je ale problematické. V případě konfliktů se čas nalezení položky
-prodloužuje o prohledání lineárního seznamu.
+seznam \textcolor{red}{Ajajaj, to by se mi asi nemělo stávat. Utíkající odstavec} (seznam synonym) \textcolor{red}{-- seznam synonym}. V případě ideální hashovací funkce není propojení v
+seznam potřebné, \textcolor{red}{a} čas přístupu k položkám konstantní. Nalezení takové
+funkce je ale problematické \textcolor{red}{není triviální}. V případě konfliktů \textcolor{red}{konfliktu?} se čas nalezení položky
+prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 
-\section{TODO} \label{todo}
-+kontrola čitelnosti a komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Přílohy
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+% AUTOMAT
+\section{Diagram konečného automatu lexikální analýzy} \label{automat}
+\begin{center}
+\begin{tikzpicture}[scale=0.165]
+\small
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (40,-55) circle (3);
+\draw (40,-55) node {\em start};
+\draw [black] (7,-114.5) circle (3);
+\draw (7,-114.5) node {\em +-*,;};
+\draw [black] (7,-114.5) circle (2.4);
+\draw [black] (11.7,-131.3) circle (3);
+\draw (11.7,-131.3) node {\em (){}};
+\draw [black] (11.7,-131.3) circle (2.4);
+\draw [black] (7,-87.3) circle (3);
+\draw (7,-87.3) node {\em =};
+\draw [black] (7,-87.3) circle (2.4);
+\draw [black] (77,-51.2) circle (3);
+\draw (77,-51.2) node {\em /};
+\draw [black] (77,-51.2) circle (2.4);
+\draw [black] (94.1,-43.4) circle (3);
+\draw (94.1,-43.4) node {\em lbcom};
+\draw [black] (91.7,-63.2) circle (3);
+\draw (91.7,-63.2) node {\em lcom};
+\draw [black] (69.1,-39.7) circle (3);
+\draw (69.1,-39.7) node {\em rbcom};
+\draw [black] (76,-24) circle (3);
+\draw (76,-24) node {\em <};
+\draw [black] (76,-24) circle (2.4);
+\draw [black] (47.8,-19.9) circle (3);
+\draw (47.8,-19.9) node {\em >};
+\draw [black] (47.8,-19.9) circle (2.4);
+\draw [black] (77,-5.6) circle (3);
+\draw (77,-5.6) node {\em cin};
+\draw [black] (77,-5.6) circle (2.4);
+\draw [black] (94.1,-21.3) circle (3);
+\draw (94.1,-21.3) node {\em leseq};
+\draw [black] (94.1,-21.3) circle (2.4);
+\draw [black] (37.7,-9.6) circle (3);
+\draw (37.7,-9.6) node {\em cout};
+\draw [black] (37.7,-9.6) circle (2.4);
+\draw [black] (62.2,-11.7) circle (3);
+\draw (62.2,-11.7) node {\em greq};
+\draw [black] (62.2,-11.7) circle (2.4);
+\draw [black] (6.2,-105) circle (3);
+\draw (6.2,-105) node {\em eq};
+\draw [black] (6.2,-105) circle (2.4);
+\draw [black] (10.5,-64.6) circle (3);
+\draw (10.5,-64.6) node {\em !};
+\draw [black] (6.2,-54.3) circle (3);
+\draw (6.2,-54.3) node {\em neq};
+\draw [black] (6.2,-54.3) circle (2.4);
+\draw [black] (10.5,-76.3) circle (3);
+\draw (10.5,-76.3) node {\em eof};
+\draw [black] (10.5,-76.3) circle (2.4);
+\draw [black] (95.9,-86.5) circle (3);
+\draw (95.9,-86.5) node {\em quot};
+\draw [black] (73.2,-82.8) circle (3);
+\draw (73.2,-82.8) node {\em str};
+\draw [black] (73.2,-82.8) circle (2.4);
+\draw [black] (76,-107.1) circle (3);
+\draw (76,-107.1) node {\em esc};
+\draw [black] (101.2,-125.5) circle (3);
+\draw (101.2,-125.5) node {\em hex};
+\draw [black] (58.5,-82.8) circle (3);
+\draw (58.5,-82.8) node {\em int};
+\draw [black] (58.5,-82.8) circle (2.4);
+\draw [black] (44.9,-98.5) circle (3);
+\draw (44.9,-98.5) node {\em expe};
+\draw [black] (69.1,-99.5) circle (3);
+\draw (69.1,-99.5) node {\em int.};
+\draw [black] (17,-19.9) circle (3);
+\draw (17,-19.9) node {\em id};
+\draw [black] (17,-19.9) circle (2.4);
+\draw [black] (23.1,-7.9) circle (3);
+\draw (23.1,-7.9) node {\em keyword};
+\draw [black] (23.1,-7.9) circle (2.4);
+\draw [black] (80.4,-133.6) circle (3);
+\draw (80.4,-133.6) node {\em double};
+\draw [black] (80.4,-133.6) circle (2.4);
+\draw [black] (49,-137.1) circle (3);
+\draw (49,-137.1) node {\em exp};
+\draw [black] (49,-137.1) circle (2.4);
+\draw [black] (29.3,-135.3) circle (3);
+\draw (29.3,-135.3) node {\em exsqn};
+\draw [black] (37.02,-54.772) arc (293.36193:5.36193:2.25);
+\draw (33.55,-50.31) node [left] {\em white\mbox{ }space};
+\fill [black] (38.37,-52.5) -- (38.51,-51.56) -- (37.59,-51.96);
+\draw [black] (19.7,-55) -- (37,-55);
+\fill [black] (37,-55) -- (36.2,-54.5) -- (36.2,-55.5);
+\draw [black] (39.093,-57.859) arc (-19.46398:-71.76436:46.378);
+\fill [black] (9.88,-86.45) -- (10.79,-86.68) -- (10.48,-85.73);
+\draw (28.89,-76.03) node [below] {\em =};
+\draw [black] (39.263,-57.908) arc (-14.89614:-43.13128:127.582);
+\fill [black] (9.08,-112.33) -- (9.99,-112.09) -- (9.26,-111.41);
+\draw (28.21,-88.19) node [right] {\em +*-,;};
+\draw [black] (40.161,-57.996) arc (2.21629:-42.91636:98.858);
+\fill [black] (13.78,-129.13) -- (14.69,-128.89) -- (13.95,-128.21);
+\draw (34.82,-97) node [right] {\em (){}};
+\draw [black] (42.702,-53.697) arc (114.04706:77.68068:50.557);
+\fill [black] (74.09,-50.47) -- (73.41,-49.81) -- (73.2,-50.79);
+\draw (57.98,-49.01) node [above] {\em /};
+\draw [black] (79.408,-49.413) arc (124.31794:104.72135:37.986);
+\fill [black] (91.17,-44.05) -- (90.27,-43.77) -- (90.52,-44.73);
+\draw (84.08,-45.72) node [above] {\em *};
+\draw [black] (79.72,-52.464) arc (62.43568:39.11297:32.564);
+\fill [black] (89.92,-60.79) -- (89.8,-59.85) -- (89.02,-60.48);
+\draw (86.03,-55.61) node [above] {\em /};
+\draw [black] (92.235,-66.14) arc (38.0546:-249.9454:2.25);
+\draw (88.19,-70.3) node [below] {\em else};
+\fill [black] (89.69,-65.41) -- (88.75,-65.51) -- (89.37,-66.3);
+\draw [black] (95.133,-40.596) arc (187.51736:-100.48264:2.25);
+\draw (99.52,-37.28) node [right] {\em else};
+\fill [black] (96.95,-42.51) -- (97.81,-42.9) -- (97.68,-41.91);
+\draw [black] (70.517,-37.063) arc (145.12644:18.03624:12.98);
+\fill [black] (70.52,-37.06) -- (71.38,-36.69) -- (70.56,-36.12);
+\draw (83.43,-31.05) node [above] {\em *};
+\draw [black] (72.099,-39.642) arc (89.82687:73.3358:67.48);
+\fill [black] (91.25,-42.48) -- (90.62,-41.77) -- (90.34,-42.73);
+\draw (82.53,-39.68) node [above] {\em else};
+\draw [black] (42.993,-55.201) arc (85.83691:76.13817:274.264);
+\fill [black] (42.99,-55.2) -- (43.75,-55.76) -- (43.83,-54.76);
+\draw (66.57,-57.24) node [above] {\em \textbackslash n};
+\draw [black] (42.365,-53.155) arc (126.94089:108.52749:84.291);
+\fill [black] (42.37,-53.15) -- (43.31,-53.07) -- (42.7,-52.27);
+\draw (53.02,-45.42) node [above] {\em /};
+\draw [black] (41.643,-52.49) arc (145.72712:115.7371:80.666);
+\fill [black] (73.27,-25.25) -- (72.34,-25.15) -- (72.77,-26.05);
+\draw (54.59,-36.3) node [above] {\em <};
+\draw [black] (47.785,-22.9) arc (-1.39065:-23.66697:77.89);
+\fill [black] (47.78,-22.9) -- (47.27,-23.69) -- (48.27,-23.71);
+\draw (46.7,-38.28) node [right] {\em >};
+\draw [black] (75.333,-21.077) arc (-170.18655:-196.03513:28.304);
+\fill [black] (76.02,-8.43) -- (75.32,-9.06) -- (76.28,-9.34);
+\draw (74.38,-14.69) node [left] {\em <};
+\draw [black] (78.777,-22.869) arc (109.52567:87.44298:32.562);
+\fill [black] (91.11,-21.03) -- (90.34,-20.49) -- (90.29,-21.49);
+\draw (84.46,-20.75) node [above] {\em =};
+\draw [black] (45.096,-18.61) arc (-120.5542:-150.56921:16.987);
+\fill [black] (38.94,-12.33) -- (38.89,-13.27) -- (39.76,-12.78);
+\draw (41.08,-17.35) node [left] {\em >};
+\draw [black] (49.971,-17.831) arc (130.58707:108.73115:28.355);
+\fill [black] (59.31,-12.51) -- (58.4,-12.29) -- (58.72,-13.24);
+\draw (53.33,-14.22) node [above] {\em =};
+\draw [black] (7.643,-90.229) arc (9.39106:-14.56682:28.726);
+\fill [black] (7.1,-102.14) -- (7.79,-101.49) -- (6.82,-101.24);
+\draw (8.57,-96.23) node [right] {\em =};
+\draw [black] (37.384,-56.467) arc (-61.91096:-82.03681:71.936);
+\fill [black] (13.48,-64.25) -- (14.34,-64.63) -- (14.2,-63.64);
+\draw (26.51,-61.94) node [below] {\em !};
+\draw [black] (8.605,-62.281) arc (-146.63075:-168.05055:14.588);
+\fill [black] (6.52,-57.28) -- (6.19,-58.16) -- (7.17,-57.96);
+\draw (6.59,-60.81) node [left] {\em =};
+\draw [black] (38.338,-57.497) arc (-35.44861:-72.89027:47.931);
+\fill [black] (13.39,-75.51) -- (14.3,-75.75) -- (14.01,-74.79);
+\draw (29.13,-69.06) node [below] {\em eof};
+\draw [black] (42.832,-55.989) arc (70.25846:50.93848:173.594);
+\fill [black] (93.59,-84.59) -- (93.28,-83.7) -- (92.65,-84.47);
+\draw (70.32,-67.64) node [above] {\em ''};
+\draw [black] (95.246,-83.584) arc (220.37178:-67.62822:2.25);
+\draw (98.93,-79.29) node [above] {\em else};
+\fill [black] (97.82,-84.21) -- (98.75,-84.07) -- (98.1,-83.31);
+\draw [black] (92.983,-87.194) arc (-79.88974:-118.62536:26.331);
+\fill [black] (75.75,-84.38) -- (76.21,-85.21) -- (76.69,-84.33);
+\draw (83.74,-87.84) node [below] {\em ''};
+\draw [black] (95.237,-89.424) arc (-16.18725:-71.83235:25.191);
+\fill [black] (78.9,-106.34) -- (79.82,-106.56) -- (79.5,-105.61);
+\draw (89.69,-101.37) node [right] {\em /};
+\draw [black] (77.714,-104.638) arc (144.09148:127.88892:80.608);
+\fill [black] (93.5,-88.3) -- (92.56,-88.39) -- (93.17,-89.18);
+\draw (84.5,-94.44) node [left] {\em n t \textbackslash ''};
+\draw [black] (101.606,-128.461) arc (35.54413:-252.45587:2.25);
+\draw (96.39,-132.51) node [below] {\em isdigit};
+\fill [black] (99.1,-127.62) -- (98.16,-127.68) -- (98.74,-128.5);
+\draw [black] (100.367,-122.618) arc (-164.56024:-179.96188:124.712);
+\fill [black] (95.87,-89.5) -- (95.37,-90.3) -- (96.37,-90.3);
+\draw (96.32,-106.37) node [left] {\em i=2};
+\draw [black] (78.779,-108.23) arc (66.39614:41.33311:58.489);
+\fill [black] (99.28,-123.2) -- (99.12,-122.27) -- (98.37,-122.93);
+\draw (90.85,-114.09) node [above] {\em x};
+\draw [black] (42.397,-56.803) arc (51.17912:16.10584:46.023);
+\fill [black] (57.76,-79.89) -- (58.02,-78.99) -- (57.06,-79.26);
+\draw (52.47,-65.83) node [right] {\em isdigit};
+\draw [black] (55.522,-83.049) arc (302.51909:14.51909:2.25);
+\draw (51.47,-79.46) node [left] {\em isdigit};
+\fill [black] (56.49,-80.59) -- (56.48,-79.64) -- (55.64,-80.18);
+\draw [black] (56.54,-85.07) -- (46.86,-96.23);
+\fill [black] (46.86,-96.23) -- (47.77,-95.96) -- (47.01,-95.3);
+\draw (51.15,-89.2) node [left] {\em e\mbox{ }E};
+\draw [black] (60.87,-84.636) arc (48.7983:16.01079:25.048);
+\fill [black] (68.45,-96.57) -- (68.71,-95.67) -- (67.75,-95.94);
+\draw (66.14,-88.76) node [right] {\em .};
+\draw [black] (19.42,-21.673) arc (52.23036:14.24094:55.835);
+\fill [black] (19.42,-21.67) -- (19.75,-22.56) -- (20.36,-21.77);
+\draw (32.54,-33.88) node [right] {\em \_ isalpha};
+\draw [black] (15.339,-22.384) arc (-6.02889:-294.02889:2.25);
+\draw (10.5,-24.5) node [left] {\em \_ isalnum};
+\fill [black] (14.02,-20.09) -- (13.27,-19.51) -- (13.17,-20.51);
+\draw [black] (17.244,-16.916) arc (-190.7275:-223.164:14.178);
+\fill [black] (20.83,-9.86) -- (19.92,-10.1) -- (20.65,-10.78);
+\draw (17.84,-12.01) node [left] {\em iskeyword};
+\draw [black] (78.395,-131.369) arc (-140.13542:-183.19643:41.454);
+\fill [black] (78.4,-131.37) -- (78.27,-130.43) -- (77.5,-131.08);
+\draw (70.1,-118.53) node [left] {\em isdigit};
+\draw [black] (81.377,-136.424) arc (46.82314:-241.17686:2.25);
+\draw (78.71,-141.07) node [below] {\em isdigit};
+\fill [black] (78.75,-136.09) -- (77.84,-136.33) -- (78.57,-137.02);
+\draw [black] (77.643,-132.417) arc (-114.55876:-154.79201:64.458);
+\fill [black] (46.11,-101.24) -- (46,-102.18) -- (46.91,-101.75);
+\draw (57.29,-120.1) node [below] {\em e\mbox{ }E};
+\draw [black] (48.28,-134.188) arc (-166.76078:-181.11304:131.577);
+\fill [black] (48.28,-134.19) -- (48.58,-133.29) -- (47.61,-133.52);
+\draw (44.87,-118.05) node [left] {\em isdigit};
+\draw [black] (50.915,-134.806) arc (167.87147:-120.12853:2.25);
+\draw (55.9,-133.38) node [right] {\em isdigit};
+\fill [black] (51.99,-137.22) -- (52.66,-137.88) -- (52.87,-136.9);
+\draw [black] (29.923,-132.366) arc (167.12944:146.92511:97.148);
+\fill [black] (29.92,-132.37) -- (30.59,-131.7) -- (29.61,-131.47);
+\draw (34.45,-115.15) node [left] {\em +-};
+\draw [black] (32.273,-134.907) arc (95.27929:74.27941:38.224);
+\fill [black] (46.15,-136.17) -- (45.51,-135.48) -- (45.24,-136.44);
+\draw (39.75,-134.17) node [above] {\em isdigit};
+\end{tikzpicture}
+\end{center}
+\newpage
+
+% LL-GRAMATIKA
+\section{LL--gramatika} \label{llgram}
+\textcolor{red}{Matěj je rebel! Víc řádků než by snesla jedna strana.} \\
+\textcolor{red}{Nesázet verbatimem?}
+{\scriptsize
+\begin{verbatim}
+PROG->FUNCTION_DECL PROG
+PROG->eps
+FUNCTION_DECL->DATA_TYPE t_identifier t_lround_bracket FUNC_DECL_PARAMS t_rround_bracket NESTED_BLOCK
+DATA_TYPE->t_int
+DATA_TYPE->t_double
+DATA_TYPE->t_string
+FUNC_DECL_PARAMS->DATA_TYPE t_identifier FUNC_DECL_PARAMS_NEXT
+FUNC_DECL_PARAMS_NEXT->t_comma FUNC_DECL_PARAMS
+FUNC_DECL_PARAMS->eps
+FUNC_DECL_PARAMS_NEXT->eps
+NESTED_BLOCK->t_lcurly_bracket NBC t_rcurly_bracket
+NBC->DECL_OR_ASSIGN NBC
+DECL_OR_ASSIGN->DATA_TYPE t_identifier DECL_ASSIGN t_semicolon
+DECL_OR_ASSIGN->t_auto t_identifier t_assign EXPRESSION t_semicolon
+DECL_ASSIGN->t_assign EXPRESSION
+DECL_ASSIGN->eps
+NBC->FCALL_OR_ASSIGN NBC
+FCALL_OR_ASSIGN->t_identifier FOA_PART2
+FOA_PART2->t_lround_bracket FUNCTION_CALL_PARAMS t_rround_bracket t_semicolon
+FOA_PART2->t_assign EXPRESSION t_semicolon
+HARD_VALUE->t_int_value
+HARD_VALUE->t_double_value
+HARD_VALUE->t_string_value
+FUNCTION_CALL_PARAMS->FUNCTION_CALL_PARAM FUNCTION_CALL_PARAMS_NEXT
+FUNCTION_CALL_PARAMS->eps
+FUNCTION_CALL_PARAM->t_identifier
+FUNCTION_CALL_PARAM->HARD_VALUE
+FUNCTION_CALL_PARAMS_NEXT->t_comma FUNCTION_CALL_PARAMS
+FUNCTION_CALL_PARAMS_NEXT->eps
+NBC->BUILTIN_CALL NBC
+BUILTIN_CALL->BUILTIN_FUNC t_lround_bracket FUNCTION_CALL_PARAMS t_rround_bracket t_semicolon
+BUILTIN_FUNC->token_bf_length
+BUILTIN_FUNC->token_bf_substr
+BUILTIN_FUNC->token_bf_concat
+BUILTIN_FUNC->token_bf_find
+BUILTIN_FUNC->token_bf_sort
+NBC->IF_STATEMENT NBC
+IF_STATEMENT->t_if t_lround_bracket EXPRESSION t_rround_bracket NESTED_BLOCK ELSE_STATEMENT
+ELSE_STATEMENT->t_else NESTED_BLOCK
+ELSE_STATEMENT->eps
+NBC->COUT NBC
+COUT->t_cout t_cout_bracket COUT_OUTPUT COUT_NEXT t_semicolon
+COUT_OUTPUT->t_identifier
+COUT_OUTPUT->HARD_VALUE
+COUT_NEXT->t_cout_bracket COUT_OUTPUT COUT_NEXT
+COUT_NEXT->eps
+NBC->CIN NBC
+CIN->t_cin t_cin_bracket t_identifier CIN_NEXT t_semicolon
+CIN_NEXT->t_cin_bracket t_identifier CIN_NEXT
+CIN_NEXT->eps
+NBC->FOR_STATEMENT NBC
+FOR_STATEMENT->t_for t_lround_bracket FOR_DECLARATION FOR_EXPR FOR_ASSIGN t_rround_bracket NESTED_BLOCK
+FOR_DECLARATION->DATA_TYPE t_identifier DECL_ASSIGN t_semicolon
+FOR_DECLARATION->t_auto t_identifier t_assign EXPRESSION t_semicolon
+FOR_EXPR->EXPRESSION t_semicolon
+FOR_ASSIGN->t_identifier t_assign EXPRESSION
+NBC->NESTED_BLOCK NBC
+NBC->RETURN
+RETURN->t_return EXPRESSION t_semicolon
+NBC->eps
+\end{verbatim}
+}
+\newpage
+
+% PRECEDENČNÍ TABULKA
+\section{Precedenční tabulka} \label{prece}
+\textcolor{red}{záhlaví tabulky??}
+\begin{center}
+\setlength{\extrarowsep}{3pt}
+\begin{tabu}{|l|[2pt]l|l|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+st\textbackslash in              & +  & -  & *  & /  & (  & )  & id & \textless & \textgreater & \textless= & \textgreater= & == & != \\ \tabucline[2pt]{-}
++             & HI & HI & LO & LO & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+-             & HI & HI & LO & LO & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+*             & HI & HI & HI & HI & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+/             & HI & HI & HI & HI & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+(             & LO & LO & LO & LO & LO & EQ & LO & LO        & LO           & LO         & LO            & LO & LO \\ \hline
+)             & HI & HI & HI & HI & ER & HI & ER & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+id            & HI & HI & HI & HI & ER & HI & ER & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+\textless     & LO & LO & LO & LO & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+\textgreater  & LO & LO & LO & LO & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+\textless=    & LO & LO & LO & LO & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+\textgreater= & LO & LO & LO & LO & LO & HI & LO & HI        & HI           & HI         & HI            & HI & HI \\ \hline
+==            & LO & LO & LO & LO & LO & HI & LO & LO        & LO           & LO         & LO            & HI & HI \\ \hline
+!=            & LO & LO & LO & LO & LO & HI & LO & LO        & LO           & LO         & LO            & HI & HI \\ \hline
+\end{tabu}
+\end{center}
+\newpage
+
+% INSTRUKČNÍ SADA TROJADRESNÉHO KÓDU
+\section{Instrukční sada trojadresného kódu} \label{instrukce}
+\textcolor{red}{Přidat popisky a nesázet přes Verbatim}
+\begin{verbatim}
+    INS_ASSIGN
+    INS_ADD
+    INS_SUB
+    INS_MUL
+    INS_DIV
+    INS_EQ
+    INS_NEQ
+    INS_GREATER
+    INS_GREATEQ
+    INS_LESSER
+    INS_LESSEQ
+    INS_JMP
+    INS_CJMP
+    INS_LAB
+    INS_PUSH
+    INS_CALL
+    INS_RET
+    INS_PUSH_TAB
+    INS_POP_TAB
+    INS_LENGTH
+    INS_SUBSTR
+    INS_CONCAT
+    INS_FIND
+    INS_SORT
+    INS_CIN
+    INS_COUT
+\end{verbatim}
+
 \end{document}
 

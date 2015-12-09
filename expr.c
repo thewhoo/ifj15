@@ -68,7 +68,7 @@ POZNAMKY
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
-	Aktuální volné error_pos_in_code 22+
+	Aktuální volné error_pos_in_code 21+
 */
 
 /* BEGIN DEBUG FUNCTIONS */
@@ -312,11 +312,7 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 
 	if (ins_type == INS_ASSIGN) {
 		if (operation_table[addr1->var_type][addr2->var_type] == ER) {
-			if (strcmp(addr1->name, "return")) {
-				my_exit_error(E_SEMANTIC_TYPES, 21);
-			} else {
-				my_exit_error(E_SEMANTIC_OTHERS, 11);
-			}
+			my_exit_error(E_SEMANTIC_TYPES, 11);
 		}
 		if (addr1->var_type == TYPE_AUTO) {
 			addr1->var_type = addr2->var_type;

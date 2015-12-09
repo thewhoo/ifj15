@@ -62,6 +62,7 @@ TToken *token;
 /*
 TODO
 	Nepouzivane hodnoty precedencni tabulky (rround, id, less_e)
+	pridat sloupce pro precedenci ve funkci!!
 ZEPTAT SE
 POZNAMKY
 OMEZENÍ

@@ -597,7 +597,7 @@ bool NBC()
         return NESTED_BLOCK(true) && NBC();
 
     case TOKEN_RETURN:
-        return RETURN();
+        return RETURN() && NBC();
 
     case TOKEN_RCURLY_BRACKET:
         return true;

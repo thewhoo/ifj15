@@ -1,3 +1,41 @@
+%********************************************************************************
+%
+%  kontrola čitelnosti kódu
+%  kontrola komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
+%  tvorba automatu http://madebyevan.com/fsm/
+%  vývojový cyklus? speciální techniky
+%  Section "Implementace interpretu jazyka IFJ15" a pod lex, syn, sem, int?
+%  Větší řádkování?
+
+%  Zadání:
+%  dokumentace.pdf      4-7 stran
+%  1. strana            OK
+%  Diagram automatu    OK
+%  LL-gramatika        OK
+%  prece tabulka       "OK"
+%  POPIS ZPŮSOBU ŘEŠENÍ Z POHLEDU IFJ
+%      návrh
+%      implementace
+%      vývojový cyklus
+%      práce v týmu
+%      sleciální techniky
+%      algoritmy
+%  Popis řadícího svého algoritmu
+%      řazení
+%      hledání v textu
+%      tabulky symbolů
+%  Opět práce v týmu (kdo co jak)
+%  Literatutra, reference, citace
+%  !! Nevlastní materiál
+%  !! Obecné popisy algoritmů
+
+%  Pavel:
+%  kontrola prece tabulky X změna za symboly 	textless > = !
+%  přidat dolar do prece tabulky
+%
+%********************************************************************************
+
+
 %
 % Course IFJ @ FIT VUT Brno, 2015
 % IFJ15 Interpreter Project
@@ -29,6 +67,7 @@
 
 \pagenumbering{arabic}
 \providecommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
+\interlinepenalty 10000 %nezalamovat odstavce
 
 \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,51 +114,9 @@
 %                   Úvod
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Úvod} \label{uvod}
+
 Obecný pokec o stvoření světa
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   UNDER CONSTRUCTION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{TODO} \label{todo}
-\begin{verbatim}
-default font?
-kontrola čitelnosti kódu
-kontrola komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
-tvorba automatu http://madebyevan.com/fsm/
-vývojový cyklus? speciální techniky
-instrukční sadu?
-Section "Implementace interpretu jazyka IFJ15" a pod lex, syn, sem, int?
-Větší řádkování?
-Sjednotit popisy automatu    = VS ASS   == VS EQ
-     i=2
-pravidla prece tabulky jako text?
 
-Zadání:
-dokumentace.pdf      4-7 stran
-1. strana            OK
-Diagram automatu    OK
-LL-gramatika        OK
-prece tabulka       "OK"
-POPIS ZPŮSOBU ŘEŠENÍ Z POHLEDU IFJ
-    návrh
-    implementace
-    vývojový cyklus
-    práce v týmu
-    sleciální techniky
-    algoritmy
-Popis řadícího svého algoritmu
-    řazení
-    hledání v textu
-    tabulky symbolů
-Opět práce v týmu (kdo co jak)
-Literatutra, reference, citace
-!! Nevlastní materiál
-!! Obecné popisy algoritmů
-
-Pavel:
-kontrola prece tabulky X změna za symboly 	textless > = !
-přidat dolar do prece tabulky
-\end{verbatim}
-\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Práce v týmu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,65 +124,65 @@ přidat dolar do prece tabulky
 
 Projekt je vypracován čtvreřicí \texttt{cool} kluků.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   Lexikální analyzátor
+%                   Lexikální analýza
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Lexikální analyzátor} \label{lexer}
-\textcolor{red}{Lexikální analýza?}
+\section{Implementace interpretu jazyka IFJ15} \label{implementace}
 
-Lexikální analyzátor je vstupní a nejjednodušší \textcolor{red}{Nezdůroazňoval bych} část překladače. Je založen na deterministickém \textcolor{red}{bejvávalo} konečném automatu,
-jehož hlavním úkolem je čtení zdrojového souboru a na základě lexikálních pravidel jazyka rozdělit jednotlivé znaky \textcolor{red}{množiny znaků}
-souboru na lexikální části (lexémy). Rozpoznané lexémy jsou reprezenované strukturou token, která obsahuje informace o typu
-tokenu a jeho data. Jeho vedlejší úlohou je odstraňování všech komentářů a bílých znaků, které \textcolor{red}{neboť} nejsou potřebné pro
-následné zpracování. Princip fungování lexikálního analyzátoru reprezuntuje příloha č.1 \textcolor{red}{A}, ve které je zobrazeno jeho schéma.
-Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem. Jeho výstupem \textcolor{red}{čeho?} je token,
-který je zároveň vstupem do syntaktické analýzy.
+\subsection{Lexikální analýza} \label{lexer}
+
+Lexikální analyzátor je vstupní část překladače. Je založen na deterministickém konečném automatu,
+jehož hlavním úkolem je čtení zdrojového souboru a na základě lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
+souboru na lexikální části  -- lexémy. Rozpoznané lexémy jsou reprezenované strukturou token, která obsahuje informace o typu
+tokenu a jeho data. Jeho vedlejší úlohou je odstraňování všech komentářů a bílých znaků, neboť nejsou potřebné pro
+následné zpracování. Princip fungování lexikálního analyzátoru reprezuntuje příloha A, ve které je zobrazeno jeho schéma.
+Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem, který postupně žádá o jednotlivé tokeny.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   Syntaktický analyzátor
+%                   Syntaktická a sémantická analýza
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Syntaktický analyzátor} \label{parser}
+\subsection{Syntaktická a sémantická analýza} \label{parser}
 
-\textcolor{red}{Syntaktická a sémantická analýza?}
-Syntaktická analýza a sémantická analýza
-
-Syntaktický a sémantický analyzátor, neboli parser, představuje ústřední část
+Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ústřední část
 naší implementace interpretu jazyka IFJ15. Parser se volá prakticky ihned po
 spuštění programu a přejímá řízení do doby, než dojde k úplnému zpracování
 zdrojového souboru.
 
 Syntaktická analýza je implementována rekurzivním sestupem, který je řízen
-pravidly naší LL gramatiky. Neterminální symboly představují tokeny přijaté od
+pravidly naší LL--gramatiky. Neterminální symboly představují tokeny přijaté od
 lexikálního analyzátoru. Ten je volán přímo z parseru vždy, když je třeba
 zpracovat další token. Se syntaktickou analýzou je současně vykonávána také
-analýza sémantická. Při deklaraci nebo definici funkce (jazyk IFJ15 podporuje v
-globálním prostoru pouze funkce) se do globální tabulky symbolů ukládá datová
+analýza sémantická. Při deklaraci nebo definici funkce -- jazyk IFJ15 podporuje v
+globálním prostoru pouze funkce -- se do globální tabulky symbolů ukládá datová
 struktura reprezentující danou funkci.
 
-Poté dochází ke zpracování těla dané funkce (za předpokladu, že jde o definici
-funkce). Přímo během rekurzivního sestupu se tak vykonávají všechny potřebné
+V případě definice funkce poté dochází ke zpracování těla dané funkce.
+Přímo během rekurzivního sestupu se tak vykonávají všechny potřebné
 sémantické kontroly a naplňuje se lokální tabulka symbolů. Taktéž se generují
 vnitřní instrukce, které se ukládají do instrukčního seznamu příslušné funkce.
 Pokud se během syntaktické analýzy narazí na výraz, je řízení programu předáno
-modulu pro vyhodnocování výrazů (expr), který pomocí precedenční analýzy
+modulu pro vyhodnocování výrazů \texttt{expr}, který pomocí precedenční analýzy
 provede vyhodnocení daného výrazu a poté předá řízení zpět parseru.
 
 Po zpracování celého zdrojového souboru se provádí závěrečné sémantické
-kontroly. Kontroluje se například to, zda došlo během zpracování zdrojového
+kontroly. Kontroluje se například, zda došlo během zpracování zdrojového
 souboru k definici všech deklarovaných funkcí. Tímto je syntaktická a
 sémantická analýza ukončena a parser předá řízení interpretu.
 
 \subsection{Zpracování výrazů}
-\textcolor{red}{A FUNKCÍ! Má jediná chvíle slávy?}
+Zpracování výrazů řízené precedenční tabulkou probíhá ve dvou krocích.
+V prvním kroku je výraz převeden z infixové na postfixovou notaci.
+V kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
+\texttt{A co funkce bro???????}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Vestavěné funkce
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Vestavěné funkce????} \label{vestavene}
+\subsection{Vestavěné funkce????} \label{vestavene}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Interpret
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Interpret} \label{interpret}
+\subsection{Interpret} \label{interpret}
 
 \subsection{Řadíci algoritmus -- Heap Sort}
 Funkce pro seřazení prvků v poli.
@@ -193,27 +190,29 @@ Funkce pro seřazení prvků v poli.
 \subsection{Vyhledávaní podřetězce -- Knuth-Morris-Pratt}
 Vyhledání podřetězce v řetězci ve vestavěné funkci \texttt{find} je řešeno
 algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
-\texttt{Fail vector}. Je to \textcolor{red}{nevábný počátek věty} pole celých čísel o délce hledaného textu. Ke
-každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index, kam \textcolor{red}{pro návrat programu}
-se má program vrátit v případě neshody znaků.
+\texttt{Fail vector}. Jedná se o pole celých čísel délky hledaného textu. Ke
+každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index pro návrat programu
+v případě neshody znaků.
 
 \subsection{Tabulka s rozptýlenými položkami}
-Datová struktura použitá pro tabulky \textcolor{red}{tabulku?} symbolů. \textcolor{red}{Její} Výhodou je rychlost vyhledávání
+Datová struktura použitá pro tabulky symbolů. Její Výhodou je rychlost vyhledávání
 položek. Základem je pole ukazatelů na
 jednotlivé položky. Položky obsahují svůj klíč, data a ukazatel na další
 položku, aby mohly být propojené v jednosměrně vázaný lineární
-seznam (seznam synonym) \textcolor{red}{-- seznam synonym}. V případě ideální hashovací funkce není propojení v
-seznam potřebné, \textcolor{red}{a} čas přístupu k položkám konstantní. Nalezení takové
-funkce je ale problematické \textcolor{red}{není triviální}. V případě konfliktů \textcolor{red}{konfliktu?} se čas nalezení položky
-prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
+seznam -- seznam synonym. V případě ideální hashovací funkce není propojení v
+seznam potřebné a čas přístupu k položkám konstantní. Nalezení takové
+funkce není triviální. V případě konfliktu se čas nalezení položky
+prodloužuje o dobu prohledání lineárního seznamu.
 
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Přílohy
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\appendix
+\section{Přílohy} \label{prilohy}
+
+\renewcommand\thesubsection{\thesection.\Alph{subsection}}
 % AUTOMAT
-\section{Diagram konečného automatu lexikální analýzy} \label{automat}
+\subsection{Diagram konečného automatu lexikální analýzy} \label{automat}
 \begin{center}
 \begin{tikzpicture}[scale=0.165]
 \tikzstyle{every node}+=[inner sep=0pt]
@@ -448,9 +447,9 @@ prodloužuje o \textcolor{red}{dobu?} prohledání lineárního seznamu.
 
 \begin{landscape}
 % LL-GRAMATIKA
-\section{LL--gramatika} \label{llgram}
+\subsection{LL--gramatika} \label{llgram}
 
-\subsection{První část}
+\subsubsection*{Část první}
 \begin{verbatim}
 PROG->FUNCTION_DECL PROG
 PROG->eps
@@ -484,7 +483,7 @@ FUNCTION_CALL_PARAMS_NEXT->eps
 \end{verbatim}
 \newpage
 
-\subsection{Druhá část}
+\subsubsection*{Část druhá}
 \begin{verbatim}
 NBC->BUILTIN_CALL NBC
 BUILTIN_CALL->BUILTIN_FUNC t_lround_bracket FUNCTION_CALL_PARAMS t_rround_bracket t_semicolon
@@ -522,10 +521,9 @@ NBC->eps
 \newpage
 
 % PRECEDENČNÍ TABULKA
-\section{Precedenční tabulka} \label{prece}
+\subsection{Precedenční tabulka} \label{prece}
 
-\vspace{\stretch{0.5}}
-
+\vspace{1cm}
 \begin{center}
 \def\arraystretch{1.3}
 \begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\hline
@@ -545,41 +543,39 @@ id            & \textgreater & \textgreater & \textgreater & \textgreater & ! & 
 !=            & \textless & \textless & \textless & \textless & \textless & \textgreater & \textless & \textless        & \textless           & \textless         & \textless            & \textgreater & \textgreater & \\ \hline
 \end{tabular}
 \end{center}
-\vspace{\stretch{0.5}}
-
 \newpage
 
 % INSTRUKČNÍ SADA TROJADRESNÉHO KÓDU
-\section{Instrukční sada trojadresného kódu} \label{instrukce}
-\textcolor{red}{Přidat popisky a nesázet přes Verbatim}
-\begin{verbatim}
-    INS_ASSIGN
-    INS_ADD
-    INS_SUB
-    INS_MUL
-    INS_DIV
-    INS_EQ
-    INS_NEQ
-    INS_GREATER
-    INS_GREATEQ
-    INS_LESSER
-    INS_LESSEQ
-    INS_JMP
-    INS_CJMP
-    INS_LAB
-    INS_PUSH
-    INS_CALL
-    INS_RET
-    INS_PUSH_TAB
-    INS_POP_TAB
-    INS_LENGTH
-    INS_SUBSTR
-    INS_CONCAT
-    INS_FIND
-    INS_SORT
-    INS_CIN
-    INS_COUT
-\end{verbatim}
+\subsection{Instrukční sada trojadresného kódu} \label{instrukce}
+
+\texttt{INS\_ASSIGN} 
+
+Bla bla bla \texttt{source} bla \texttt{dst}, bla. \\
+\texttt{INS\_ADD} \\
+\texttt{INS\_SUB} \\
+\texttt{INS\_MUL} \\
+\texttt{INS\_DIV} \\
+\texttt{INS\_EQ} \\
+\texttt{INS\_NEQ} \\
+\texttt{INS\_GREATER} \\
+\texttt{INS\_GREATEQ} \\
+\texttt{INS\_LESSER} \\
+\texttt{INS\_LESSEQ} \\
+\texttt{INS\_JMP} \\
+\texttt{INS\_CJMP} \\
+\texttt{INS\_LAB} \\
+\texttt{INS\_PUSH} \\
+\texttt{INS\_CALL} \\
+\texttt{INS\_RET} \\
+\texttt{INS\_PUSH\_TAB} \\
+\texttt{INS\_POP\_TAB} \\
+\texttt{INS\_LENGTH} \\
+\texttt{INS\_SUBSTR} \\
+\texttt{INS\_CONCAT} \\
+\texttt{INS\_FIND} \\
+\texttt{INS\_SORT} \\
+\texttt{INS\_CIN} \\
+\texttt{INS\_COUT} \\
 
 \end{document}
 

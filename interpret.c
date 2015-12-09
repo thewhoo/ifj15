@@ -343,6 +343,11 @@ void interpret_loop(Tins_list *ins_list)
                     memcpy(var2, ins->addr1, sizeof(TVariable));
                     
                 }
+                else if(item->data.variable->var_type == TYPE_STRING)
+                {
+                    gfree(item->data.variable->data.str);
+                }
+                item->data.variable->initialized = 0;
                 break;
             
             //leaving nested block, clean up

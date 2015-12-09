@@ -1,0 +1,38 @@
+int f1(double a);
+
+int f2(int b);
+
+int main()
+{
+    double a = 4.5;
+
+    double c = f2(a);
+
+    cout << c << "\n";
+
+    return 42;
+}
+
+int f1(double a)
+{
+    int x;
+    
+    x = f2(4.9);
+
+    return x;
+}
+
+int f2(int b)
+{
+    int x;
+
+    if(b == 4)
+    {
+        return b;
+    }
+    else
+    {
+        x = f1(b);
+        return x;
+    }
+}

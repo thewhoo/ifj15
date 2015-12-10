@@ -4,7 +4,7 @@ int f(int a, int b)
 }
 int main()
 {
-	int a = f(42-12);
+	int a = f(42{12);
 	return 0;
 }
 

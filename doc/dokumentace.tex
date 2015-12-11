@@ -1,26 +1,4 @@
-%********************************************************************************
-%
-%  kontrola čitelnosti kódu
-%  kontrola komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
-%  tvorba automatu http://madebyevan.com/fsm/
-%  vývojový cyklus? speciální techniky
-%  Section "Implementace interpretu jazyka IFJ15" a pod lex, syn, sem, int?
-%  Větší řádkování?
-
-%algoritmy
-%	morris
-%	vyhledávání podřetězce
-%datové struktury
-%	zásobník
-%	string
-%	hash tabulka
-
-
-%\textless v gramtice !!
-% příloha LL-gra do semant
-% LL-gramar spojovník X pomlčka
-% gprof a valgridn?
-
+%*******************************************************************************
 %  Zadání:
 %  dokumentace.pdf      4-7 stran
 %  1. strana            OK
@@ -44,10 +22,11 @@
 %  !! Obecné popisy algoritmů
 
 %  Pavel:
+%  kontrola čitelnosti kódu
+%  kontrola komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
 %  kontrola prece tabulky X změna za symboly 	textless > = !
 %  přidat dolar do prece tabulky
-%
-%********************************************************************************
+%*******************************************************************************
 
 
 %
@@ -129,66 +108,88 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Úvod} \label{uvod}
 
-Tato dokumentace popsiuje implementaci interpretu jazyka IFJ15, který je zjednoduenou
-podmnožinou C++11. Interpret se skládá ze čytřech částí popsaných v následujících kapitolách.
+Tato dokumentace popsiuje implementaci interpretu jazyka IFJ15,který je
+zjednodušenou podmnožinou jazyka C++11. Interpret se skládá ze čtyřech částí
+popsaných v následujících kapitolách.
 
-	Lexikální analyzátor
-	syn
-	sem
-	Interpret
+\begin{itemize}
+	\item Lexikální analyzátor
+	\item Syntaktický analyzátor
+	\item Sémantický analyzátor
+	\item Interpret
+\end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Práce v týmu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Práce v týmu} \label{team}
 
-\subsection{Rozdělení}
-Lexer Lukáš
-Sémantik \\\\\\\\
-
-Interpret, vstavěné funkce Pavol
+\subsection{Rozdělení práce na jednotlivých částech}
+\begin{itemize}
+	\item Lexer Lukáš -- lexikální analyzátor
+	\item Matěj Postolka -- Sémantický a syntaktický analyzátor
+	\item Pavel Pospíšil -- Zpracování výrazů a volání funkcí
+	\item Pavel Plaskoň -- Interpret, vstavěné funkce
+\end{itemize}
 
 \subsection{Průběh vývoje}
-Projekt je řešený čtyřčlenným týmem, bylo tedy potřebné zvolit vhodný systém správy zdrojových souborů.
-K těmto účelům jsme využili vergovací systém ttt Git na našem privátním serveru, přes naše nulové zkušenosti (okrem matěja).
-%Inkrementánlí vývojový cyklus
-Konzultace probíhaly jednou týdně, zhodntolili jsme aktuální výsledky a stanovili další ukoly. Ve fázy kdy byly jendotlivé části
-téměř dokončené jsme podnikl týmový kouding. po dvoch takýchto stretrnutach byly jednotlivé části schopy spolu mluviti a začala
-fáza opravobání chyb. Mrtě sme testovali, Pavol napsal python skripta, lebo maká na praxi v takej firme AVG, čo robí antiviry.
+Projekt je řešený čtyřčlenným týmem, bylo tedy potřebné zvolit vhodný systém
+správy zdrojových souborů. Přes téměř nulové zkušenosti většiny členů týmu jsme
+k těmto účelům jsme využili verzovací systém \texttt{Git} na privátním serveru
+vedoucího člena.
+\begin{verbatim}
+Inkrementánlí vývojový cyklus !!!
+\end{verbatim}
+Konzultace probíhaly jednou týdně, obsahovaly zhodnocení aktuálních výsledků
+a stanovení dalšího postupu. Nejdříve tedy každý člen pracoval sám, po několika
+týdnech práce proběhly dvě schůzky na kterých jsme programovali společně.
+V průběhu celého procesu členové týmu doplňovali krátké testovací kódy, kterými
+bylo následně možné, pomocí skriptu napsaného v jazyce \texttt{Python}, testovat
+dosavadní stabilitu celku. Při testování se nám též osvědčil program
+\texttt{gprof}.
 
+\begin{verbatim}
+Něco o valgrindu?
+\end{verbatim}
+
+\newpage
+
+\section{Implementace interpretu jazyka IFJ15} \label{implementace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Lexikální analýza
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Implementace interpretu jazyka IFJ15} \label{implementace}
-
 \subsection{Lexikální analýza} \label{lexer}
 
-% unget_token
-% o komentářích (návrat do startu)
-% pouívání stringu
-
-Lexikální analyzátor je vstupní část překladače. Je založen na deterministickém konečném automatu,
-jehož hlavním úkolem je čtení zdrojového souboru a na základě lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
-souboru na lexikální části  -- lexémy. Rozpoznané lexémy jsou reprezenované strukturou token, která obsahuje informace o typu
-tokenu a jeho data. Jeho vedlejší úlohou je odstraňování všech komentářů a bílých znaků, neboť nejsou potřebné pro
-následné zpracování. Princip fungování lexikálního analyzátoru reprezuntuje příloha A, ve které je zobrazeno jeho schéma.
-Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem, který postupně žádá o jednotlivé tokeny.
+\begin{verbatim}
+*** Lukáš Osadský
+unget_token
+o komentářích (návrat do startu)
+pouívání stringu
+\end{verbatim}
+Lexikální analyzátor je vstupní část překladače. Je založen na deterministickém
+konečném automatu, jehož hlavním úkolem je čtení zdrojového souboru a na základě
+lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
+souboru na lexikální části  -- lexémy. Rozpoznané lexémy jsou reprezenované
+strukturou token, která obsahuje informace o typu
+tokenu a jeho data. Jeho vedlejší úlohou je odstraňování všech komentářů
+a bílých znaků, neboť nejsou potřebné pro
+následné zpracování. Princip fungování lexikálního analyzátoru reprezuntuje
+příloha \ref{subsec:automat}, ve které je zobrazeno jeho schéma.
+Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem,
+který postupně žádá o jednotlivé tokeny.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Syntaktická a sémantická analýza
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Syntaktická a sémantická analýza} \label{parser}
 
-
-
 \subsubsection{Zpracování jazykových konsturkcí}
-
-Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ústřední část
-naší implementace interpretu jazyka IFJ15. Parser se volá prakticky ihned po
+Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ústřední
+část naší implementace interpretu jazyka IFJ15. Parser se volá prakticky ihned po
 spuštění programu a přejímá řízení do doby, než dojde k úplnému zpracování
 zdrojového souboru.
 
 Syntaktická analýza je implementována rekurzivním sestupem, který je řízen
-pravidly naší LL--gramatiky. Neterminální symboly představují tokeny přijaté od
+pravidly naší LL-gramatiky uvedenými v příloze \ref{subsec:llgram}. Neterminální symboly představují tokeny přijaté od
 lexikálního analyzátoru. Ten je volán přímo z parseru vždy, když je třeba
 zpracovat další token. Se syntaktickou analýzou je současně vykonávána také
 analýza sémantická. Při deklaraci nebo definici funkce -- jazyk IFJ15 podporuje v
@@ -206,42 +207,68 @@ provede vyhodnocení daného výrazu a poté předá řízení zpět parseru.
 Po zpracování celého zdrojového souboru se provádí závěrečné sémantické
 kontroly. Kontroluje se například, zda došlo během zpracování zdrojového
 souboru k definici všech deklarovaných funkcí, přesná signatura fce main.
-Tímto je syntaktická a
-sémantická analýza ukončena a parser předá řízení interpretu.
+Tímto je syntaktická a sémantická analýza ukončena a parser předá řízení interpretu.
 
-\subsubsection{Zpracování výrazů}
-Zpracování výrazů řízené precedenční tabulkou probíhá ve dvou krocích.
-V prvním kroku je výraz převeden z infixové na postfixovou notaci.
+\subsubsection{Zpracování výrazů a volání funkcí}
+Zpracování výrazu je voláno v několika rozličných situacích. Existují situace,
+kdy se však na místě výrazu může objevit volání funkce. Volání funkcí i zpracovávání
+výrazů jsou v naší implementaci součástí jednoho modulu???.
+
+Zpracování výrazů řízené precedenční tabulkou uvedenou v příloze
+\ref{subsec:precetable} probíhá ve dvou krocích. V prvním kroku je za pomoci
+zásobníkové struktury výraz převeden z infixové
+na postfixovou notaci. V tomto kroku je kontrolována správná posloupnost
+operátorů, operandů a závorek.
+
 V kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
-Něco o autech.
-\texttt{A co funkce bro???????}
+V této fázi běhu interpretu se kontrolují datové typy operandů a nastavují
+odvozené datové typy proměnným s modifikátorem \texttt{auto}.
+
+Při výskytu volání funkce je mimo jiné kontrolován datový typ proměnné,
+kterou tato funkce nastavuje svojí návratovou hodnotou.
 
 \subsubsection{Sémantická analýza}
-Probíhá pralelně se syntaktickou analýzou v rámci rekurzivního sestupu i precedenční
-analýzy výrazů. Kontroluje se definice a deklarace funkcía a deklarace proměnných.
-Dále pak typové kontroly ve výrazech a při voláních funkcí.
+Sémantická analýza probíhá pralelně se syntaktickou analýzou v rámci
+rekurzivního sestupu i precedenční analýzy výrazů. Kontroluje se definice
+a deklarace funkcí i deklarace proměnných.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Interpret
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Interpret} \label{interpret}
 
+\begin{verbatim}
+*** Pavol Plaskoň
+Text
+\end{verbatim}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Datové struktury
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Datové struktury}
 
+\begin{verbatim}
+Úvodní text ke sktrukturám? Vypadalo by to podle mě lépe
+\end{verbatim}
 
+\subsubsection{Zásobník}
+\begin{verbatim}
+*** Tvůrce??
+Text
+Umí přístup přes indexy, je udělanej jako pole... myslím
+\end{verbatim}
 
-\subsection{Řadíci algoritmus -- Heap Sort}
-Funkce pro seřazení prvků v poli.
+\subsubsection{Řetězec}
+\begin{verbatim}
+*** Tvůrce??
+Text
+\end{verbatim}
 
-\subsection{Vyhledávaní podřetězce -- Knuth-Morris-Pratt}
-Vyhledání podřetězce v řetězci ve vestavěné funkci \texttt{find} je řešeno
-algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
-\texttt{Fail vector}. Jedná se o pole celých čísel délky hledaného textu. Ke
-každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index pro návrat programu
-v případě neshody znaků.
-
-\subsection{Tabulka s rozptýlenými položkami}
-používáme sdbm  Biač \\!!
-explicitně řazené položky \\
+\subsubsection{Tabulka s rozptýlenými položkami}
+\begin{verbatim}
+*** Pavol Plaskoň
+používáme sdbm
+explicitně řazené položky
+\end{verbatim}
 Datová struktura použitá pro tabulky symbolů. Její Výhodou je rychlost vyhledávání
 položek. Základem je pole ukazatelů na
 jednotlivé položky. Položky obsahují svůj klíč, data a ukazatel na další
@@ -250,6 +277,30 @@ seznam -- seznam synonym. V případě ideální hashovací funkce není propoje
 seznam potřebné a čas přístupu k položkám konstantní. Nalezení takové
 funkce není triviální. V případě konfliktu se čas nalezení položky
 prodloužuje o dobu prohledání lineárního seznamu.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Algoritmy
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Algoritmy}
+
+\begin{verbatim}
+Úvodní text k algoritmům?
+\end{verbatim}
+
+\subsubsection{Řadíci algoritmus -- Heap Sort}
+\begin{verbatim}
+*** Tvůrce??
+Text
+\end{verbatim}
+Funkce pro seřazení prvků v poli.
+
+\subsubsection{Vyhledávaní podřetězce -- Knuth-Morris-Pratt}
+Vyhledání podřetězce v řetězci ve vestavěné funkci \texttt{find} je řešeno
+algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
+\texttt{Fail vector}. Jedná se o pole celých čísel délky hledaného textu. Ke
+každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index pro návrat programu
+v případě neshody znaků.
 
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -274,7 +325,7 @@ prodloužuje o dobu prohledání lineárního seznamu.
 %	cout		
 %	cin
 
-\subsection{Diagram konečného autommlatu lexikální analýzy} \label{automat}
+\subsection{Diagram konečného autommlatu lexikální analýzy} \label{subsec:automat}
 \begin{center}
 \begin{tikzpicture}[scale=0.165]
 \tikzstyle{every node}+=[inner sep=0pt]
@@ -508,8 +559,8 @@ prodloužuje o dobu prohledání lineárního seznamu.
 
 
 \begin{landscape}
-% LL-GRAMATIKA
-\subsection{LL--gramatika} \label{llgram}
+% LL GRAMATIKA
+\subsection{LL-gramatika} \label{subsec:llgram}
 
 \subsubsection*{Část první}
 \begin{verbatim}
@@ -583,7 +634,7 @@ NBC->eps
 \newpage
 
 % PRECEDENČNÍ TABULKA
-\subsection{Precedenční tabulka} \label{prece}
+\subsection{Precedenční tabulka} \label{subsec:precetable}
 
 \vspace{1cm}
 \begin{center}
@@ -611,76 +662,91 @@ id            & \textgreater & \textgreater & \textgreater & \textgreater & ! & 
 \subsection{Instrukční sada trojadresného kódu} \label{instrukce}
 
 
-\texttt{INS\_ASSIGN} \texttt{dest}, \texttt{src1} -- přiradí hodnotu proměnnej src1 do dest\\
-\texttt{INS\_ADD} \texttt{dest}, \texttt{src1}, \texttt{src2} -- sčítá src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_SUB} \texttt{dest}, \texttt{src1}, \texttt{src2} -- odečítá src1 od src2, výsledek uloží do dest\\
-\texttt{INS\_MUL} \texttt{dest}, \texttt{src1}, \texttt{src2} -- vynásobí src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_DIV}
+\texttt{INS\_ASSIGN} \texttt{dest}, \texttt{src1}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- vydelí src2 a src1, výsledek uloží do dest\\
-\texttt{INS\_EQ}
+přiradí hodnotu proměnnej src1 do dest\\
+\texttt{INS\_ADD} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje rovnost src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_NEQ}
+sčítá src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_SUB} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje nerovnost src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_GREATER}
+odečítá src1 od src2, výsledek uloží do dest\\
+\texttt{INS\_MUL} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li(hm..advanced czech?)src1 větší než src2, výsledek uloží do dest\\
-\texttt{INS\_GREATEQ}
+vynásobí src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_DIV} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li src1 větší, nebo roven src2, výsledek uloží do dest\\
-\texttt{INS\_LESSER}
+vydelí src2 a src1, výsledek uloží do dest\\
+\texttt{INS\_EQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li src1 menší než src2, výsledek uloží do dest\\
-\texttt{INS\_LESSEQ} 
+testuje rovnost src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_NEQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li src1 menší, nebo roven src2, výsledek uloží do dest\\
-\texttt{INS\_JMP} 
+testuje nerovnost src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_GREATER} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{label} -- nepodmíněný skok na návěští \\
-\texttt{INS\_CJMP} 
+testuje, je-li(hm..advanced czech?)src1 větší než src2, výsledek uloží do dest\\
+\texttt{INS\_GREATEQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{cond} \texttt{label} -- podmíněný skok na návěští label na základe hodnoty cond\\
-\texttt{INS\_LAB} 
+testuje, je-li src1 větší, nebo roven src2, výsledek uloží do dest\\
+\texttt{INS\_LESSER} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{label} -- návěští pro skok\\
-\texttt{INS\_PUSH\_PARAM} 
+testuje, je-li src1 menší než src2, výsledek uloží do dest\\
+\texttt{INS\_LESSEQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{src} -- uloží na pomocnej zásobník parameter pro volání funkce\\
-\texttt{INS\_CALL} \\
+testuje, je-li src1 menší, nebo roven src2, výsledek uloží do dest\\
+\texttt{INS\_JMP} \texttt{label}
 
-\texttt{func} -- volání funkce func\\
-\texttt{INS\_RET} \\
+nepodmíněný skok na návěští \\
+\texttt{INS\_CJMP} \texttt{cond} \texttt{label}
+
+podmíněný skok na návěští label na základe hodnoty cond\\
+\texttt{INS\_LAB} \texttt{label}
+
+návěští pro skok\\
+\texttt{INS\_PUSH\_PARAM} \texttt{src}
+
+uloží na pomocnej zásobník parameter pro volání funkce\\
+\texttt{INS\_CALL} \texttt{func}
+
+volání funkce func\\
+\texttt{INS\_RET}
 
 ukončení provádení funkce\\
-\texttt{INS\_PUSH\_TAB} \\
+\texttt{INS\_PUSH\_TAB} \texttt{src1}
 
-\texttt{src1} -- vytvoření nověho rámce pro vnořený blok src1\\
-\texttt{INS\_POP\_TAB} \\
+vytvoření nověho rámce pro vnořený blok src1\\
+\texttt{INS\_POP\_TAB} \texttt{src1}
 
-\texttt{src1} -- zrušení rámce jednoho bloku programu\\
-\texttt{INS\_LENGTH} \\
+zrušení rámce jednoho bloku programu\\
+\texttt{INS\_LENGTH} \texttt{dest}, \texttt{src1}
 
-\texttt{dest}, \texttt{src1} -- volání vestavěné funkce \texttt{length} s parametrem src1, výsledek uloží do dest\\
-\texttt{INS\_SUBSTR} \\
+volání vestavěné funkce \texttt{length} s parametrem src1, výsledek uloží do dest\\
+\texttt{INS\_SUBSTR} \texttt{dest}
 
-\texttt{dest} -- volání vestavěné funkce \texttt{substr} s předem uloženými parametry, výsledek uloží do dest\\
-\texttt{INS\_CONCAT} \\
+volání vestavěné funkce \texttt{substr} s předem uloženými parametry, výsledek uloží do dest\\
+\texttt{INS\_CONCAT} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- volání vestavěné funkce \texttt{concat} s parametry src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_FIND} \\
+volání vestavěné funkce \texttt{concat} s parametry src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_FIND} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-\texttt{dest}, \texttt{src1}, \texttt{src2} -- volání vestavěné funkce \texttt{find} s parametry src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_SORT} \\
+volání vestavěné funkce \texttt{find} s parametry src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_SORT} \texttt{dest}, \texttt{src1}
 
-\texttt{dest}, \texttt{src1} -- volání vestavěné funcke \texttt{sort} s parametrem src1, výsledek uloží do dest\\
-\texttt{INS\_CIN} \\
+volání vestavěné funcke \texttt{sort} s parametrem src1, výsledek uloží do dest\\
+\texttt{INS\_CIN} \texttt{src1}
 
-\texttt{src1} -- vypíše na standardní výstup src1\\
-\texttt{INS\_COUT} \\
+vypíše na standardní výstup src1\\
+\texttt{INS\_COUT} \texttt{dest}
 
-\texttt{dest} -- načítá do dest určitou? hodnotu ze standardního vstupu\\
+načítá do dest určitou? hodnotu ze standardního vstupu\\
+
+\section{Zdroje}
+
+\begin{verbatim}
+http://madebyevan.com/fsm/
+sdbm algoritmus
+\end{verbatim}
 
 \end{document}
 

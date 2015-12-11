@@ -7,6 +7,20 @@
 %  Section "Implementace interpretu jazyka IFJ15" a pod lex, syn, sem, int?
 %  Větší řádkování?
 
+%algoritmy
+%	morris
+%	vyhledávání podřetězce
+%datové struktury
+%	zásobník
+%	string
+%	hash tabulka
+
+
+%\textless v gramtice !!
+% příloha LL-gra do semant
+% LL-gramar spojovník X pomlčka
+% gprof a valgridn?
+
 %  Zadání:
 %  dokumentace.pdf      4-7 stran
 %  1. strana            OK
@@ -115,20 +129,42 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Úvod} \label{uvod}
 
-Obecný pokec o stvoření světa
+Tato dokumentace popsiuje implementaci interpretu jazyka IFJ15, který je zjednoduenou
+podmnožinou C++11. Interpret se skládá ze čytřech částí popsaných v následujících kapitolách.
 
+	Lexikální analyzátor
+	syn
+	sem
+	Interpret
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Práce v týmu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Práce v týmu} \label{team}
 
-Projekt je vypracován čtvreřicí \texttt{cool} kluků.
+\subsection{Rozdělení}
+Lexer Lukáš
+Sémantik \\\\\\\\
+
+Interpret, vstavěné funkce Pavol
+
+\subsection{Průběh vývoje}
+Projekt je řešený čtyřčlenným týmem, bylo tedy potřebné zvolit vhodný systém správy zdrojových souborů.
+K těmto účelům jsme využili vergovací systém ttt Git na našem privátním serveru, přes naše nulové zkušenosti (okrem matěja).
+%Inkrementánlí vývojový cyklus
+Konzultace probíhaly jednou týdně, zhodntolili jsme aktuální výsledky a stanovili další ukoly. Ve fázy kdy byly jendotlivé části
+téměř dokončené jsme podnikl týmový kouding. po dvoch takýchto stretrnutach byly jednotlivé části schopy spolu mluviti a začala
+fáza opravobání chyb. Mrtě sme testovali, Pavol napsal python skripta, lebo maká na praxi v takej firme AVG, čo robí antiviry.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Lexikální analýza
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementace interpretu jazyka IFJ15} \label{implementace}
 
 \subsection{Lexikální analýza} \label{lexer}
+
+% unget_token
+% o komentářích (návrat do startu)
+% pouívání stringu
 
 Lexikální analyzátor je vstupní část překladače. Je založen na deterministickém konečném automatu,
 jehož hlavním úkolem je čtení zdrojového souboru a na základě lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
@@ -141,6 +177,10 @@ následné zpracování. Princip fungování lexikálního analyzátoru reprezun
 %                   Syntaktická a sémantická analýza
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Syntaktická a sémantická analýza} \label{parser}
+
+
+
+\subsubsection{Zpracování jazykových konsturkcí}
 
 Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ústřední část
 naší implementace interpretu jazyka IFJ15. Parser se volá prakticky ihned po
@@ -165,24 +205,29 @@ provede vyhodnocení daného výrazu a poté předá řízení zpět parseru.
 
 Po zpracování celého zdrojového souboru se provádí závěrečné sémantické
 kontroly. Kontroluje se například, zda došlo během zpracování zdrojového
-souboru k definici všech deklarovaných funkcí. Tímto je syntaktická a
+souboru k definici všech deklarovaných funkcí, přesná signatura fce main.
+Tímto je syntaktická a
 sémantická analýza ukončena a parser předá řízení interpretu.
 
-\subsection{Zpracování výrazů}
+\subsubsection{Zpracování výrazů}
 Zpracování výrazů řízené precedenční tabulkou probíhá ve dvou krocích.
 V prvním kroku je výraz převeden z infixové na postfixovou notaci.
 V kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
+Něco o autech.
 \texttt{A co funkce bro???????}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   Vestavěné funkce
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Vestavěné funkce????} \label{vestavene}
+\subsubsection{Sémantická analýza}
+Probíhá pralelně se syntaktickou analýzou v rámci rekurzivního sestupu i precedenční
+analýzy výrazů. Kontroluje se definice a deklarace funkcía a deklarace proměnných.
+Dále pak typové kontroly ve výrazech a při voláních funkcí.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Interpret
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Interpret} \label{interpret}
+
+
+
 
 \subsection{Řadíci algoritmus -- Heap Sort}
 Funkce pro seřazení prvků v poli.
@@ -195,6 +240,8 @@ každému písmenu hledaného řetězce je přiřazeno číslo, které určuje i
 v případě neshody znaků.
 
 \subsection{Tabulka s rozptýlenými položkami}
+používáme sdbm  Biač \\!!
+explicitně řazené položky \\
 Datová struktura použitá pro tabulky symbolů. Její Výhodou je rychlost vyhledávání
 položek. Základem je pole ukazatelů na
 jednotlivé položky. Položky obsahují svůj klíč, data a ukazatel na další
@@ -224,9 +271,10 @@ prodloužuje o dobu prohledání lineárního seznamu.
 %	$\leq$ $\geq$
 %	hex#1		hex\#1
 %	hex#2		hex\#2
+%	cout		
+%	cin
 
-
-\subsection{Diagram konečného automatu lexikální analýzy} \label{automat}
+\subsection{Diagram konečného autommlatu lexikální analýzy} \label{automat}
 \begin{center}
 \begin{tikzpicture}[scale=0.165]
 \tikzstyle{every node}+=[inner sep=0pt]
@@ -467,7 +515,7 @@ prodloužuje o dobu prohledání lineárního seznamu.
 \begin{verbatim}
 PROG->FUNCTION_DECL PROG
 PROG->eps
-FUNCTION_DECL->DATA_TYPE t_identifier t_lround_bracket FUNC_DECL_PARAMS t_rround_bracket NESTED_B\textlessCK
+FUNCTION_DECL->DATA_TYPE t_identifier t_lround_bracket FUNC_DECL_PARAMS t_rround_bracket NESTED_BLOCK
 DATA_TYPE->t_int
 DATA_TYPE->t_double
 DATA_TYPE->t_string
@@ -475,7 +523,7 @@ FUNC_DECL_PARAMS->DATA_TYPE t_identifier FUNC_DECL_PARAMS_NEXT
 FUNC_DECL_PARAMS_NEXT->t_comma FUNC_DECL_PARAMS
 FUNC_DECL_PARAMS->eps
 FUNC_DECL_PARAMS_NEXT->eps
-NESTED_B\textlessCK->t_lcurly_bracket NBC t_rcurly_bracket
+NESTED_BLOCK->t_lcurly_bracket NBC t_rcurly_bracket
 NBC->DECL_OR_ASSIGN NBC
 DECL_OR_ASSIGN->DATA_TYPE t_identifier DECL_ASSIGN t_semicolon
 DECL_OR_ASSIGN->t_auto t_identifier t_assign EXPRESSION t_semicolon
@@ -507,8 +555,8 @@ BUILTIN_FUNC->token_bf_concat
 BUILTIN_FUNC->token_bf_find
 BUILTIN_FUNC->token_bf_sort
 NBC->IF_STATEMENT NBC
-IF_STATEMENT->t_if t_lround_bracket EXPRESSION t_rround_bracket NESTED_B\textlessCK ELSE_STATEMENT
-ELSE_STATEMENT->t_else NESTED_B\textlessCK
+IF_STATEMENT->t_if t_lround_bracket EXPRESSION t_rround_bracket NESTED_BLOCK ELSE_STATEMENT
+ELSE_STATEMENT->t_else NESTED_BLOCK
 ELSE_STATEMENT->eps
 NBC->COUT NBC
 COUT->t_cout t_cout_bracket COUT_OUTPUT COUT_NEXT t_semicolon
@@ -521,12 +569,12 @@ CIN->t_cin t_cin_bracket t_identifier CIN_NEXT t_semicolon
 CIN_NEXT->t_cin_bracket t_identifier CIN_NEXT
 CIN_NEXT->eps
 NBC->FOR_STATEMENT NBC
-FOR_STATEMENT->t_for t_lround_bracket FOR_DECLARATION FOR_EXPR FOR_ASSIGN t_rround_bracket NESTED_B\textlessCK
+FOR_STATEMENT->t_for t_lround_bracket FOR_DECLARATION FOR_EXPR FOR_ASSIGN t_rround_bracket NESTED_BLOCK
 FOR_DECLARATION->DATA_TYPE t_identifier DECL_ASSIGN t_semicolon
 FOR_DECLARATION->t_auto t_identifier t_assign EXPRESSION t_semicolon
 FOR_EXPR->EXPRESSION t_semicolon
 FOR_ASSIGN->t_identifier t_assign EXPRESSION
-NBC->NESTED_B\textlessCK NBC
+NBC->NESTED_BLOCK NBC
 NBC->RETURN
 RETURN->t_return EXPRESSION t_semicolon
 NBC->eps
@@ -562,34 +610,77 @@ id            & \textgreater & \textgreater & \textgreater & \textgreater & ! & 
 % INSTRUKČNÍ SADA TROJADRESNÉHO KÓDU
 \subsection{Instrukční sada trojadresného kódu} \label{instrukce}
 
-\texttt{INS\_ASSIGN} 
 
-Bla bla bla \texttt{source} bla \texttt{dst}, bla. \\
-\texttt{INS\_ADD} \\
-\texttt{INS\_SUB} \\
-\texttt{INS\_MUL} \\
-\texttt{INS\_DIV} \\
-\texttt{INS\_EQ} \\
-\texttt{INS\_NEQ} \\
-\texttt{INS\_GREATER} \\
-\texttt{INS\_GREATEQ} \\
-\texttt{INS\_LESSER} \\
-\texttt{INS\_LESSEQ} \\
-\texttt{INS\_JMP} \\
-\texttt{INS\_CJMP} \\
-\texttt{INS\_LAB} \\
-\texttt{INS\_PUSH} \\
+\texttt{INS\_ASSIGN} \texttt{dest}, \texttt{src1} -- přiradí hodnotu proměnnej src1 do dest\\
+\texttt{INS\_ADD} \texttt{dest}, \texttt{src1}, \texttt{src2} -- sčítá src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_SUB} \texttt{dest}, \texttt{src1}, \texttt{src2} -- odečítá src1 od src2, výsledek uloží do dest\\
+\texttt{INS\_MUL} \texttt{dest}, \texttt{src1}, \texttt{src2} -- vynásobí src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_DIV}
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- vydelí src2 a src1, výsledek uloží do dest\\
+\texttt{INS\_EQ}
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje rovnost src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_NEQ}
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje nerovnost src1 a src2, výsledek uloží do dest\\
+\texttt{INS\_GREATER}
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li(hm..advanced czech?)src1 větší než src2, výsledek uloží do dest\\
+\texttt{INS\_GREATEQ}
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li src1 větší, nebo roven src2, výsledek uloží do dest\\
+\texttt{INS\_LESSER}
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li src1 menší než src2, výsledek uloží do dest\\
+\texttt{INS\_LESSEQ} 
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- testuje, je-li src1 menší, nebo roven src2, výsledek uloží do dest\\
+\texttt{INS\_JMP} 
+
+\texttt{label} -- nepodmíněný skok na návěští \\
+\texttt{INS\_CJMP} 
+
+\texttt{cond} \texttt{label} -- podmíněný skok na návěští label na základe hodnoty cond\\
+\texttt{INS\_LAB} 
+
+\texttt{label} -- návěští pro skok\\
+\texttt{INS\_PUSH\_PARAM} 
+
+\texttt{src} -- uloží na pomocnej zásobník parameter pro volání funkce\\
 \texttt{INS\_CALL} \\
+
+\texttt{func} -- volání funkce func\\
 \texttt{INS\_RET} \\
+
+ukončení provádení funkce\\
 \texttt{INS\_PUSH\_TAB} \\
+
+\texttt{src1} -- vytvoření nověho rámce pro vnořený blok src1\\
 \texttt{INS\_POP\_TAB} \\
+
+\texttt{src1} -- zrušení rámce jednoho bloku programu\\
 \texttt{INS\_LENGTH} \\
+
+\texttt{dest}, \texttt{src1} -- volání vestavěné funkce \texttt{length} s parametrem src1, výsledek uloží do dest\\
 \texttt{INS\_SUBSTR} \\
+
+\texttt{dest} -- volání vestavěné funkce \texttt{substr} s předem uloženými parametry, výsledek uloží do dest\\
 \texttt{INS\_CONCAT} \\
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- volání vestavěné funkce \texttt{concat} s parametry src1 a src2, výsledek uloží do dest\\
 \texttt{INS\_FIND} \\
+
+\texttt{dest}, \texttt{src1}, \texttt{src2} -- volání vestavěné funkce \texttt{find} s parametry src1 a src2, výsledek uloží do dest\\
 \texttt{INS\_SORT} \\
+
+\texttt{dest}, \texttt{src1} -- volání vestavěné funcke \texttt{sort} s parametrem src1, výsledek uloží do dest\\
 \texttt{INS\_CIN} \\
+
+\texttt{src1} -- vypíše na standardní výstup src1\\
 \texttt{INS\_COUT} \\
+
+\texttt{dest} -- načítá do dest určitou? hodnotu ze standardního vstupu\\
 
 \end{document}
 

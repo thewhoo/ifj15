@@ -9,23 +9,26 @@
 %      návrh
 %      implementace
 %      vývojový cyklus
-%      práce v týmu
+%      práce v~týmu
 %      sleciální techniky
 %      algoritmy
 %  Popis řadícího svého algoritmu
 %      řazení
-%      hledání v textu
+%      hledání v~textu
 %      tabulky symbolů
-%  Opět práce v týmu (kdo co jak)
+%  Opět práce v~týmu (kdo co jak)
 %  Literatutra, reference, citace
 %  !! Nevlastní materiál
 %  !! Obecné popisy algoritmů
 
-%  Pavel:
+%*******************************************************************************
+%  TODO
 %  kontrola čitelnosti kódu
 %  kontrola komentovanosti kódů, zdroje! (např. odkud prvočísla do hash tabulky)
 %  kontrola prece tabulky X změna za symboly 	textless > = !
 %  přidat dolar do prece tabulky
+%  samohlásky a souhlásky na konci řádku!!
+%  + uvedeno v~textu
 %*******************************************************************************
 
 
@@ -110,7 +113,7 @@
 
 Tato dokumentace popsiuje implementaci interpretu jazyka IFJ15,který je
 zjednodušenou podmnožinou jazyka C++11. Interpret se skládá ze čtyřech částí
-popsaných v následujících kapitolách.
+popsaných v~následujících kapitolách.
 
 \begin{itemize}
 	\item Lexikální analyzátor
@@ -119,13 +122,13 @@ popsaných v následujících kapitolách.
 	\item Interpret
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   Práce v týmu
+%                   Práce v~týmu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Práce v týmu} \label{team}
+\section{Práce v~týmu} \label{team}
 
 \subsection{Rozdělení práce na jednotlivých částech}
 \begin{itemize}
-	\item Lexer Lukáš -- lexikální analyzátor
+	\item Lexer Lukáš -- Lexikální analyzátor
 	\item Matěj Postolka -- Sémantický a syntaktický analyzátor
 	\item Pavel Pospíšil -- Zpracování výrazů a volání funkcí
 	\item Pavel Plaskoň -- Interpret, vstavěné funkce
@@ -143,7 +146,7 @@ Konzultace probíhaly jednou týdně, obsahovaly zhodnocení aktuálních výsle
 a stanovení dalšího postupu. Nejdříve tedy každý člen pracoval sám, po několika
 týdnech práce proběhly dvě schůzky na kterých jsme programovali společně.
 V průběhu celého procesu členové týmu doplňovali krátké testovací kódy, kterými
-bylo následně možné, pomocí skriptu napsaného v jazyce \texttt{Python}, testovat
+bylo následně možné, pomocí skriptu napsaného v~jazyce \texttt{Python}, testovat
 dosavadní stabilitu celku. Při testování se nám též osvědčil program
 \texttt{gprof}.
 
@@ -162,7 +165,7 @@ Něco o valgrindu?
 \begin{verbatim}
 *** Lukáš Osadský
 unget_token
-o komentářích (návrat do startu)
+o~komentářích (návrat do startu)
 pouívání stringu
 \end{verbatim}
 Lexikální analyzátor je vstupní část překladače. Je založen na deterministickém
@@ -171,7 +174,7 @@ lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
 souboru na lexikální části  -- lexémy. Rozpoznané lexémy jsou reprezenované
 strukturou token, která obsahuje informace o typu
 tokenu a jeho data. Jeho vedlejší úlohou je odstraňování všech komentářů
-a bílých znaků, neboť nejsou potřebné pro
+a~bílých znaků, neboť nejsou potřebné pro
 následné zpracování. Princip fungování lexikálního analyzátoru reprezuntuje
 příloha \ref{subsec:automat}, ve které je zobrazeno jeho schéma.
 Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem,
@@ -185,18 +188,19 @@ který postupně žádá o jednotlivé tokeny.
 \subsubsection{Zpracování jazykových konsturkcí}
 Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ústřední
 část naší implementace interpretu jazyka IFJ15. Parser se volá prakticky ihned po
-spuštění programu a přejímá řízení do doby, než dojde k úplnému zpracování
+spuštění programu a přejímá řízení do doby, než dojde k~úplnému zpracování
 zdrojového souboru.
 
 Syntaktická analýza je implementována rekurzivním sestupem, který je řízen
-pravidly naší LL-gramatiky uvedenými v příloze \ref{subsec:llgram}. Neterminální symboly představují tokeny přijaté od
-lexikálního analyzátoru. Ten je volán přímo z parseru vždy, když je třeba
+pravidly naší LL-gramatiky uvedenými v~příloze \ref{subsec:llgram}.
+Neterminální symboly představují tokeny přijaté od~lexikálního analyzátoru.
+Ten je volán přímo z~parseru vždy, když je třeba
 zpracovat další token. Se syntaktickou analýzou je současně vykonávána také
-analýza sémantická. Při deklaraci nebo definici funkce -- jazyk IFJ15 podporuje v
+analýza sémantická. Při deklaraci nebo definici funkce -- jazyk IFJ15 podporuje v~
 globálním prostoru pouze funkce -- se do globální tabulky symbolů ukládá datová
 struktura reprezentující danou funkci.
 
-V případě definice funkce poté dochází ke zpracování těla dané funkce.
+V~případě definice funkce poté dochází ke zpracování těla dané funkce.
 Přímo během rekurzivního sestupu se tak vykonávají všechny potřebné
 sémantické kontroly a naplňuje se lokální tabulka symbolů. Taktéž se generují
 vnitřní instrukce, které se ukládají do instrukčního seznamu příslušné funkce.
@@ -206,41 +210,59 @@ provede vyhodnocení daného výrazu a poté předá řízení zpět parseru.
 
 Po zpracování celého zdrojového souboru se provádí závěrečné sémantické
 kontroly. Kontroluje se například, zda došlo během zpracování zdrojového
-souboru k definici všech deklarovaných funkcí, přesná signatura fce main.
+souboru k~definici všech deklarovaných funkcí, přesná signatura fce main.
 Tímto je syntaktická a sémantická analýza ukončena a parser předá řízení interpretu.
 
 \subsubsection{Zpracování výrazů a volání funkcí}
-Zpracování výrazu je voláno v několika rozličných situacích. Existují situace,
-kdy se však na místě výrazu může objevit volání funkce. Volání funkcí i zpracovávání
-výrazů jsou v naší implementaci součástí jednoho modulu???.
+Zpracování výrazu je voláno v~několika rozličných situacích. Existují situace,
+kdy se však na~místě výrazu může objevit volání funkce. Volání funkcí i~zpracovávání
+výrazů jsou v~naší implementaci součástí jednoho modulu???.
 
-Zpracování výrazů řízené precedenční tabulkou uvedenou v příloze
-\ref{subsec:precetable} probíhá ve dvou krocích. V prvním kroku je za pomoci
+Zpracování výrazů řízené precedenční tabulkou uvedenou v~příloze
+\ref{subsec:precetable} probíhá ve dvou krocích. V~prvním kroku je za pomoci
 zásobníkové struktury výraz převeden z infixové
-na postfixovou notaci. V tomto kroku je kontrolována správná posloupnost
-operátorů, operandů a závorek.
+na postfixovou notaci. V~tomto kroku je kontrolována správná posloupnost
+operátorů, operandů a~závorek.
 
-V kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
-V této fázi běhu interpretu se kontrolují datové typy operandů a nastavují
-odvozené datové typy proměnným s modifikátorem \texttt{auto}.
+V~kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
+V~této fázi běhu interpretu se kontrolují datové typy operandů a nastavují
+odvozené datové typy proměnným s~modifikátorem \texttt{auto}.
 
 Při výskytu volání funkce je mimo jiné kontrolován datový typ proměnné,
 kterou tato funkce nastavuje svojí návratovou hodnotou.
 
 \subsubsection{Sémantická analýza}
-Sémantická analýza probíhá pralelně se syntaktickou analýzou v rámci
-rekurzivního sestupu i precedenční analýzy výrazů. Kontroluje se definice
-a deklarace funkcí i deklarace proměnných.
+Sémantická analýza probíhá pralelně se syntaktickou analýzou v~rámci
+rekurzivního sestupu i~precedenční analýzy výrazů. Kontroluje se definice
+a~deklarace funkcí i~deklarace proměnných.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Interpret
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Interpret} \label{interpret}
+Interpret ke své práci využívá globální zásobník, lokální zásobník pro aktuální
+funcki a tabulky s rozptýlenými položkami pro proměnné. Každý blok příkazů
+interpretovaného programu má vlastní tabulku proměnných -- pro zabezpečení viditelnosti
+proměnných jenom v rámci jejich bloku.
+Na začátku se v globální tabulce symbolů vyhledá funcke \texttt{main},
+vytvoří se pro ni lokální rámec a instrukční ukazatel se nastaví na začátek
+instrukčního listu -- jednosměrně vázaného lineárního seznamu.
+Přesun na další položku seznamu představuje přechod ana další instrukci.
+Při instrukcích skoku se instrukční ukazatel nastaví
+na danou instrukci v rámci jedné funkce.
 
-\begin{verbatim}
-*** Pavol Plaskoň
-Text
-\end{verbatim}
+\subsubsection{Volání funkcí}
+Před provedením volání funkce jsou její parametry uloženy na pomocný zásobník
+instrukcí \texttt{INS\_PUSH\_PARAM}. Dále se do globálního zásobníku uloží
+ukazatel na aktuální instrukci a aktuální rámec, vytvoří se nový lokální rámec
+a instrukční ukazatel se nastaví na začátek instrukčního listu volané funcke.
+Při návratu z funkce se její návratová hodnota uloží do vyhrazené
+proměnné ve struktuře reprezentujíci funkci v globální?? tabulce symbolů.
+Tím je interpret oddělen od režie návratových hodnot. Menší nevýhodou této
+implementace je generování návratové proměnné pro každou funkci.
+Vše je zabezpečeno při generování kódu. Z globálního rámce se načte původní
+rámec a instrukce následující po dokončeném volání funkce, interpretace pokračuje.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Datové struktury
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -251,22 +273,21 @@ Text
 \end{verbatim}
 
 \subsubsection{Zásobník}
-\begin{verbatim}
-*** Tvůrce??
-Text
-Umí přístup přes indexy, je udělanej jako pole... myslím
-\end{verbatim}
+Zásobník je dynamická datová struktura. Položkami zásobníku jsou ukazatele
+typu \texttt{void}, což umožňuje jeho široké využití.
+Je jej \texttt{parser} i \texttt{interpretu}. Má důležitou úlohu
+například při převodu \textit{infixového} zápisu výrazú na \textit{postfixový}.
 
 \subsubsection{Řetězec}
-\begin{verbatim}
-*** Tvůrce??
-Text
-\end{verbatim}
+V naší implementaci je řetězec vpodstatě vektor, nebo-li dynamické pole znaků.
+Dle potřeby mění svoji kapacitu. Na rozdíl od datového typu \texttt{string} ve vyšších
+programovacích jazycích, se náš řetězec inicializuje jenom postupným vkládaním
+znaků.
 
 \subsubsection{Tabulka s rozptýlenými položkami}
 \begin{verbatim}
 *** Pavol Plaskoň
-používáme sdbm
+používáme sdbm = uvedieme zdroj webstranku?
 explicitně řazené položky
 \end{verbatim}
 Datová struktura použitá pro tabulky symbolů. Její Výhodou je rychlost vyhledávání
@@ -278,14 +299,13 @@ seznam potřebné a čas přístupu k položkám konstantní. Nalezení takové
 funkce není triviální. V případě konfliktu se čas nalezení položky
 prodloužuje o dobu prohledání lineárního seznamu.
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Algoritmy
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Algoritmy}
 
 \begin{verbatim}
-Úvodní text k algoritmům?
+Úvodní text k~algoritmům?
 \end{verbatim}
 
 \subsubsection{Řadíci algoritmus -- Heap Sort}
@@ -293,10 +313,10 @@ prodloužuje o dobu prohledání lineárního seznamu.
 *** Tvůrce??
 Text
 \end{verbatim}
-Funkce pro seřazení prvků v poli.
+Funkce pro seřazení prvků v~poli.
 
 \subsubsection{Vyhledávaní podřetězce -- Knuth-Morris-Pratt}
-Vyhledání podřetězce v řetězci ve vestavěné funkci \texttt{find} je řešeno
+Vyhledání podřetězce v~řetězci ve vestavěné funkci \texttt{find} je řešeno
 algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
 \texttt{Fail vector}. Jedná se o pole celých čísel délky hledaného textu. Ke
 každému písmenu hledaného řetězce je přiřazeno číslo, které určuje index pro návrat programu
@@ -721,19 +741,19 @@ vytvoření nověho rámce pro vnořený blok src1\\
 zrušení rámce jednoho bloku programu\\
 \texttt{INS\_LENGTH} \texttt{dest}, \texttt{src1}
 
-volání vestavěné funkce \texttt{length} s parametrem src1, výsledek uloží do dest\\
+volání vestavěné funkce \texttt{length} s~parametrem src1, výsledek uloží do dest\\
 \texttt{INS\_SUBSTR} \texttt{dest}
 
-volání vestavěné funkce \texttt{substr} s předem uloženými parametry, výsledek uloží do dest\\
+volání vestavěné funkce \texttt{substr} s~předem uloženými parametry, výsledek uloží do dest\\
 \texttt{INS\_CONCAT} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-volání vestavěné funkce \texttt{concat} s parametry src1 a src2, výsledek uloží do dest\\
+volání vestavěné funkce \texttt{concat} s~parametry src1 a src2, výsledek uloží do dest\\
 \texttt{INS\_FIND} \texttt{dest}, \texttt{src1}, \texttt{src2}
 
-volání vestavěné funkce \texttt{find} s parametry src1 a src2, výsledek uloží do dest\\
+volání vestavěné funkce \texttt{find} s~parametry src1 a src2, výsledek uloží do dest\\
 \texttt{INS\_SORT} \texttt{dest}, \texttt{src1}
 
-volání vestavěné funcke \texttt{sort} s parametrem src1, výsledek uloží do dest\\
+volání vestavěné funcke \texttt{sort} s~parametrem src1, výsledek uloží do dest\\
 \texttt{INS\_CIN} \texttt{src1}
 
 vypíše na standardní výstup src1\\

@@ -131,9 +131,9 @@ popsaných v~následujících kapitolách.
 \subsection{Rozdělení práce na jednotlivých částech}
 \begin{itemize}
 	\item Osadský Lukáš -- Lexikální analyzátor
-	\item Matěj Postolka -- Sémantický a syntaktický analyzátor
-	\item Pavel Pospíšil -- Zpracování výrazů a volání funkcí
-	\item Pavel Plaskoň -- Interpret, vestavěné funkce
+	\item Postolka Matěj -- Sémantický a syntaktický analyzátor
+	\item Pospíšil Pavel -- Zpracování výrazů a volání funkcí
+	\item Plaskoň Pavel -- Interpret, vestavěné funkce
 \end{itemize}
 
 \subsection{Průběh vývoje}
@@ -239,11 +239,11 @@ na postfixovou notaci. V~tomto kroku je kontrolována správná posloupnost
 operátorů, operandů a~závorek.
 
 V~kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
-V~této fázi běhu interpretu se kontrolují datové typy operandů a nastavují
+V~této fázi běhu interpretu se kontroluje datová kompatibilita operandů a nastavují
 odvozené datové typy proměnným s~modifikátorem \texttt{auto}.
 
-Při výskytu volání funkce je mimo jiné kontrolován datový typ proměnné,
-kterou tato funkce nastavuje svojí návratovou hodnotou.
+Při výskytu volání funkce je mimo jiné kontrolována kompatibilita návratového
+typu funkce a typu proměnné pro přiřazení návrácené hodnoty.
 
 \subsubsection{Sémantická analýza}
 Sémantická analýza probíhá pralelně se syntaktickou analýzou v~rámci
@@ -274,8 +274,8 @@ Při návratu z funkce se její návratová hodnota uloží do vyhrazené
 proměnné ve struktuře reprezentujíci funkci v globální tabulce symbolů.
 Tím je interpret oddělen od režie návratových hodnot. Menší nevýhodou této
 implementace je generování návratové proměnné pro každou funkci.
-Vše je zabezpečeno při generování kódu. Z globálního rámce se načte původní
-rámec a instrukce následující po dokončeném volání funkce, interpretace pokračuje.
+Vše je zabezpečeno při generování kódu. Z~globálního rámce se načte původní
+rámec a instrukce, odkud byla funkce voláná, a pokračuje se instrukcí další.
 
 \newpage
 
@@ -283,9 +283,6 @@ rámec a instrukce následující po dokončeném volání funkce, interpretace 
 %                   Datové struktury
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Datové struktury}
-
-Následující kapitola základní informace o datových strukturách použitých při
-naší implementaci.
 
 \subsubsection{Zásobník}
 Zásobník je dynamická datová struktura. Položkami zásobníku jsou ukazatele

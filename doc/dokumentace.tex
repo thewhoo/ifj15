@@ -152,10 +152,6 @@ kterými bylo následně možné, pomocí skriptu napsaného v~jazyce \texttt{Py
 testovat dosavadní stabilitu celku. Při testování se nám též osvědčil nástroj
 \texttt{gcovr}.
 
-\begin{verbatim}
-Inkrementánlí vývojový cyklus
-\end{verbatim}
-
 \newpage
 
 \section{Implementace interpretu jazyka IFJ15} \label{implementace}
@@ -241,9 +237,10 @@ zásobníkové struktury výraz převeden z infixové
 na postfixovou notaci. V~tomto kroku je kontrolována správná posloupnost
 operátorů, operandů a~závorek.
 
-V~kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné instrukce.
-V~této fázi běhu interpretu se kontroluje datová kompatibilita operandů a nastavují
-odvozené datové typy proměnným s~modifikátorem \texttt{auto}.
+V~kroku druhém je vyhodnocena postfixová notace a vygenerovány příslušné 
+instrukce. V~této fázi běhu interpretu se kontroluje datová kompatibilita 
+operandů a nastavují odvozené datové typy proměnným s~modifikátorem 
+\texttt{auto}.
 
 Při výskytu volání funkce je mimo jiné kontrolována kompatibilita návratového
 typu funkce a typu proměnné pro přiřazení návrácené hodnoty.
@@ -306,9 +303,9 @@ vyhledávání položek. Základem je pole ukazatelů na jednotlivé položky. P
 obsahují svůj klíč, data a ukazatel na další položku, aby mohly být propojené
 v~jednosměrně explicitně vázaný lineární seznam -- seznam synonym. V případě ideální
 hashovací funkce není propojení v~seznam potřebné a~čas přístupu k~položkám je
-konstantní. Nalezení takové funkce není triviální, zvolili jsme \texttt{sbdm}
-\cite{sbdm}.
-V~případě konfliktu se čas nalezení položky prodloužuje o dobu prohledání
+konstantní. Nalezení takové funkce není triviální. Zvolili jsme dostatečnou
+funkci \texttt{sbdm}\cite{sbdm}.
+V~případě konfliktu se čas nalezení položky prodloužuje o~dobu prohledání
 seznamu synonym.
 
 %*******************************************************************************
@@ -317,25 +314,23 @@ seznamu synonym.
 \subsection{Algoritmy}
 
 Následující kapitola se zabývá dvěmi nejzajímavějšími algoritmy naší
-implementace, první z nich slouží pro řazení, druhý pro vyhledávání
+implementace, první z~nich slouží pro řazení, druhý pro vyhledávání
 podřetězce v~řetězci.
 
 \subsubsection{Řadící algoritmus -- Heap Sort}
 
-Heap -- hromada je strukutra stromového typu. Nejčastěji, i v naší
-implementaci, se jedná o uspořádaný binární strom. Významnou operací nad
-hromadou je \texttt{siftDown} -- prosetí, která zrekonstruuje hromadu porušenou v kořeni.
-Prvek v kořeni se postupně přesune na správné místo. V nejhorším případe (přesun z
-kořene až do listu) bude složitost $\log_2 n$.
-Podstatou řazení je implementace hromady polem, kde uzel umístněný na indexu
-$i$ má svého levého syna na indexu $2i+1-base$
-\footnote{base -- index první položky pole} a pravého syna na indexu
-$2i+2-base$. Index nejlevějšího uzlu,
-uzlu s nejnižším indexem je $N/2 - i + base$.
-
-Vlastní cyklus heap sortu má lineární složitost, pričemž v každém kroku se
-vymění kořen s posledním prvkem a \textit{proseje} se hromada. Tím dostáváme
-linearitmickou časovou složitost.
+Heap -- hromada je strukutra stromového typu. Nejčastěji, i v naší 
+implementaci, se jedná o~uspořádaný binární strom. Významnou operací nad 
+hromadou je \texttt{siftDown} -- prosetí, která zrekonstruuje hromadu 
+porušenou v kořeni. Prvek v kořeni se postupně přesune na správné místo. V 
+nejhorším případe (přesun z kořene až do listu) bude složitost $\log_2 n$. 
+Podstatou řazení je implementace hromady polem velikosti $N$, kde uzel 
+umístněný na indexu $i$ má svého levého syna na indexu $2i+1-base$ 
+\footnote{base -- index první položky pole} a pravého syna na indexu 
+$2i+2-base$. Index nejpravějšího neterminálního uzlu na nejnižší úrovni je
+$N/2-1+base$. Vlastní cyklus heap sortu má lineární složitost, pričemž v každém 
+kroku se vymění kořen s posledním prvkem a \textit{proseje} se hromada. Tím 
+dostáváme linearitmickou časovou složitost.
 
 \subsubsection{Vyhledávaní podřetězce v řetězci -- Knuth-Morris-Pratt}
 Vyhledání podřetězce v~řetězci ve vestavěné funkci \texttt{find} je řešeno
@@ -604,7 +599,7 @@ s~délkou hledaného textu. Ke každému písmenu hledaného řetězce je přiř
 % LL GRAMATIKA
 \subsection{LL-gramatika} \label{subsec:llgram}
 
-\subsubsection*{Část první}
+\subsubsection{Část první}
 \begin{verbatim}
 PROG->FUNCTION_DECL PROG
 PROG->eps
@@ -638,7 +633,7 @@ FUNCTION_CALL_PARAMS_NEXT->eps
 \end{verbatim}
 \newpage
 
-\subsubsection*{Část druhá}
+\subsubsection{Část druhá}
 \begin{verbatim}
 NBC->BUILTIN_CALL NBC
 BUILTIN_CALL->BUILTIN_FUNC t_lround_bracket FUNCTION_CALL_PARAMS t_rround_bracket t_semicolon

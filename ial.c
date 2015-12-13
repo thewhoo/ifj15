@@ -32,6 +32,7 @@ int find(TVariable *s, TVariable *search)
     int subs_len = strlen(substr);
     int r = -1;
 
+    //init fail vector
     int *fail;
     fail = gmalloc(sizeof(int)*subs_len);
 
@@ -46,7 +47,6 @@ int find(TVariable *s, TVariable *search)
     }
 
     //kmp searching
-
     int str_ind = 0;
     int subs_ind = 0;
 
@@ -57,7 +57,7 @@ int find(TVariable *s, TVariable *search)
             str_ind++;
             subs_ind++;
         }
-        else
+        else //chars do not match (or beggining of pattern)
             subs_ind = fail[subs_ind];
     }
     
@@ -71,35 +71,38 @@ int find(TVariable *s, TVariable *search)
     
 
 /* ----------------heap sort-------------------*/
-
+/**
+  * Reorganize array to get heap (sorted binary tree)
+  * Move root item to right place
+  */
 void siftDown(char *str, int left, int right)
 {
     int root, child, tmp;
-    bool cont; //continue   
+    bool cont; //continue  condition 
 
     root = left;
     child = 2*root + 1;
     tmp = str[root];
-    cont = child <= right;
+    cont = child <= right; 
 
     while (cont)
     {
-        if (child < right)
+        if (child < right) //have both children, choose higher
             if (str[child] < str[child+1])
                 child++;
 
-            if (tmp >= str[child])
+            if (tmp >= str[child]) //already higher in root
                 cont = false;
             else
             {
                 str[root] = str[child];
                 root = child;
                 child = 2*root + 1;
-                cont = child <= right;
+                cont = child <= right; //cont if have some child
             }
     }
 
-    str[root] = tmp;
+    str[root] = tmp; 
 }
 
 char *sort(TVariable *var)
@@ -112,9 +115,11 @@ char *sort(TVariable *var)
     int right = s_len - 1;
     int left = s_len / 2 - 1;
 
+    //create heap
     for (int i = left; i >= 0; i--)
         siftDown(str, i, right);
 
+    //sort
     for (; right > 0; right--)
     {
         str[0] ^= str[right]; //xor swap
@@ -186,14 +191,14 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
     
     index = hash_function(key, tab->htab_size);
     
-    if(tab->list[index] == NULL) //ak je zoznam prazdny
+    if(tab->list[index] == NULL) //list is empty
     {
         return NULL;
     }
-    else //inak hladame key, ak je, vrati pointer 
+    else //search for key, return ptr
     {   
         item = tab->list[index];
-        while(1) //vieme, ze tab->list[index] != NULL
+        while(1)
         {
             if(strcmp(item->key, key) == 0)
                 return item;    
@@ -213,7 +218,7 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
     
     index = hash_function(key, tab->htab_size);
     
-    if(tab->list[index] == NULL) //ak je zoznam prazdny, pridanie na zaciatok
+    if(tab->list[index] == NULL) //insert first for empty list
     {
         tab->list[index] = gmalloc(sizeof(struct htab_listitem));
         item = tab->list[index];
@@ -221,7 +226,7 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
     else 
     {   
         item = tab->list[index];
-        while(item->next != NULL) //vieme, ze tab->list[index] != NULL
+        while(item->next != NULL)
             item = item->next;
 
         item->next = gmalloc(sizeof(struct htab_listitem));
@@ -266,9 +271,9 @@ void htab_remove(htab_t* tab, const char* key)
     if(item == NULL)
         return;
    
-    if(item == tab->list[index]) //ak mazeme prvy prvok
+    if(item == tab->list[index]) //deleting first item
         tab->list[index] = item->next;
-    else //prostredny/posledny prvok
+    else //deleting next/last item
         prev_item->next = item->next;
 
     //gfree((char*)item->key);
@@ -285,7 +290,7 @@ void htab_clear(htab_t *tab)
             tmp = tab->list[i];
             tab->list[i] = tab->list[i]->next;
             if(tmp->data_type == TYPE_VARIABLE)
-            {
+            {   //free string data
                 if(tmp->data.variable->var_type == TYPE_STRING)
                     gfree(tmp->data.variable->data.str);
                 gfree((void*)tmp->data.variable);
@@ -299,8 +304,8 @@ void htab_free(htab_t *tab)
 {
     if (tab != NULL)
     {
-        htab_clear(tab);
-        gfree(tab); 
+        htab_clear(tab); //free items
+        gfree(tab);      //free tab
     }
 }
 
@@ -325,5 +330,5 @@ void htab_statistics(htab_t* tab)
         length = 0;        
     }
     avg = avg/(tab->htab_size);
-    printf("Priemerna dlzka zoznamu: %u\nNajdlhsi zoznam: %u\nNajkratsi zoznam: %u\n", avg, max, min);
+    printf("Average length: %u\nLongest list: %u\nShortest list: %u\n", avg, max, min);
 }

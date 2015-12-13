@@ -60,11 +60,6 @@ TStack *t_vars_stack;
 TToken *token;
 
 /*
-TODO
-	Nepouzivane hodnoty precedencni tabulky (rround, id, less_e)
-	pridat sloupce pro precedenci ve funkci!!
-ZEPTAT SE
-POZNAMKY
 OMEZENÍ
 	Maximálně 1 000 000 000 proměnných výrazu
 INTERNÍ INFORMACE
@@ -272,6 +267,7 @@ void print_ins(const int *ins_type, TVariable *addr1, TVariable *addr2, TVariabl
 #endif
 /* END DEBUG FUNCTIONS */
 
+/* Special error function with debug printing */
 void my_exit_error(const int error_type, const int error_pos_in_code)
 {
 	#ifdef DEBUG_MODE
@@ -281,11 +277,13 @@ void my_exit_error(const int error_type, const int error_pos_in_code)
 	exit_error(error_type);
 }
 
+/* Compare token type and selected type */
 int token_is(const TToken *tok, const int token_type)
 {
 	return tok->type == token_type;
 }
 
+/* Returns next variable used in expression calculations */
 TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 {
 	TVariable *var;
@@ -306,6 +304,7 @@ TVariable* next_t_var(const int *t_x_type, int *t_x_var_counter)
 	}
 }
 
+/* Create instruction from input parametres */
 TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, TVariable *addr3)
 {
 	TList_item *ins;
@@ -333,11 +332,13 @@ TList_item *create_ins(const int ins_type, TVariable *addr1, TVariable *addr2, T
 	return ins;
 }
 
+/* Compare variable type and selected type */
 int t_compare(const TVariable *var, const int type)
 {
 	return (var->var_type == type);
 }
 
+/* Return data type after OPERAND operator OPERAND */
 int type_after_operation(const int *operator_type, const TVariable *var_1, const TVariable *var_2)
 {
 	/* String XOR String */
@@ -360,6 +361,7 @@ int type_after_operation(const int *operator_type, const TVariable *var_1, const
 	return TYPE_INT;
 }
 
+/* Return instruction type from token type */
 int operator_2_ins_type(const TToken *tok)
 {
 	switch (tok->type) {
@@ -427,6 +429,7 @@ int token_is_operator(const TToken *tok)
 	return 0;
 }
 
+/* Counts operands and operators - error founder*/
 void postfix_count_test()
 {
 	int counter;
@@ -446,6 +449,7 @@ void postfix_count_test()
 	}
 }
 
+/* Return variable from actual function stack or new variable created from constant value */
 TVariable *find_var(/*const */TToken *tok, const int clean_data_if_found)
 {
 	switch (tok->type) {
@@ -470,6 +474,7 @@ TVariable *find_var(/*const */TToken *tok, const int clean_data_if_found)
 	return 0;
 }
 
+/* Transforms postfix to instructions */
 void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 {
 	TToken *tok;
@@ -510,6 +515,7 @@ void generate_code(TVariable *ret_var, Tins_list *act_ins_list)
 	stack_clear(postfix_output_stack);  //zasobnik obsahuje prvky NULL
 }
 
+/* Returns next function arguments */
 TVariable *get_next_para(const int operand_type)
 {
 	TVariable *new_var;
@@ -529,6 +535,7 @@ TVariable *get_next_para(const int operand_type)
 	return new_var;
 }
 
+/* For example skips commas between function arguments */
 void skip_token(int token_type)
 {
 	token = get_token();
@@ -545,6 +552,7 @@ void skip_token(int token_type)
 		my_exit_error(E_SYNTAX, 7);
 	}
 }
+
 
 void generate_external_function(TVariable *ret_var, Tins_list *act_ins_list)
 {

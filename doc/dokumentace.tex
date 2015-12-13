@@ -116,7 +116,7 @@
 %*******************************************************************************
 \section{Úvod} \label{uvod}
 
-Tato dokumentace popisuje implementaci interpretu jazyka IFJ15, který je
+Dokumentace popisuje implementaci interpretu jazyka IFJ15, který je
 podmnožinou jazyka C++11. Interpret se skládá ze čtyřech částí
 popsaných v~následujících kapitolách.
 
@@ -135,14 +135,14 @@ popsaných v~následujících kapitolách.
 \begin{itemize}
 	\item Osadský Lukáš -- Lexikální analyzátor
 	\item Postolka Matěj -- Sémantický a syntaktický analyzátor
-	\item Pospíšil Pavel -- Zpracování výrazů a volání funkcí
-	\item Plaskoň Pavel -- Interpret, vestavěné funkce
+	\item Pospíšil Pavel -- Zpracování výrazů a volání funkcí, dokumentace
+	\item Plaskoň Pavol -- Interpret, vestavěné funkce
 \end{itemize}
 
 \subsection{Průběh vývoje}
 Projekt je řešený čtyřčlenným týmem, bylo tedy potřebné zvolit vhodný systém
 správy zdrojových souborů. Přes téměř nulové zkušenosti většiny členů týmu jsme
-k těmto účelům využili verzovací systém \texttt{Git} na privátním serveru
+k těmto účelům využili verzovací systém \texttt{git} na privátním serveru
 vedoucího člena.
 Konzultace probíhaly jednou týdně, obsahovaly zhodnocení aktuálních výsledků
 a stanovení dalšího postupu. Nejdříve tedy každý člen pracoval sám, po několika
@@ -208,9 +208,9 @@ pravidly naší LL-gramatiky uvedenými v~příloze \ref{subsec:llgram}.
 Neterminální symboly představují tokeny přijaté od~lexikálního analyzátoru.
 Ten je volán přímo z~parseru vždy, když je třeba
 zpracovat další token. Se syntaktickou analýzou je současně vykonávána také
-analýza sémantická. Při deklaraci nebo definici funkce -- jazyk IFJ15 podporuje v~
-globálním prostoru pouze funkce -- se do globální tabulky symbolů ukládá datová
-struktura reprezentující danou funkci.
+analýza sémantická. Při deklaraci nebo definici funkce se do globální tabulky
+symbolů ukládá datová struktura reprezentující danou funkci -- jazyk IFJ15
+podporuje v~globálním prostoru pouze funkce.
 
 V~případě definice funkce poté dochází ke zpracování těla dané funkce.
 Přímo během rekurzivního sestupu se tak vykonávají všechny potřebné
@@ -222,14 +222,16 @@ provede vyhodnocení daného výrazu a poté předá řízení zpět parseru.
 
 Po zpracování celého zdrojového souboru se provádí závěrečné sémantické
 kontroly. Kontroluje se například, zda došlo během zpracování zdrojového
-souboru k~definici všech deklarovaných funkcí, přesná signatura fce main.
-Tímto je syntaktická a sémantická analýza ukončena a parser předá řízení interpretu.
+souboru k~definici všech deklarovaných funkcí a přesná signatura funkce
+\texttt{main}. Tímto je syntaktická a sémantická analýza ukončena a~parser předá
+řízení interpretu.
 
+\newpage
 
 \subsubsection{Zpracování výrazů a volání funkcí}
-Zpracování výrazu je voláno v~několika rozličných situacích. Existují situace,
+Zpracování výrazů je voláno v~několika rozličných situacích. Existují situace,
 kdy se však na~místě výrazu může objevit volání funkce. Volání funkcí i~zpracovávání
-výrazů jsou v~naší implementaci součástí jednoho modulu.
+výrazů jsou tedy v~naší implementaci součástí jednoho modulu.
 
 Zpracování výrazů řízené precedenční tabulkou uvedenou v~příloze
 \ref{subsec:precetable} probíhá ve dvou krocích. V~prvním kroku je za pomoci
@@ -245,37 +247,32 @@ operandů a nastavují odvozené datové typy proměnným s~modifikátorem
 Při výskytu volání funkce je mimo jiné kontrolována kompatibilita návratového
 typu funkce a typu proměnné pro přiřazení návrácené hodnoty.
 
-\subsubsection{Sémantická analýza}
-Sémantická analýza probíhá pralelně se syntaktickou analýzou v~rámci
-rekurzivního sestupu i~precedenční analýzy výrazů. Kontroluje se definice
-a~deklarace funkcí i~deklarace proměnných.
-
 %*******************************************************************************
 %                   Interpret
 %*******************************************************************************
 \subsection{Interpret} \label{interpret}
 Interpret ke své práci využívá globální zásobník, lokální zásobník pro aktuální
-funcki a tabulky s rozptýlenými položkami pro proměnné. Každý blok příkazů
-interpretovaného programu má vlastní tabulku proměnných -- pro zabezpečení viditelnosti
-proměnných jenom v rámci jejich bloku.
+funkci a tabulky s rozptýlenými položkami pro proměnné. Každý blok příkazů
+interpretovaného programu má vlastní tabulku proměnných -- zabezpečení viditelnosti
+proměnných pouze v rámci jejich bloku.
 Na začátku se v globální tabulce symbolů vyhledá funcke \texttt{main},
 vytvoří se pro ni lokální rámec a instrukční ukazatel se nastaví na začátek
 instrukčního listu -- jednosměrně vázaného lineárního seznamu.
 Přesun na další položku seznamu představuje přechod na další instrukci.
-Při instrukcích skoku se instrukční ukazatel nastaví
-na danou instrukci v rámci dané funkce.
+Při instrukci skoku se instrukční ukazatel nastaví
+na danou instrukci \texttt{INS\_LAB} označující návěští.
 
 \subsubsection{Volání funkcí}
 Před provedením volání funkce jsou její parametry uloženy na pomocný zásobník
 instrukcí \texttt{INS\_PUSH\_PARAM}. Dále se do globálního zásobníku uloží
 ukazatel na aktuální instrukci a aktuální rámec, vytvoří se nový lokální rámec
-a instrukční ukazatel se nastaví na začátek instrukčního listu volané funcke.
+a~instrukční ukazatel se nastaví na začátek instrukčního listu volané funcke.
 Při návratu z funkce se její návratová hodnota uloží do vyhrazené
 proměnné ve struktuře reprezentujíci funkci v globální tabulce symbolů.
 Tím je interpret oddělen od režie návratových hodnot. Menší nevýhodou této
 implementace je generování návratové proměnné pro každou funkci.
 Vše je zabezpečeno při generování kódu. Z~globálního rámce se načte původní
-rámec a instrukce, odkud byla funkce voláná, a pokračuje se instrukcí další.
+rámec a instrukce, odkud byla funkce volána, a pokračuje se instrukcí další.
 
 \newpage
 
@@ -286,7 +283,7 @@ rámec a instrukce, odkud byla funkce voláná, a pokračuje se instrukcí dalš
 
 \subsubsection{Zásobník}
 Zásobník je dynamická datová struktura. Položkami zásobníku jsou ukazatele
-na typ \texttt{void}, což umožňuje jeho široké použití.
+na typ \texttt{void}, což umožňuje jeho široké využití.
 Uplatňuje se v \texttt{parseru} i \texttt{interpretu}. Má důležitou úlohu
 například při převodu infixového zápisu výrazů na postfixový.
 
@@ -300,7 +297,7 @@ jazycích.
 
 Tato datová struktura je použitá pro tabulky symbolů. Její výhodou je rychlost
 vyhledávání položek. Základem je pole ukazatelů na jednotlivé položky. Položky
-obsahují svůj klíč, data a ukazatel na další položku, aby mohly být propojené
+obsahují svůj klíč, data a~ukazatel na další položku, aby mohly být propojené
 v~jednosměrně explicitně vázaný lineární seznam -- seznam synonym. V případě ideální
 hashovací funkce není propojení v~seznam potřebné a~čas přístupu k~položkám je
 konstantní. Nalezení takové funkce není triviální. Zvolili jsme dostatečnou
@@ -313,20 +310,20 @@ seznamu synonym.
 %*******************************************************************************
 \subsection{Algoritmy}
 
-Následující kapitola se zabývá dvěmi nejzajímavějšími algoritmy naší
+Následující kapitola se zabývá dvěma nejzajímavějšími algoritmy naší
 implementace, první z~nich slouží pro řazení, druhý pro vyhledávání
 podřetězce v~řetězci.
 
 \subsubsection{Řadící algoritmus -- Heap Sort}
 
-Heap -- hromada je strukutra stromového typu. Nejčastěji, i v naší 
+Heap -- hromada je struktura stromového typu. Nejčastěji, i v naší 
 implementaci, se jedná o~uspořádaný binární strom. Významnou operací nad 
 hromadou je \texttt{siftDown} -- prosetí, která zrekonstruuje hromadu 
 porušenou v kořeni. Prvek v kořeni se postupně přesune na správné místo. V 
 nejhorším případe (přesun z kořene až do listu) bude složitost $\log_2 n$. 
 Podstatou řazení je implementace hromady polem velikosti $N$, kde uzel 
 umístněný na indexu $i$ má svého levého syna na indexu $2i+1-base$ 
-\footnote{base -- index první položky pole} a pravého syna na indexu 
+\footnote{$base$ -- index první položky pole} a pravého syna na indexu 
 $2i+2-base$. Index nejpravějšího neterminálního uzlu na nejnižší úrovni je
 $N/2-1+base$. Vlastní cyklus heap sortu má lineární složitost, pričemž v každém 
 kroku se vymění kořen s posledním prvkem a \textit{proseje} se hromada. Tím 
@@ -405,7 +402,7 @@ s~délkou hledaného textu. Ke každému písmenu hledaného řetězce je přiř
 \draw (62.2,-11.7) node {\em $\geq$};
 \draw [black] (62.2,-11.7) circle (2.4);
 \draw [black] (6.2,-105) circle (3);
-\draw (6.2,-105) node {\em eq};
+\draw (6.2,-105) node {\em ==};
 \draw [black] (6.2,-105) circle (2.4);
 \draw [black] (10.5,-64.6) circle (3);
 \draw (10.5,-64.6) node {\em !};
@@ -535,7 +532,7 @@ s~délkou hledaného textu. Ke každému písmenu hledaného řetězce je přiř
 \draw (87.91,-99.66) node [right] {\em /};
 \draw [black] (77.103,-104.311) arc (155.88922:116.09118:33.931);
 \fill [black] (93.15,-87.7) -- (92.21,-87.6) -- (92.65,-88.5);
-\draw (83.14,-93.13) node [left] {\em n t \ ''};
+\draw (83.14,-93.13) node [left] {\em n t \textbackslash ''};
 \draw [black] (91.24,-125.501) arc (-110.98777:-162.6877:24.35);
 \fill [black] (91.24,-125.5) -- (90.67,-124.75) -- (90.31,-125.68);
 \draw (81.67,-120.89) node [left] {\em x};
@@ -789,14 +786,21 @@ id            & \textgreater & \textgreater & \textgreater & \textgreater & ! & 
 
 \begin{thebibliography}{2}
 
+\bibitem{sbdm} 
+\textit{Hash Functions}
+[online]. [cit. 2015-12-13]. Dostupné z:\\ \texttt{http://www.cse.yorku.ca/$\sim$oz/hash.html}
+
 \bibitem{automata} 
 WALLACE, E.
 \textit{Finite State Machine Designer}
 [online]. 2010 [cit. 2015-12-13]. Dostupné z: \texttt{http://madebyevan.com/fsm/}
- 
-\bibitem{sbdm} 
-\textit{Hash Functions}
-[online]. [cit. 2015-12-13]. Dostupné z:\\ \texttt{http://www.cse.yorku.ca/$\sim$oz/hash.html}
+
+\bibitem{ial}
+Prof. Ing. Jan Maxmilián Honzík, CSc.
+\textit{Algoritmy IAL: Sudijní opora}
+[online]. Verze 14R. 2015-12-11 [cit. 2015-12-13].
+Dostupné z: \texttt{https://wis.fit.vutbr.cz/FIT/st/\\course-files-st.php/course/IAL-IT/texts/Opora-IAL-2014-verze-14R.pdf}
+
  
 \end{thebibliography}
 

@@ -54,7 +54,18 @@ enum {
 	external_function
 };
 
+/**
+  * @brief Inicializace modulu
+  *
+  * Inicializace zasobniku potrebnych pri praci modulu
+  */
 void expr_init();
+
+/**
+  * @brief Deinicializace modulu
+  *
+  * Uvolneni zasobniku potrebnych pri praci modulu
+  */
 void expr_destroy();
 
 /**
@@ -65,7 +76,6 @@ void expr_destroy();
   * @param variable_toilet Ukazatel na promennou pro prirazeni vysledku vyrazu
   * @param list_toilet Ukazatel na aktulani instrukcni list pro vlozeni vygenerovanych instrukci
   */
-
 void expression(TVariable *ret_var, Tins_list *act_ins_list);
 
 #endif //EXPR_H

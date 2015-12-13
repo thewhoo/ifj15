@@ -67,9 +67,9 @@
 \interlinepenalty 10000 %nezalamovat odstavce
 
 \begin{document}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%               Title page
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
+%               Úvodní strana
+%*******************************************************************************
 \begin{titlepage}
 
 \begin{center}
@@ -103,14 +103,14 @@
 
 \end{titlepage}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Obsah
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \tableofcontents
 \newpage
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Úvod
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \section{Úvod} \label{uvod}
 
 Tato dokumentace popisuje implementaci interpretu jazyka IFJ15, který je
@@ -123,9 +123,9 @@ popsaných v~následujících kapitolách.
 	\item Sémantický analyzátor
 	\item Interpret
 \end{itemize}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Práce v~týmu
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \section{Práce v~týmu} \label{team}
 
 \subsection{Rozdělení práce na jednotlivých částech}
@@ -156,46 +156,46 @@ Inkrementánlí vývojový cyklus
 \newpage
 
 \section{Implementace interpretu jazyka IFJ15} \label{implementace}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Lexikální analýza
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \subsection{Lexikální analýza} \label{lexer}
 
-Lexikální analyzátor je vstupní částí překladače. Je založen na deterministickém
+Lexikální analyzátor je vstupní částí interpretu. Je založen na deterministickém
 konečném automatu, jehož hlavním úkolem je čtení zdrojového souboru a na základě
 lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
-souboru na lexikální části  -- lexémy.
+souboru na lexikální části -- lexémy.
 
-Náš konečný automat začína ve stavu \texttt{S\_START}, ze kterého se po načítání
-znaků může dostal do několika dalších stavů, v~kterých už zpracovává jednotlivé
-lexikální jednotky. Rozpoznané lexikální jednotky jsou reprezenované strukturou
-token, která obsahuje informace o typu tokenu a jeho data. Data do tokenu jsou
+Rozpoznané lexikální jednotky jsou reprezenovány strukturou \texttt{token},
+která obsahuje informace o typu tokenu a jeho data. Data do tokenu jsou
 zapisována za pomoci funkcí z námi implementované knihovny \texttt{string.h}.
-V~této knihovně se nachází několik funkcí na práci s řetezci, například funkce
-pro inicializaci či pro vkládaní dat do řetezce.
 
-Vedlejším úkolem
-lexikální analýzy je odstraňování všech komentářů a bílých znaků, neboť nejsou
-podstatné při dalším zpracování. Zpracování komentářů začíná načtením
-znaku \texttt{/} se dostane do stavu \texttt{S\_DIV}, ve kterém mohou nastat
-tři situace. První nastane při dalším načtení znaku \texttt{/}, což vede na
-detekci řádkového komentáře \texttt{S\_LCOM} -- line comment. Po zpracování
-komentáře se automat vrací do stavu \texttt{S\_START}. Druhá situace nastane při
-načtení znaku \texttt{*}. Automat přejde do stavu \texttt{S\_LBC} -- blokový
-komentář. Do dalšího příchodu znaku \texttt{*} se všechny znaky považují
-za součást komentáře. Po načtení znaku \texttt{/}, jenž značí konec
-blokového komentáře, se automat přesune opět do stavu \texttt{S\_START}.
-Třetí situace nastane při přečtení znaku jiného (vyjímaje konec
-souboru), kdy je předcházející znak vyhodnocen jako token operátoru dělení.
+%Vedlejším úkolem
+%lexikální analýzy je odstraňování všech komentářů a bílých znaků, neboť nejsou
+%podstatné v dalších krocích interpretace. Zpracování komentářů začíná načtenímv
+%znaku \texttt{/}, kdy automat přejde do stavu \texttt{S\_DIV}, ve kterém mohou
+%nastat tři situace. První nastane při načtení dalšího znaku \texttt{/}, což vede
+%k~detekci řádkového komentáře \texttt{S\_LCOM} -- line comment. Druhá situace
+%nastane po načtení znaku \texttt{*}. Automat přejde do stavu \texttt{S\_LBC}
+%-- blokový komentář. Do dalšího přečtení sekvence \texttt{*/} se všechny znaky
+%považují za součást komentáře. Po ukončení čtení komentáře automat opět přejde
+%do stavu \texttt{S\_START}. Třetí situace nastane při přečtení znaku jiného,
+%kdy je předcházející znak vyhodnocen jako token operátoru dělení.
 
-Činnost lexikálního analyzátoru je přímo řízena
-syntaktickým analyzátorem, který postupně žádá o jednotlivé tokeny. Princip
-fungování lexikální analýzy reprezuntuje příloha \ref{subsec:automat},
-ve které je zobrazeno její schéma.
+Vedlejším úkolem lexikální analýzy je odstraňování všech komentářů a bílých
+znaků, neboť nejsou podstatné v dalších krocích interpretace. Vstupní souboru
+může obsahovat dva typy komentářů -- řádkový, uvozený znaky
+\texttt{//} a blokový ohraničený sekvencemi znaků
+\texttt{/*} a \texttt{*/}. Po ukončení čtení komentáře automat opět přejde
+do počátečního stavu.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem, který
+postupně žádá o jednotlivé tokeny. Princip fungování lexikální analýzy
+reprezuntuje příloha \ref{subsec:automat}, ve které je zobrazeno její schéma.
+
+%*******************************************************************************
 %                   Syntaktická a sémantická analýza
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \subsection{Syntaktická a sémantická analýza} \label{parser}
 
 Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ústřední
@@ -250,9 +250,9 @@ Sémantická analýza probíhá pralelně se syntaktickou analýzou v~rámci
 rekurzivního sestupu i~precedenční analýzy výrazů. Kontroluje se definice
 a~deklarace funkcí i~deklarace proměnných.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Interpret
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \subsection{Interpret} \label{interpret}
 Interpret ke své práci využívá globální zásobník, lokální zásobník pro aktuální
 funcki a tabulky s rozptýlenými položkami pro proměnné. Každý blok příkazů
@@ -279,9 +279,9 @@ rámec a instrukce, odkud byla funkce voláná, a pokračuje se instrukcí dalš
 
 \newpage
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Datové struktury
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \subsection{Datové struktury}
 
 \subsubsection{Zásobník}
@@ -307,26 +307,27 @@ vyhledávání položek. Základem je pole ukazatelů na jednotlivé položky. P
 obsahují svůj klíč, data a ukazatel na další položku, aby mohly být propojené
 v~jednosměrně vázaný lineární seznam -- seznam synonym. V případě ideální
 hashovací funkce není propojení v~seznam potřebné a~čas přístupu k~položkám je
-konstantní. Nalezení takové funkce není triviální, zvolili jsme XXXXXXX (sdbm?).
+konstantní. Nalezení takové funkce není triviální, zvolili jsme \texttt{sbdm}
+\cite{sbdm}.
 V~případě konfliktu se čas nalezení položky prodloužuje o dobu prohledání
 lineárního seznamu.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Algoritmy
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \subsection{Algoritmy}
 
 Následující kapitola se zabývá dvěmi nejzajímavějšími algoritmy naší
 implementace, první z nich slouží pro řazení, druhý pro vyhledávání
 podřetězce v~řetězci.
 
-\subsubsection{Řadící algoritmus Heap Sort}
+\subsubsection{Řadící algoritmus -- Heap Sort}
 \begin{verbatim}
 *** Doplní tvůrce
 \end{verbatim}
 Funkce pro seřazení prvků v~poli.
 
-\subsubsection{Vyhledávaní podřetězce -- Knuth-Morris-Pratt}
+\subsubsection{Vyhledávaní podřetězce v řetězci -- Knuth-Morris-Pratt}
 Vyhledání podřetězce v~řetězci ve vestavěné funkci \texttt{find} je řešeno
 algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
 \texttt{Fail vector}. Jedná se o pole celých čísel, délka pole je totožná
@@ -334,9 +335,9 @@ s~délkou hledaného textu. Ke každému písmenu hledaného řetězce je přiř
 číslo, které určuje index pro návrat programu v~případě neshody znaků.
 
 \newpage
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 %                   Přílohy
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******************************************************************************
 \section{Přílohy} \label{prilohy}
 
 \renewcommand\thesubsection{\thesection.\Alph{subsection}}
@@ -356,7 +357,7 @@ s~délkou hledaného textu. Ke každému písmenu hledaného řetězce je přiř
 %	cout		
 %	cin
 
-\subsection{Diagram konečného autommlatu lexikální analýzy} \label{subsec:automat}
+\subsection{Diagram konečného automatu lexikální analýzy \cite{automata}} \label{subsec:automat}
 \begin{center}
 \begin{tikzpicture}[scale=0.165]
 \tikzstyle{every node}+=[inner sep=0pt]
@@ -771,17 +772,25 @@ volání vestavěné funkce \texttt{find} s~parametry src1 a src2, výsledek ulo
 volání vestavěné funcke \texttt{sort} s~parametrem src1, výsledek uloží do dest\\
 \texttt{INS\_CIN} \texttt{src1}
 
-načítá do dest hodnotu ze standardního vstupu\\
+načítá do src1 hodnotu ze standardního vstupu\\
 \texttt{INS\_COUT} \texttt{dest}
 
-vypíše na standardní výstup src1\\
+vypíše na standardní výstup dest\\
 
 \section{Zdroje}
 
-\begin{verbatim}
-http://madebyevan.com/fsm/
-sdbm algoritmus
-\end{verbatim}
+\begin{thebibliography}{9}
+
+\bibitem{automata} 
+WALLACE, E.
+\textit{Finite State Machine Designer}
+[online]. 2010 [cit. 2015-12-13]. Dostupné z: \texttt{http://madebyevan.com/fsm/}
+ 
+\bibitem{sbdm} 
+\textit{Hash Functions}
+[online]. [cit. 2015-12-13]. Dostupné z:\\ \texttt{http://www.cse.yorku.ca/$\sim$oz/hash.html}
+ 
+\end{thebibliography}
 
 \end{document}
 

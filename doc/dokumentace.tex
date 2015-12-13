@@ -333,8 +333,8 @@ dostáváme linearitmickou časovou složitost.
 Vyhledání podřetězce v~řetězci ve vestavěné funkci \texttt{find} je řešeno
 algoritmem Knuth-Morris-Pratt. Základem algoritmu je vytvoření masky, tzv.
 \texttt{Fail vector}. Jedná se o pole celých čísel, délka pole je totožná
-s~délkou hledaného textu. Ke každému písmenu hledaného řetězce je přiřazeno
-číslo, které určuje index pro návrat programu v~případě neshody znaků.
+s~délkou hledaného textu. Ke každému písmenu hledaného podřetězce je přiřazeno
+číslo, které určuje index pro začátek dalšího hledání v~případě neshody znaků.
 
 \newpage
 %*******************************************************************************

@@ -61,6 +61,9 @@
 \usepackage{diagbox}
 % Rotace stránky
 \usepackage{pdflscape}
+% Citace
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
 
 \pagenumbering{arabic}
 \providecommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
@@ -297,20 +300,16 @@ se značně liší od datového typu \texttt{string} ve vyšších programovací
 jazycích.
 
 \subsubsection{Tabulka s rozptýlenými položkami}
-\begin{verbatim}
-*** Doplní Pavol Plaskoň
-používáme sdbm = uvedieme zdroj webstranku?
-explicitně řazené položky
-\end{verbatim}
+
 Tato datová struktura je použitá pro tabulky symbolů. Její výhodou je rychlost
 vyhledávání položek. Základem je pole ukazatelů na jednotlivé položky. Položky
 obsahují svůj klíč, data a ukazatel na další položku, aby mohly být propojené
-v~jednosměrně vázaný lineární seznam -- seznam synonym. V případě ideální
+v~jednosměrně explicitně vázaný lineární seznam -- seznam synonym. V případě ideální
 hashovací funkce není propojení v~seznam potřebné a~čas přístupu k~položkám je
 konstantní. Nalezení takové funkce není triviální, zvolili jsme \texttt{sbdm}
 \cite{sbdm}.
 V~případě konfliktu se čas nalezení položky prodloužuje o dobu prohledání
-lineárního seznamu.
+seznamu synonym.
 
 %*******************************************************************************
 %                   Algoritmy
@@ -322,10 +321,21 @@ implementace, první z nich slouží pro řazení, druhý pro vyhledávání
 podřetězce v~řetězci.
 
 \subsubsection{Řadící algoritmus -- Heap Sort}
-\begin{verbatim}
-*** Doplní tvůrce
-\end{verbatim}
-Funkce pro seřazení prvků v~poli.
+
+Heap -- hromada je strukutra stromového typu. Nejčastěji, i v naší
+implementaci, se jedná o uspořádaný binární strom. Významnou operací nad
+hromadou je \texttt{siftDown} -- prosetí, která zrekonstruuje hromadu porušenou v kořeni.
+Prvek v kořeni se postupně přesune na správné místo. V nejhorším případe (přesun z
+kořene až do listu) bude složitost $\log_2 n$.
+Podstatou řazení je implementace hromady polem, kde uzel umístněný na indexu
+$i$ má svého levého syna na indexu $2i+1-base$
+\footnote{base -- index první položky pole} a pravého syna na indexu
+$2i+2-base$. Index nejlevějšího uzlu,
+uzlu s nejnižším indexem je $N/2 - i + base$.
+
+Vlastní cyklus heap sortu má lineární složitost, pričemž v každém kroku se
+vymění kořen s posledním prvkem a \textit{proseje} se hromada. Tím dostáváme
+linearitmickou časovou složitost.
 
 \subsubsection{Vyhledávaní podřetězce v řetězci -- Knuth-Morris-Pratt}
 Vyhledání podřetězce v~řetězci ve vestavěné funkci \texttt{find} je řešeno
@@ -693,93 +703,96 @@ id            & \textgreater & \textgreater & \textgreater & \textgreater & ! & 
 % INSTRUKČNÍ SADA TROJADRESNÉHO KÓDU
 \subsection{Instrukční sada trojadresného kódu} \label{instrukce}
 
-\subsubsection*{Část první}
+\subsubsection{Část první}
 
-\texttt{INS\_ASSIGN} \texttt{dest}, \texttt{src1}
-
-přiradí hodnotu proměnnej src1 do dest\\
-\texttt{INS\_ADD} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-sčítá src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_SUB} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-odečítá src1 od src2, výsledek uloží do dest\\
-\texttt{INS\_MUL} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-vynásobí src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_DIV} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-vydelí src2 a src1, výsledek uloží do dest\\
-\texttt{INS\_EQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-testuje rovnost src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_NEQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-testuje nerovnost src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_GREATER} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-testuje, je-li(hm..advanced czech?)src1 větší než src2, výsledek uloží do dest\\
-\texttt{INS\_GREATEQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-testuje, je-li src1 větší, nebo roven src2, výsledek uloží do dest\\
-\texttt{INS\_LESSER} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-testuje, je-li src1 menší než src2, výsledek uloží do dest\\
-\texttt{INS\_LESSEQ} \texttt{dest}, \texttt{src1}, \texttt{src2}
-
-testuje, je-li src1 menší, nebo roven src2, výsledek uloží do dest\\
-\texttt{INS\_JMP} \texttt{label}
-
-nepodmíněný skok na návěští \\
-\texttt{INS\_CJMP} \texttt{cond} \texttt{label}
-
-podmíněný skok na návěští label na základe hodnoty cond\\
-\texttt{INS\_LAB} \texttt{label}
-
-návěští pro skok\\
-\texttt{INS\_PUSH\_PARAM} \texttt{src}
-
-uloží na pomocnej zásobník parameter pro volání funkce\\
-\texttt{INS\_CALL} \texttt{func}
-
-volání funkce func\\
-\texttt{INS\_RET}
-
-ukončení provádení funkce\\
-\texttt{INS\_PUSH\_TAB} \texttt{src1}
-
-vytvoření nověho rámce pro vnořený blok src1\\
-\texttt{INS\_POP\_TAB} \texttt{src1}
-
-zrušení rámce jednoho bloku programu\\
-\texttt{INS\_LENGTH} \texttt{dest}, \texttt{src1}
-
-volání vestavěné funkce \texttt{length} s~parametrem src1, výsledek uloží do dest\\
+\begin{itemize}
+	\item{\texttt{INS\_ASSIGN dest, src1}} \\
+	přiřadí hodnotu proměnné \textit{src1} do \textit{dest}
+	
+	\item{\texttt{INS\_ADD dest, src1, src2}} \\
+	sčítá \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_SUB dest, src1, src2}} \\
+	odečítá \textit{src1} od \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_MUL dest, src1, src2}} \\
+	vynásobí \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_DIV dest, src1, src2}} \\ 
+	vydělí \textit{src2} a \textit{src1}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_EQ dest, src1, src2}} \\ 
+	testuje rovnost \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_NEQ dest, src1, src2}} \\ 
+	testuje nerovnost \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_GREATER dest, src1, src2}} \\ 
+	testuje, zda je \textit{src1} větší než \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_GREATEQ dest, src1, src2}} \\ 
+	testuje, zda je \textit{src1} větší nebo roven \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_LESSER dest, src1, src2}} \\ 
+	testuje, zda je \textit{src1} menší než \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_LESSEQ dest, src1, src2}} \\ 
+	testuje, zda je \textit{src1} menší nebo roven \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_JMP label}} \\ 
+	nepodmíněný skok na návěští \textit{label}
+	
+	\item{\texttt{INS\_CJMP cond label}} \\
+	podmíněný skok na návěští \textit{label} na základě hodnoty \textit{cond}
+	
+	\item{\texttt{INS\_LAB label}} \\
+	definice návěští \textit{label} pro skok
+	
+	\item{\texttt{INS\_PUSH\_PARAM src}} \\
+	uloží na pomocný zásobník parametr \textit{src} pro volání funkce
+	
+	\item{\texttt{INS\_CALL func}} \\
+	volání funkce \textit{func}
+\end{itemize}
 
 \newpage
-\subsubsection*{Část druhá}
-\texttt{INS\_SUBSTR} \texttt{dest}
+\subsubsection{Část druhá}
 
-volání vestavěné funkce \texttt{substr} s~předem uloženými parametry, výsledek uloží do dest\\
-\texttt{INS\_CONCAT} \texttt{dest}, \texttt{src1}, \texttt{src2}
+\begin{itemize}
+	\item{\texttt{INS\_RET}} \\
+	ukončení provádení funkce
+	
+	\item{\texttt{INS\_PUSH\_TAB src1}} \\
+	vytvoření nového rámce pro vnořený blok \textit{src1}
+	
+	\item{\texttt{INS\_POP\_TAB src1}} \\
+	zrušení rámce vnořeného bloku \textit{src1}
+	
+	\item{\texttt{INS\_LENGTH dest, src1}} \\
+	volání vestavěné funkce \textit{length} s~parametrem \textit{src1}, výsledek uloží do \textit{dest}	
+	
+	\item{\texttt{INS\_SUBSTR dest}} \\
+	volání vestavěné funkce \textit{substr} s~předem uloženými parametry, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_CONCAT dest, src1, src2}} \\
+	volání vestavěné funkce \textit{concat} s~parametry \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_FIND dest, src1, src2}} \\
+	volání vestavěné funkce \textit{find} s~parametry \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_SORT dest, src1}} \\
+	volání vestavěné funcke \textit{sort} s~parametrem \textit{src1}, výsledek uloží do \textit{dest}
+	
+	\item{\texttt{INS\_CIN src1}} \\
+	načítá do \textit{src1} hodnotu ze standardního vstupu
+	
+	\item{\texttt{INS\_COUT dest}} \\
+	vypíše na standardní výstup \textit{dest}
+\end{itemize}
 
-volání vestavěné funkce \texttt{concat} s~parametry src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_FIND} \texttt{dest}, \texttt{src1}, \texttt{src2}
+\section{Reference} \label{reference}
 
-volání vestavěné funkce \texttt{find} s~parametry src1 a src2, výsledek uloží do dest\\
-\texttt{INS\_SORT} \texttt{dest}, \texttt{src1}
-
-volání vestavěné funcke \texttt{sort} s~parametrem src1, výsledek uloží do dest\\
-\texttt{INS\_CIN} \texttt{src1}
-
-načítá do src1 hodnotu ze standardního vstupu\\
-\texttt{INS\_COUT} \texttt{dest}
-
-vypíše na standardní výstup dest\\
-
-\section{Zdroje}
-
-\begin{thebibliography}{9}
+\begin{thebibliography}{2}
 
 \bibitem{automata} 
 WALLACE, E.

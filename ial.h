@@ -30,8 +30,8 @@
 /**
  * find substring in string
  *
- * @param str string
- * @param substr substring
+ * @param *s ptr to target string 
+ * @param *search ptr to patter
  * @return index of match, from 0, -1 if not found
  */
 int find(TVariable* s, TVariable* search);
@@ -39,10 +39,10 @@ int find(TVariable* s, TVariable* search);
 /**
  * sort chars in string, ascending
  *
- * @param *str ptr to string
+ * @param *var ptr to string
  * @return *ptr to sorted string
  */
-char * sort(TVariable *var);
+char* sort(TVariable *var);
 
 /* -----------------Hash tab ------------------- */
 
@@ -73,9 +73,9 @@ typedef struct hash_tab
 }htab_t;
 
 /**
- * @brief vytvori a inicializuje hash tabulku 
- * @param size velkost tabulky 
- * @return vrati ukazatel na tabulku alebo null
+ * @brief create and init hash table
+ * @param size size of hash table
+ * @return ptr to new table
  */
 htab_t *htab_init(unsigned int size);
 
@@ -87,52 +87,52 @@ htab_t *htab_init(unsigned int size);
 htab_t *htab_copy(htab_t *old_tab);
 
 /**
- * @brief vyhlada prvok v tabulke 
- * @param tab hash tabulka
- * @param key prvok, ktory hladame
- * @return ukazatel na hladany prvok tabulky, ak nie je tak null         
+ * @brief Search for item in hash table
+ * @param tab hash table
+ * @param key of searched item
+ * @return ptr to item or NULL if not found
  */
 struct htab_listitem* htab_lookup(htab_t* tab, const char* key);
 
 /**
- * @brief vlozi novy prvok do tabulky 
- * @param tab hash tabulka
- * @param key kluc noveho prvku
- * @return ukazatel na novy prvok, alebo null 
+ * @brief insert new item to hash table
+ * @param tab hash table
+ * @param key of new item
+ * @return ptr to new item 
  */
 struct htab_listitem* htab_insert(htab_t* tab, const char* key);
 
 /**
- * @brief zavola funckiu pre kazdy prvok hash tabulky 
- * @param tab hash tabulka
- * @param function funkcia, ktoru chceme volat
+ * @brief call function for every table item 
+ * @param tab hash table
+ * @param function to be called
  */
 void htab_foreach(
         htab_t *tab, 
         void function(const char* key, struct s_variable *var));
 
 /**
- * @brief odstrani prvok z tabulky 
- * @param tab hash tabulka
- * @param key dany prvok
+ * @brief removes one item from table
+ * @param tab hash table
+ * @param key of item to be removed
  */
 void htab_remove(htab_t* tab, const char* key);
 
 /**
- * @brief zmaze vsetky prvky tabulky 
- * @param tab hash tabulka
+ * @brief Removes all items from table. 
+ * @param tab hash table
  */
 void htab_clear(htab_t *tab);
 
 /**
- * @brief uvolni celu tabulku z pamate
- * @param tab hash tabulka
+ * @brief Frees hash table and all items
+ * @param tab hash table
  */
 void htab_free(htab_t *tab);
 
 /**
- * @brief vypis max min a priemernej dlzky jedneho zoznamu v hash tabulke
- * @param tab hash tabulka
+ * @brief prints max min and average length of synonyms
+ * @param tab hash table
  */
 void htab_statistics(htab_t* tab);
 

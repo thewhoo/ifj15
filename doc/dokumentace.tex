@@ -165,21 +165,9 @@ konečném automatu, jehož hlavním úkolem je čtení zdrojového souboru a na
 lexikálních pravidel jazyka rozdělit jednotlivé posloupnosti znaků
 souboru na lexikální části -- lexémy.
 
-Rozpoznané lexikální jednotky jsou reprezenovány strukturou \texttt{token},
+Rozpoznané lexikální jednotky jsou reprezentovány strukturou \texttt{token},
 která obsahuje informace o typu tokenu a jeho data. Data do tokenu jsou
 zapisována za pomoci funkcí z námi implementované knihovny \texttt{string.h}.
-
-%Vedlejším úkolem
-%lexikální analýzy je odstraňování všech komentářů a bílých znaků, neboť nejsou
-%podstatné v dalších krocích interpretace. Zpracování komentářů začíná načtenímv
-%znaku \texttt{/}, kdy automat přejde do stavu \texttt{S\_DIV}, ve kterém mohou
-%nastat tři situace. První nastane při načtení dalšího znaku \texttt{/}, což vede
-%k~detekci řádkového komentáře \texttt{S\_LCOM} -- line comment. Druhá situace
-%nastane po načtení znaku \texttt{*}. Automat přejde do stavu \texttt{S\_LBC}
-%-- blokový komentář. Do dalšího přečtení sekvence \texttt{*/} se všechny znaky
-%považují za součást komentáře. Po ukončení čtení komentáře automat opět přejde
-%do stavu \texttt{S\_START}. Třetí situace nastane při přečtení znaku jiného,
-%kdy je předcházející znak vyhodnocen jako token operátoru dělení.
 
 Vedlejším úkolem lexikální analýzy je odstraňování všech komentářů a bílých
 znaků, neboť nejsou podstatné v dalších krocích interpretace. Vstupní souboru
@@ -190,7 +178,7 @@ do počátečního stavu.
 
 Činnost lexikálního analyzátoru je přímo řízena syntaktickým analyzátorem, který
 postupně žádá o jednotlivé tokeny. Princip fungování lexikální analýzy
-reprezuntuje příloha \ref{subsec:automat}, ve které je zobrazeno její schéma.
+reprezentuje příloha \ref{subsec:automat}, ve které je zobrazeno její schéma.
 
 %*******************************************************************************
 %                   Syntaktická a sémantická analýza
@@ -202,7 +190,7 @@ Syntaktický a sémantický analyzátor, neboli \texttt{parser}, představuje ú
 spuštění programu a přejímá řízení do doby, než dojde k~úplnému zpracování
 zdrojového souboru.
 
-\subsubsection{Zpracování jazykových konsturkcí}
+\subsubsection{Zpracování jazykových konstrukcí}
 Syntaktická analýza je implementována rekurzivním sestupem, který je řízen
 pravidly naší LL-gramatiky uvedenými v~příloze \ref{subsec:llgram}.
 Neterminální symboly představují tokeny přijaté od~lexikálního analyzátoru.
@@ -245,7 +233,7 @@ operandů a nastavují odvozené datové typy proměnným s~modifikátorem
 \texttt{auto}.
 
 Při výskytu volání funkce je mimo jiné kontrolována kompatibilita návratového
-typu funkce a typu proměnné pro přiřazení návrácené hodnoty.
+typu funkce a typu proměnné pro přiřazení navrácené hodnoty.
 
 %*******************************************************************************
 %                   Interpret
@@ -268,7 +256,7 @@ instrukcí \texttt{INS\_PUSH\_PARAM}. Dále se do globálního zásobníku ulož
 ukazatel na aktuální instrukci a aktuální rámec, vytvoří se nový lokální rámec
 a~instrukční ukazatel se nastaví na začátek instrukčního listu volané funkce.
 Při návratu z funkce se její návratová hodnota uloží do vyhrazené
-proměnné ve struktuře reprezentujíci funkci v globální tabulce symbolů.
+proměnné ve struktuře reprezentující funkci v globální tabulce symbolů.
 Tím je interpret oddělen od režie návratových hodnot. Menší nevýhodou této
 implementace je generování návratové proměnné pro každou funkci.
 Vše je zabezpečeno při generování kódu. Z~globálního rámce se načte původní
@@ -288,7 +276,7 @@ Uplatňuje se v \texttt{parseru} i \texttt{interpretu}. Má důležitou úlohu
 například při převodu infixového zápisu výrazů na postfixový.
 
 \subsubsection{Řetězec}
-V naší implementaci je řetězec vpodstatě \texttt{vektor}, nebo-li dynamické pole znaků.
+V naší implementaci je řetězec v~podstatě \texttt{vektor}, nebo-li dynamické pole znaků.
 Dle potřeby mění svoji kapacitu. Námi implementovaný datový typ \texttt{TString}
 se značně liší od datového typu \texttt{string} ve vyšších programovacích
 jazycích.
@@ -302,7 +290,7 @@ v~jednosměrně explicitně vázaný lineární seznam -- seznam synonym. V př�
 hashovací funkce není propojení v~seznam potřebné a~čas přístupu k~položkám je
 konstantní. Nalezení takové funkce není triviální. Zvolili jsme dostatečnou
 funkci \texttt{sbdm}\cite{sbdm}.
-V~případě konfliktu se čas nalezení položky prodloužuje o~dobu prohledání
+V~případě konfliktu se čas nalezení položky prodlužuje o~dobu prohledání
 seznamu synonym.
 
 %*******************************************************************************
@@ -325,7 +313,7 @@ Podstatou řazení je implementace hromady polem velikosti $N$, kde uzel
 umístněný na indexu $i$ má svého levého syna na indexu $2i+1-base$ 
 \footnote{$base$ -- index první položky pole} a pravého syna na indexu 
 $2i+2-base$. Index nejpravějšího neterminálního uzlu na nejnižší úrovni je
-$N/2-1+base$. Vlastní cyklus heap sortu má lineární složitost, pričemž v každém 
+$N/2-1+base$. Vlastní cyklus heap sortu má lineární složitost, přičemž v každém 
 kroku se vymění kořen s posledním prvkem a \textit{proseje} se hromada. Tím 
 dostáváme linearitmickou časovou složitost.
 

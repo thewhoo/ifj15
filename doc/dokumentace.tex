@@ -255,7 +255,7 @@ Interpret ke své práci využívá globální zásobník, lokální zásobník 
 funkci a tabulky s rozptýlenými položkami pro proměnné. Každý blok příkazů
 interpretovaného programu má vlastní tabulku proměnných -- zabezpečení viditelnosti
 proměnných pouze v rámci jejich bloku.
-Na začátku se v globální tabulce symbolů vyhledá funcke \texttt{main},
+Na začátku se v globální tabulce symbolů vyhledá funkce \texttt{main},
 vytvoří se pro ni lokální rámec a instrukční ukazatel se nastaví na začátek
 instrukčního listu -- jednosměrně vázaného lineárního seznamu.
 Přesun na další položku seznamu představuje přechod na další instrukci.
@@ -266,7 +266,7 @@ na danou instrukci \texttt{INS\_LAB} označující návěští.
 Před provedením volání funkce jsou její parametry uloženy na pomocný zásobník
 instrukcí \texttt{INS\_PUSH\_PARAM}. Dále se do globálního zásobníku uloží
 ukazatel na aktuální instrukci a aktuální rámec, vytvoří se nový lokální rámec
-a~instrukční ukazatel se nastaví na začátek instrukčního listu volané funcke.
+a~instrukční ukazatel se nastaví na začátek instrukčního listu volané funkce.
 Při návratu z funkce se její návratová hodnota uloží do vyhrazené
 proměnné ve struktuře reprezentujíci funkci v globální tabulce symbolů.
 Tím je interpret oddělen od režie návratových hodnot. Menší nevýhodou této
@@ -773,7 +773,7 @@ id            & \textgreater & \textgreater & \textgreater & \textgreater & ! & 
 	volání vestavěné funkce \textit{find} s~parametry \textit{src1} a \textit{src2}, výsledek uloží do \textit{dest}
 	
 	\item{\texttt{INS\_SORT dest, src1}} \\
-	volání vestavěné funcke \textit{sort} s~parametrem \textit{src1}, výsledek uloží do \textit{dest}
+	volání vestavěné funkce \textit{sort} s~parametrem \textit{src1}, výsledek uloží do \textit{dest}
 	
 	\item{\texttt{INS\_CIN src1}} \\
 	načítá do \textit{src1} hodnotu ze standardního vstupu

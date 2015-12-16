@@ -1,0 +1,6 @@
+/***/
+int main ()	
+{
+	cout << "aaa\n";
+	return 0;
+}

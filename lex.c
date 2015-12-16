@@ -336,6 +336,7 @@ TToken* get_token()
 				state = S_START;
 			else if (c == EOF)
 				state = S_ERROR;
+			else if (c == '*');
 			else
 				state = S_LBC;
 		break;

@@ -217,25 +217,12 @@ struct htab_listitem* htab_insert(htab_t* tab, const char* key)
     unsigned int index;
     
     index = hash_function(key, tab->htab_size);
-    
-    if(tab->list[index] == NULL) //insert first for empty list
-    {
-        tab->list[index] = gmalloc(sizeof(struct htab_listitem));
-        item = tab->list[index];
-    }
-    else 
-    {   
-        item = tab->list[index];
-        while(item->next != NULL)
-            item = item->next;
-
-        item->next = gmalloc(sizeof(struct htab_listitem));
-        item = item->next;
-    }
+   
+    item = gmalloc(sizeof(struct htab_listitem));
+    item->next = tab->list[index];
+    tab->list[index] = item;
 
     item->key = key;
-
-    item->next = NULL;
 
     return item; 
 }

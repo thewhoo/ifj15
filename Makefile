@@ -1,8 +1,10 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -O2 -std=c99
 CFLAGS_DBG=-Wall -Wextra -pedantic -g -std=c99
+# coverage tool - gcovr
 COVERAGE_FLAGS=-Wall -Wextra -pedantic -fprofile-arcs -ftest-coverage -fPIC -O0 -std=c99
 PROJECT=ifj
+RM=rm -f
 
 SRC_FILES = $(wildcard *.c)
 HEADER_FILES = $(wildcard *.h)
@@ -10,7 +12,7 @@ OBJ_FILES = $(patsubst %.c, %.o, $(SRC_FILES))
 
 DBG_OBJ_FILES = $(patsubst %.c, %.dbg.o, $(SRC_FILES))
 
-.PHONY: all pack clean coverage
+.PHONY: all debug dbg coverage release pack clean
 
 all: clean release
 
@@ -37,4 +39,4 @@ pack:
 	rm dokumentace.pdf
 
 clean:
-	$(RM) $(PROJECT) $(TEST) $(OBJ_FILES) $(DBG_OBJ_FILES)
+	$(RM) $(PROJECT) $(OBJ_FILES) $(DBG_OBJ_FILES)

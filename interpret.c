@@ -328,8 +328,8 @@ void interpret_loop(Tins_list *ins_list)
                 stack_push(active_frame, new_tab);
                 break;
             
-            //new var defined - check if isn't already in htable(defined vars
-            //in loops)
+            //new var defined - check if isn't already in htable
+            //e.g. var definition in loops
             case(INS_PUSH_VAR):
                 new_tab = stack_top(active_frame);
                 var1 = ((TVariable*)ins->addr1);
@@ -395,9 +395,8 @@ void interpret_loop(Tins_list *ins_list)
                 //new_tab = htab_init(HTAB_SIZE);
                 stack_push(active_frame, new_tab);
                 map_params(new_tab, func->params_stack);
-                //map pushed f arguments to f parameters
-                continue; //after break, continue with new isntr, we want to
-                          //begin with first one
+                //after break, continue with new isntr, we want to begin with first one
+                continue;
 
             //return from function - clean function frame, when leaving main
             //func, return 0!
@@ -405,7 +404,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(stack_empty(gStack))  //end of main func
                 {
                     //gcDestroy();
-                    exit(0);            //maybe some cleaning?
+                    exit(0);            
                 }
 
                 clean_active_frame();
@@ -455,7 +454,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(var1->var_type == TYPE_INT)
                     var1->data.i = ret_int;
                 else
-                    var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
+                    var1->data.d = (double)ret_int;
                 var1->initialized = 1;
                 break;
 
@@ -507,7 +506,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(var1->var_type == TYPE_INT)
                     var1->data.i = ret_int;
                 else
-                    var1->data.d = (double)ret_int; // dont expect var1 string - semantic check in expr.c
+                    var1->data.d = (double)ret_int;
                 var1->initialized = 1;
                 break;
 

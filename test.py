@@ -2,7 +2,6 @@
 """
  IFJ 15 Test Suite
  Author: Pavol Plaskon <xplask00@stud.fit.vutbr.cz>
- Last modified: 3.12.2015
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -78,7 +77,7 @@ if not(os.path.isfile('ifj') and os.access('ifj', os.X_OK)):
 
 
 #################################################
-#                    OK
+#                    OK                         #
 #################################################
 
 tests_dir = os.path.join(os.getcwd(), 'tests/tests_ok')
@@ -122,7 +121,7 @@ for source in [f for f in os.listdir(tests_dir)
     
 
 ##################################################
-#                 Error tests
+#                 Error tests                    #
 ##################################################
 
 tests_dir = os.path.join(os.getcwd(), 'tests')
@@ -154,7 +153,7 @@ for source in [f for f in os.listdir(tests_dir)
     c_ret = check_ret_code(ret_code, exp_ret)
     c_out = check_stdout(out.decode('utf-8'), '')
     #c_err = check_stderr(err.decode('utf-8'))
-    if c_ret and c_out: # and c_err:
+    if c_ret and c_out: # and c_err: dont't care about stderr
         fx_ok = fx_ok + 1
     else:
         print(to_print)

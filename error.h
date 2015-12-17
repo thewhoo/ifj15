@@ -26,8 +26,8 @@
 
 enum error_codes
 {
-  E_OK = 0,     //0  
-  E_LEX = 1,    //1
+  E_OK = 0,       
+  E_LEX = 1,    
   E_SYNTAX = 2,
   E_SEMANTIC_DEF = 3,
   E_SEMANTIC_TYPES = 4,
@@ -41,7 +41,6 @@ enum error_codes
 
   //local errors
   E_ALLOC
-
 };
 
 

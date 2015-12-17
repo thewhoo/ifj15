@@ -24,9 +24,6 @@
 #include "stack.h"
 #include "shared.h"
 
-//using prefix num_ / str_
-#define PREFIX_LEN 4
-
 TVariable* token_to_const(TToken *token)
 {
     htab_item *tmp = NULL;

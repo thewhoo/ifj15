@@ -9,7 +9,7 @@
  * Matej Postolka - xposto02
  *
  * Unless otherwise stated, all code is licensed under a
- * Creative Commons Attribution-ShareAlike 4.0 International License
+ * GNU General Public License v2.0
  *
  */
 

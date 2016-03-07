@@ -34,9 +34,9 @@ dbg: $(DBG_OBJ_FILES)
 	$(CC) $(CFLAGS_DBG) -DDEBUG_MODE -c $< -o $@
 
 pack:
-	cp doc/dokumentace.pdf .
+	@cp doc/dokumentace.pdf .
 	tar -czf xposto02.tgz $(SRC_FILES) $(HEADER_FILES) rozdeleni dokumentace.pdf Makefile
-	rm dokumentace.pdf
+	@rm -f dokumentace.pdf
 
 clean:
 	$(RM) $(PROJECT) $(OBJ_FILES) $(DBG_OBJ_FILES)

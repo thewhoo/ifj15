@@ -14,9 +14,9 @@ DBG_OBJ_FILES = $(patsubst %.c, %.dbg.o, $(SRC_FILES))
 
 .PHONY: all debug dbg coverage release pack clean
 
-all: clean release
+all: release
 
-debug: clean dbg
+debug: dbg
 
 coverage: CFLAGS = $(COVERAGE_FLAGS)
 coverage: clean release

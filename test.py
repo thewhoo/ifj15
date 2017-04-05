@@ -3,32 +3,34 @@
  IFJ 15 Test Suite
  Author: Pavol Plaskon <xplask00@stud.fit.vutbr.cz>
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ details.
 """
 
 import os
+import random
 import subprocess
 import sys
-import random
+
+dash_line = "-------------------------------------"
 
 def print_head(text):
-    print("-------------------------------------")
-    print("-------------------------------------")
+    print(dash_line)
+    print(dash_line)
     print("\n{}\n".format(text))
-    print("-------------------------------------")
+    print(dash_line)
 
 
 def print_test_head(n, source):
     global to_print
-    to_print += "-------------------------------------\n"
+    to_print += dash_line + "\n"
     to_print += "TEST {}: {}\n".format(n, source)
 
 
@@ -61,7 +63,7 @@ def check_stderr(err):
 
 
 def print_statistics(n, n_ok, n_fail, fails):
-    print("-------------------------------------")
+    print(dash_line)
     print("Number of tests: {}\nSucceed tests: {}\nFAILED: {}\n"
           .format(n, n_ok, n_fail))
 
@@ -76,9 +78,9 @@ if not(os.path.isfile('ifj') and os.access('ifj', os.X_OK)):
     sys.exit()
 
 
-#################################################
-#                    OK                         #
-#################################################
+#
+# OK
+#
 
 tests_dir = os.path.join(os.getcwd(), 'tests/tests_ok')
 
@@ -92,24 +94,26 @@ print_head("IFJ15: Tests without errors.")
 
 for source in [f for f in os.listdir(tests_dir)
               if not f.endswith('.out') and f.startswith('test')]:
-    
+
     to_print = ''
     x = x + 1
     source_path = os.path.join(tests_dir, source)
-    proc = subprocess.Popen(["./ifj", source_path],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        ["./ifj", source_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True
+    )
 
     with open(source_path + '.out', 'r') as f_out:
         expected_out = f_out.read()
 
     out, err = proc.communicate()
-    
     ret_code = proc.returncode
-    
+
     print_test_head(x, source)
     c_ret = check_ret_code(ret_code, 0)
-    c_out = check_stdout(out.decode('utf-8'), expected_out)
+    c_out = check_stdout(out, expected_out)
     c_err = not err
 
     if c_ret and c_out and c_err:
@@ -118,11 +122,11 @@ for source in [f for f in os.listdir(tests_dir)
         print(to_print)
         x_fail = x_fail + 1
         fails[x] = source
-    
 
-##################################################
-#                 Error tests                    #
-##################################################
+
+#
+# Error tests
+#
 
 tests_dir = os.path.join(os.getcwd(), 'tests')
 
@@ -137,33 +141,34 @@ print_head("IFJ15: Tests containing some errors.")
 for source in [f for f in os.listdir(tests_dir)
               if os.path.isfile(os.path.join(tests_dir, f)) and
               f.startswith('test')]:
-    
+
     to_print = ''
     fx = fx + 1
     source_path = os.path.join(tests_dir, source)
     proc = subprocess.Popen(['./ifj', source_path],
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         stderr=subprocess.PIPE,
+                         universal_newlines=True
+    )
 
     out, err = proc.communicate()
     ret_code = proc.returncode
-    
+
     print_test_head(fx, source)
     exp_ret = source[-2:] if source[-2].isdigit() else source[-1]
     c_ret = check_ret_code(ret_code, exp_ret)
-    c_out = check_stdout(out.decode('utf-8'), '')
-    #c_err = check_stderr(err.decode('utf-8'))
-    if c_ret and c_out: # and c_err: dont't care about stderr
+    c_out = check_stdout(out, '')
+    # c_err = check_stderr(err.decode('utf-8'))
+    if c_ret and c_out:  # and c_err: dont't care about stderr
         fx_ok = fx_ok + 1
     else:
         print(to_print)
         fx_fail = fx_fail + 1
         ffails[fx] = source
 
-print("-------------------------------------")
-print("-----------RESULTS-------------------")
-print("Tests without errors:")
+print_head('RESULTS')
+print("Tests for correct source files:")
 print_statistics(x, x_ok, x_fail, fails)
-print("-------------------------------------")
-print("Tests with some error:")
+print(dash_line)
+print("Tests for incorrect source files:")
 print_statistics(fx, fx_ok, fx_fail, ffails)

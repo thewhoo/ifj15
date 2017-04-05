@@ -88,18 +88,24 @@ void siftDown(char *str, int left, int right)
     while (cont)
     {
         if (child < right) //have both children, choose higher
+        {
             if (str[child] < str[child+1])
-                child++;
-
-            if (tmp >= str[child]) //already higher in root
-                cont = false;
-            else
             {
-                str[root] = str[child];
-                root = child;
-                child = 2*root + 1;
-                cont = child <= right; //cont if have some child
+                child++;
             }
+        }
+
+		if (tmp >= str[child]) //already higher in root
+		{
+			cont = false;
+		}
+		else
+		{
+			str[root] = str[child];
+			root = child;
+			child = 2*root + 1;
+			cont = child <= right; //cont if have some child
+		}
     }
 
     str[root] = tmp; 

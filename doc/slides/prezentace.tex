@@ -1,0 +1,507 @@
+%
+% Course IFJ @ FIT VUT Brno, 2015
+% IFJ15 Interpreter Project
+%
+% Authors:
+% Lukas Osadsky  - xosads00
+% Pavol Plaskon  - xplask00
+% Pavel Pospisil - xpospi88
+% Matej Postolka - xposto02
+%
+% Unless otherwise stated, all code is licensed under a
+% Creative Commons Attribution-ShareAlike 4.0 International License
+%
+
+\documentclass[pdf]{beamer}
+\usepackage[czech]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[IL2]{fontenc}
+\usepackage{graphics}
+
+\usepackage{xcolor,colortbl}
+\usepackage{color}
+\usepackage{utopia}
+\usepackage{tikz}
+\usetheme{Warsaw}
+
+
+\setbeamertemplate{itemize item}{$\circ$}
+\setbeamertemplate{itemize subitem}{$\triangleright$}
+
+\setbeamerfont{caption}{series=\normalfont,size=\fontsize{8}{40}}
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+\setbeamertemplate{navigation symbols}{}
+
+\makeatletter
+\setbeamertemplate{footline}
+{
+     \leavevmode%
+     \hbox{%
+     \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+     \end{beamercolorbox}%
+     \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+            \usebeamerfont{date in head/foot}
+			\hspace*{2em}
+            \insertframenumber{} /
+            \inserttotalframenumber\hspace*{2ex}
+     \end{beamercolorbox}}%
+     \vskip0pt%
+}
+\makeatother
+
+
+\title{Prezentace k projektu do předmětů IFJ a IAL}
+\author{Postolka Matěj, Osadský Lukáš, Plaskoň Pavol, Pospíšil Pavel}
+
+\begin{document}
+
+%*******************************************************************************
+%				Titulni strana
+%*******************************************************************************
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%*******************************************************************************
+%				Uvod
+%*******************************************************************************
+
+\begin{frame}
+  \frametitle{Obsah prezentace}
+  \LARGE
+  \begin{itemize}
+    \item Struktura programu
+	\item Parser
+	\item Interpretace
+ \end{itemize}
+\end{frame}
+
+%*******************************************************************************
+%				Struktura programu
+%*******************************************************************************
+
+\begin{frame}
+  \frametitle{Struktura programu}
+
+\begin{center}
+
+
+\begin{tikzpicture}[scale=0.32, line width=0.5mm]
+\tikzstyle{every node}+=[inner sep=0pt]
+
+% ********************** main
+\onslide<1-> {
+	\draw [black] (15.8,-3.4) circle (3);
+	\draw (15.8,-3.4) node {main};
+}
+
+% ********************** parser
+\onslide<2-> {
+	\draw [black] (15,-12.6) circle (3);
+	\draw (15,-12.6) node {parser};
+	% main to parser
+	\draw [black] (13.902,-9.83) arc (-169.85004:-200.08944:7.487);
+	\fill [black] (13.9,-9.83) -- (14.25,-8.95) -- (13.27,-9.13);
+}
+
+% ********************** lexer
+\onslide<3-> {
+	\draw [black] (5.4,-7.2) circle (3);
+	\draw (5.4,-7.2) node {lexer};
+	% parser to lexer
+	\draw [black] (8.332,-7.805) arc (71.97254:49.31195:13.514);
+	\fill [black] (8.33,-7.81) -- (8.94,-8.53) -- (9.25,-7.58);
+	% lexer to parser
+	\draw [black] (12.015,-12.629) arc (-99.46249:-139.25302:8.581);
+	\fill [black] (12.02,-12.63) -- (11.31,-12) -- (11.14,-12.99);
+}
+
+% ********************** expr
+\onslide<4-> {
+
+
+\draw [black] (7,-19.3) circle (3);
+\draw (7,-19.3) node {expr};
+
+% parser to expr
+\draw [black] (8.604,-16.773) arc (140.76988:119.12247:12.596);
+\fill [black] (8.6,-16.77) -- (9.5,-16.47) -- (8.72,-15.84);
+
+% expr to parser
+\draw [black] (13.913,-15.378) arc (-31.75363:-68.35402:8.28);
+\fill [black] (13.91,-15.38) -- (13.07,-15.8) -- (13.92,-16.32);
+
+
+}
+
+% ********************** expr to lexer
+% expr to lexer + lexer to expr
+\onslide<5-> {
+
+
+\draw [black] (6.359,-10.041) arc (15.08386:-0.01866:24.053);
+\fill [black] (6.36,-10.04) -- (6.08,-10.94) -- (7.05,-10.68);
+\draw [black] (5.726,-16.589) arc (-160.3767:-184.5581:15.507);
+\fill [black] (5.73,-16.59) -- (5.93,-15.67) -- (4.99,-16);
+
+
+}
+
+% ********************** instrukce
+\onslide<6-> {
+
+
+\draw [black, dashed] (23.4,-19.3) circle (3);
+\draw (23.4,-19.3) node {instrukce};
+
+% expr to ins
+\draw [black, dashed] (10,-19.3) -- (20.4,-19.3);
+\fill [black] (20.4,-19.3) -- (19.6,-18.8) -- (19.6,-19.8);
+
+% parser to ins
+\draw [black, dashed] (17.35,-14.47) -- (21.05,-17.43);
+\fill [black] (21.05,-17.43) -- (20.74,-16.54) -- (20.12,-17.32);
+
+
+}
+
+
+% ********************** interpret
+\onslide<7-> {
+
+% parser to main
+	\draw [black] (17.668,-5.697) arc (22.95489:-32.89437:5.319);
+	\fill [black] (17.67,-5.7) -- (17.52,-6.63) -- (18.44,-6.24);
+
+\draw [black] (24.3,-8.2) circle (3);
+\draw (24.3,-8.2) node {interpret};
+
+% main to interpret
+\draw [black] (18.737,-2.953) arc (84.77804:36.31461:6.196);
+\fill [black] (23.17,-5.45) -- (23.09,-4.51) -- (22.29,-5.11);
+
+
+}
+
+% ********************** intrukce do interpretu
+\onslide<8-> {
+
+
+% instrukce to interpret
+\draw [black, dashed] (24.76,-11.161) arc (3.98535:-13.25627:17.708);
+\fill [black] (24.76,-11.16) -- (24.32,-11.99) -- (25.31,-11.92);
+
+}
+
+% ********************** out
+\onslide<9-> {
+
+
+\draw [black, dashed] (31.3,-13.6) circle (3);
+\draw (31.3,-13.6) node {výstup};
+
+% interpret to out
+\draw [black, dashed] (27.261,-8.41) arc (71.48095:33.22381:5.944);
+\fill [black] (30.35,-10.79) -- (30.33,-9.85) -- (29.49,-10.39);
+
+
+}
+
+\end{tikzpicture}
+
+\end{center}
+
+\end{frame}
+
+%*******************************************************************************
+%				Parser
+%*******************************************************************************
+
+\begin{frame}
+    \frametitle{Parser}
+	\LARGE
+    \begin{itemize}
+       \item Rekurzivní sestup
+	   \item Tabulky symbolů pro
+		\begin{itemize}
+			\Large
+			\item funkce
+			\item proměnné
+			\item konstanty
+		\end{itemize}
+	   \item Kontroly
+	   \item Zpracování výrazů
+   \end{itemize}
+\end{frame}
+
+%*******************************************************************************
+%				Interpretace
+%*******************************************************************************
+
+\begin{frame}
+    \frametitle{Interpretace}
+	\LARGE
+	\begin{itemize}
+		\item Zpracování instrukcí
+		\item Algoritmy
+		\begin{itemize}
+			\item Knuth-Morris-Pratt algoritmus
+			\item Heapsort
+			\item Tabulka s rozptýlenými položkami
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+%*******************************************************************************
+
+\begin{frame}
+    \frametitle{Interpretace}
+	\framesubtitle{Zpracování instrukcí}
+
+	\begin{centering}
+
+
+	\begin{tikzpicture}[scale=0.65, line width=0.3mm]
+	\scriptsize
+
+	\tikzstyle{every node}+=[inner sep=0pt]
+
+	% Aktivni ramec
+	\draw (1,0) rectangle (4,3);
+	\draw (1,3) rectangle (4,4);
+	\draw (1,4) rectangle (4,5);
+
+	\draw (0, 4.5) node {\begin{tabular}{c} Aktivní\\rámec \end{tabular}};
+	\draw (2.5, 4.5) node {tělo funkce \texttt{f1}};
+	\draw (2.5, 3.5) node {složený příkaz};
+
+	\draw (4,4.5) -- (4.9,4.5);
+	\fill (4.6,4.7) -- (4.6,4.3) -- (5,4.5);
+
+	\draw (4,3.5) -- (4.9,3.5);
+	\fill (4.6,3.7) -- (4.6,3.3) -- (5,3.5);
+
+
+	\draw (5,3) rectangle (8,4);
+	\draw (5,4) rectangle (8,5);
+	\draw (6.5, 4.5) node {hash tabulka};
+	\draw (6.5, 3.5) node {hash tabulka};
+
+	% Globalni ramec
+	\draw (1,6) rectangle (4,9);
+	\draw (1,9) rectangle (4,10);
+	\draw (1,10) rectangle (4,11);
+
+	\draw (0, 10.5) node {\begin{tabular}{c} Globální\\rámec \end{tabular}};
+	\draw (2.5, 10.5) node {\texttt{main}};
+	\draw (2.5, 9.5) node {\texttt{ins\_main}};
+
+	\draw (4,10.5) -- (8.9,10.5);
+	\fill (8.6,10.7) -- (8.6,10.3) -- (9,10.5);
+
+	\draw (4,9.5) -- (4.9,9.5);
+	\fill (4.6,9.7) -- (4.6,9.3) -- (5,9.5);
+
+	\draw (5,9) rectangle (8,10);
+	\draw (6.5, 9.5) node {\texttt{INS\_CALL f1}};
+
+	\draw (9,6) rectangle (12,10);
+	\draw (9,10) rectangle (12,11);
+
+	\draw (10.5, 10.5) node {tělo fce \texttt{main}};
+
+	\draw (12,10.5) -- (12.9,10.5);
+	\fill (12.6,10.7) -- (12.6,10.3) -- (13,10.5);
+
+	\draw (13,10) rectangle (16,11);
+	\draw (14.5,10.5) node {hash tabulka};
+
+\end{tikzpicture}
+
+\end{centering}
+
+\end{frame}
+
+%*******************************************************************************
+
+\begin{frame}[fragile]
+    \frametitle{Interpretace}
+	\framesubtitle{Knuth-Morris-Pratt algoritmus}
+
+
+%***************************** fail vector
+
+\begin{table}[]
+
+\caption{Fail vector}
+\begin{tabular}{r|l|l|l|l|l|l|l|l}
+index pole & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ \hline
+podřetězec & A & B & A & A & B & D & C & A \\ \hline
+\only<1>{index skoku & 0 & 1 & 1 & 2 & 2 & 3 & 1 & 1}\only<2>{index skoku &\color{red} 0 & 1 & 1 & 2 & 2 & 3 & 1 & 1}\only<3>{index skoku & 0 & 1 & 1 &\color{red} 2 & 2 & 3 & 1 & 1}\only<4>{index skoku & 0 &\color{red} 1 & 1 & 2 & 2 & 3 & 1 & 1}\only<5>{index skoku &\color{red} 0 & 1 & 1 & 2 & 2 & 3 & 1 & 1}\only<6>{index skoku & 0 & 1 & 1 & 2 & 2 & 3 & 1 & 1}
+\\
+\end{tabular}
+
+\end{table}
+
+
+%****************************** ukazka
+\onslide<2-> {
+\begin{table}[]
+\centering
+\caption{Ukázka}
+\begin{tabular}{l}
+\tt
+\Large
+BABAADABAABDCABCDABA\\
+\tt\Large
+\only<2>{ABAABDCA}
+\only<3>{ABAABDCA}
+\only<4>{~~ABAABDCA}
+\only<5>{~~ABAABDCA}
+\only<6>{~~ABAABDCA}
+\end{tabular}
+\end{table}
+
+}
+
+
+\end{frame}
+
+%*******************************************************************************
+
+\begin{frame}
+
+
+
+    \frametitle{Interpretace}
+	\framesubtitle{Heapsort}
+
+% ***************************** strom
+	\begin{center}
+
+\begin{tikzpicture}[scale=0.15 , line width=0.3mm]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (36.1,-5.2) circle (3);
+\draw (36.1,-5.2) node {$1$};
+\draw [black] (23.9,-13.5) circle (3);
+\draw (23.9,-13.5) node {$2$};
+\draw [black] (48.7,-13.5) circle (3);
+\draw (48.7,-13.5) node {$3$};
+\draw [black] (17.5,-21.9) circle (3);
+\draw (17.5,-21.9) node {$4$};
+\draw [black] (29.9,-21.9) circle (3);
+\draw (29.9,-21.9) node {$5$};
+\draw [black] (42.3,-21.9) circle (3);
+\draw (42.3,-21.9) node {$6$};
+\draw [black] (54.8,-21.9) circle (3);
+\draw (54.8,-21.9) node {$7$};
+\draw [black] (33.62,-6.89) -- (26.38,-11.81);
+\fill [black] (26.38,-11.81) -- (27.32,-11.78) -- (26.76,-10.95);
+\draw [black] (22.08,-15.89) -- (19.32,-19.51);
+\fill [black] (19.32,-19.51) -- (20.2,-19.18) -- (19.41,-18.57);
+\draw [black] (25.64,-15.94) -- (28.16,-19.46);
+\fill [black] (28.16,-19.46) -- (28.1,-18.52) -- (27.28,-19.1);
+\draw [black] (38.61,-6.85) -- (46.19,-11.85);
+\fill [black] (46.19,-11.85) -- (45.8,-10.99) -- (45.25,-11.83);
+\draw [black] (46.88,-15.89) -- (44.12,-19.51);
+\fill [black] (44.12,-19.51) -- (45,-19.18) -- (44.21,-18.57);
+\draw [black] (50.46,-15.93) -- (53.04,-19.47);
+\fill [black] (53.04,-19.47) -- (52.97,-18.53) -- (52.16,-19.12);
+\end{tikzpicture}
+\end{center}
+%********************************* pole
+
+\begin{table}[]
+\centering
+\caption{Umístění uzlů v poli}
+\label{my-label}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+\end{frame}
+
+%*******************************************************************************
+
+\begin{frame}
+    \frametitle{Interpretace}
+	\framesubtitle{Tabulka s rozptýlenými položkami}
+	\LARGE
+
+%*************************** hash tabulka
+\begin{centering}
+
+	\begin{tikzpicture}[scale=0.9, line width=0.3mm]
+
+	\tikzstyle{every node}+=[inner sep=0pt]
+
+	\onslide<1-> {
+	\draw (1,1) rectangle (2,2);
+	\draw (1,2) rectangle (2,3);
+	\draw (1,3) rectangle (2,4);
+	\draw (1,4) rectangle (2,5);
+	\draw (1,5) rectangle (2,6);
+	\draw (1,6) rectangle (2,7);
+
+	\draw (1.5, 0.5) node {\vdots};
+	\draw (1.5, 1.5) node {6};
+	\draw (1.5, 2.5) node {5};
+	\draw (1.5, 3.5) node {4};
+	\draw (1.5, 4.5) node {3};
+	\draw (1.5, 5.5) node {2};
+	\draw (1.5, 6.5) node {1};
+
+
+	%1 a
+	\draw (2,6.5) -- (2.8,6.5);
+	\fill (2.7,6.7) -- (2.7,6.3) -- (3,6.5);
+	% 3 b
+	\draw (2,4.5) -- (2.8,4.5);
+	\fill (2.7,4.7) -- (2.7,4.3) -- (3,4.5);
+
+	% 6 d
+	\draw (2,1.5) -- (2.8,1.5);
+	\fill (2.7,1.7) -- (2.7,1.3) -- (3,1.5);
+
+	\draw [black] (3.5,6.5) circle (0.5);
+	\draw (3.5,6.5) node {a};
+
+	\draw [black] (3.5,4.5) circle (0.5);
+	\draw (3.5,4.5) node {b};
+
+
+
+	\draw [black] (3.5,1.5) circle (0.5);
+	\draw (3.5,1.5) node {d};
+	}
+
+	\onslide<2-> {
+		%3 c
+	\draw (4,4.5) -- (4.8,4.5);
+	\fill (4.7,4.7) -- (4.7,4.3) -- (5,4.5);
+
+	\draw [black] (5.5,4.5) circle (0.5);
+	\draw (5.5,4.5) node {c};
+
+	}
+
+\end{tikzpicture}
+
+\end{centering}
+
+%**************************************
+
+
+\end{frame}
+
+%*******************************************************************************
+
+\end{document}

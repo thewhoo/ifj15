@@ -115,9 +115,9 @@ int gcInit()
 {
 	if (initVector(&mem, INITIAL_SIZE) != E_OK)
 		exit_error(E_ALLOC);
-	
+
 	mem.initialized = true;
-	
+
 	return E_OK;
 }
 

@@ -40,34 +40,34 @@ typedef struct s_list
 
 /**
   * @brief Initialize empty list of instructions
-  * 
+  *
   * @return list Pointer to new list
   */
 Tins_list* list_init();
 /**
   * @brief Deallocate list
-  * 
+  *
   * @param list Pointer to list
   */
 void list_free(Tins_list *list);
 /**
   * @brief Insert new instruction item at the end of ins list
-  * 
+  *
   * @param list Pointer to list
-  * @param item Pointer to filled instruction 
+  * @param item Pointer to filled instruction
   */
 void list_insert(Tins_list *list, TList_item *item);
 /**
   * @brief Set activity to first item in list
-  * 
+  *
   * @param list Pointer to list
   */
 void list_first(Tins_list *list);
 /**
   * @brief Set activity to next instruction
-  * 
+  *
   * Nothing happens when empty list
-  * 
+  *
   * @param list Pointer to list
   */
 void list_next(Tins_list *list);

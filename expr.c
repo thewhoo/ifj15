@@ -154,12 +154,12 @@ void print_ins_type(const int *type)
 
 void print_variable(const TVariable *var)
 {
-	if (var != NULL) {		
+	if (var != NULL) {
 		if (var->name == NULL) {
 			printf("%d[NULL] ", var->var_type);
 		} else {
 			printf("%d[%s] ", var->var_type, var->name);
-		}		
+		}
 	} else {
 		printf("NULL ");
 	}
@@ -204,7 +204,7 @@ void print_token(const TToken *tok)
 			break;
 		default:
 			printf("%s", tok->data);
-	}	
+	}
 	printf("]");
 }
 
@@ -261,7 +261,7 @@ void print_ins(const int *ins_type, TVariable *addr1, TVariable *addr2, TVariabl
 		printf(" %s", item->data.function->name);
 	}
 	print_variable(addr2);
-	print_variable(addr3);	
+	print_variable(addr3);
 	printf("\n");
 }
 #endif
@@ -470,7 +470,7 @@ TVariable *find_var(/*const */TToken *tok, const int clean_data_if_found)
 		case TOKEN_DOUBLE_VALUE:
 			return token_to_const(tok);
 	}
-	
+
 	return 0;
 }
 
@@ -846,7 +846,7 @@ void expr_destroy()
 
 
 void expression(TVariable *ret_var, Tins_list *act_ins_list)
-{	
+{
 	#ifdef DEBUG_MODE
 	before_start();
 	#endif

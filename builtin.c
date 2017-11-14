@@ -39,7 +39,7 @@ char* concat(TVariable* str1, TVariable* str2)
     char* s1 = str1->data.str;
     char* s2 = str2->data.str;
     char* new_str = gmalloc(strlen(s1) + strlen(s2) + 1);
-    
+
     strcpy(new_str, s1);
     strcat(new_str, s2);
 
@@ -71,20 +71,20 @@ void cin(TVariable* in)
     TString buffer;
 
     initString(&buffer, STR_SIZE);
-    
+
     in->initialized = 1;
 
     if(in->var_type == TYPE_STRING)
     {
         do{
-            c = getchar();      
+            c = getchar();
         } while(isspace(c));
 
         if(c == EOF)
         {
             insertIntoString(&buffer, 0);
             in->data.str = buffer.data;
-            return; 
+            return;
         }
 
         while(!isspace(c))
@@ -93,7 +93,7 @@ void cin(TVariable* in)
             c = getchar();
         }
         ungetc(c, stdin);
-            
+
         insertIntoString(&buffer, 0);
         in->data.str = buffer.data;
     }
@@ -112,7 +112,7 @@ void cin(TVariable* in)
                         insertIntoString(&buffer, c);
                         state = S_INT;
                     }
-                    else            
+                    else
                         exit_error(E_READ_NUMBER);
                 break;
                 case(S_INT):
@@ -144,7 +144,7 @@ void cin(TVariable* in)
                     else
                         exit_error(E_READ_NUMBER);
                     break;
-                case S_DBL: 
+                case S_DBL:
                     if (isdigit(c))
                     {
                         insertIntoString(&buffer, c);
@@ -152,7 +152,7 @@ void cin(TVariable* in)
                     else if(c == 'E' || c == 'e')
                     {
                         insertIntoString(&buffer, c);
-                        state = S_EXPO_E;				
+                        state = S_EXPO_E;
                     }
                     else
                     {
@@ -170,20 +170,20 @@ void cin(TVariable* in)
                     else if (c == '+' || c == '-')
                     {
                         insertIntoString(&buffer, c);
-                        state= S_EXPO_M;				
-                    }		
+                        state= S_EXPO_M;
+                    }
                     else
                         exit_error(E_READ_NUMBER);
-                    break;			
+                    break;
                 case S_EXPO_M:
                     if (isdigit(c))
                     {
                         insertIntoString(&buffer, c);
                         state= S_EXPO;
-                    }		
+                    }
                     else
                         exit_error(E_READ_NUMBER);
-                    break;	
+                    break;
                 case S_EXPO:
                     if (isdigit(c))
                         insertIntoString(&buffer, c);
@@ -205,9 +205,9 @@ void cin(TVariable* in)
     else if(in->var_type == TYPE_INT)
     {
         do{
-            c = getchar();      
+            c = getchar();
         } while(isspace(c));
-        
+
         if((c == EOF) || (!isdigit(c)))
             exit_error(E_READ_NUMBER);
 
@@ -217,10 +217,10 @@ void cin(TVariable* in)
             c = getchar();
         }
         ungetc(c, stdin);
-            
+
         insertIntoString(&buffer, 0);
 
-        int_num = strtol(buffer.data, NULL, 10);       
+        int_num = strtol(buffer.data, NULL, 10);
         in->data.i = int_num;
         free(buffer.data);
     }
@@ -237,18 +237,18 @@ char* substr(char *s, int i, int n)
     int subslen;
     char* subs;
     int subs_i = 0;
-    int slen = strlen(s);     
+    int slen = strlen(s);
 
     if(i < 0 || i > slen)
         exit_error(E_RUNTIME_OTHERS);
 
     if(i == slen)
     {
-        subs = gmalloc(1);   
+        subs = gmalloc(1);
         subs[0] = 0;
         return subs;
     }
-    
+
     if(n < 0)
         n = slen;
 
@@ -257,7 +257,7 @@ char* substr(char *s, int i, int n)
     else
         subslen = n + 1;
     subs = gmalloc(subslen);
-    
+
     while((i < slen) && (subs_i < n))
     {
         subs[subs_i] = s[i];

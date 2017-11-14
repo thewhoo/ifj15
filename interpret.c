@@ -61,7 +61,7 @@ void clean_active_frame()
 void math_ins(char type, TVariable *dest, TVariable *src1, TVariable *src2)
 {
     double a, b;
-    
+
     if(!src1->initialized || !src2->initialized)
         exit_error(E_UNINITIALIZED);
 
@@ -232,7 +232,7 @@ void map_params(htab_t *tab, TStack* decl_params)
         dest = gmalloc(sizeof(TVariable));
         dest->name = ((TVariable*)decl_params->data[i])->name;
         dest->constant = 0;
-        dest->initialized = 1; 
+        dest->initialized = 1;
         dest->var_type = ((TVariable*)decl_params->data[i])->var_type;
         param->data.variable = dest;
         src = fparams_stack->data[i];
@@ -284,7 +284,7 @@ void interpret_loop(Tins_list *ins_list)
     htab_t *new_tab = NULL;
 
     TList_item *ins = ins_list->first;
-    
+
     #ifdef DEBUG_MODE
     print_instructions(ins);
     #endif
@@ -327,7 +327,7 @@ void interpret_loop(Tins_list *ins_list)
                 new_tab = htab_init(int1);
                 stack_push(active_frame, new_tab);
                 break;
-            
+
             //new var defined - check if isn't already in htable
             //e.g. var definition in loops
             case(INS_PUSH_VAR):
@@ -341,7 +341,7 @@ void interpret_loop(Tins_list *ins_list)
                     var2 = gmalloc(sizeof(TVariable));
                     item->data.variable = var2;
                     memcpy(var2, ins->addr1, sizeof(TVariable));
-                    
+
                 }
                 else if(item->data.variable->var_type == TYPE_STRING)
                 {
@@ -349,7 +349,7 @@ void interpret_loop(Tins_list *ins_list)
                 }
                 item->data.variable->initialized = 0;
                 break;
-            
+
             //leaving nested block, clean up
             case(INS_POP_TAB):
                 htab_free((htab_t*)stack_top(active_frame));
@@ -368,7 +368,7 @@ void interpret_loop(Tins_list *ins_list)
 
             case(INS_LAB):
                 break;
-            
+
             //push var as parameter for following function call
             case(INS_PUSH_PARAM):
                 var1 = get_var(ins->addr1);
@@ -376,7 +376,7 @@ void interpret_loop(Tins_list *ins_list)
                     exit_error(E_UNINITIALIZED);
                 stack_push(fparams_stack, var1);
                 break;
-            
+
             //call function - create new frame, map parameters to function
             //local vars
             case(INS_CALL):
@@ -404,7 +404,7 @@ void interpret_loop(Tins_list *ins_list)
                 if(stack_empty(gStack))  //end of main func
                 {
                     //gcDestroy();
-                    exit(0);            
+                    exit(0);
                 }
 
                 clean_active_frame();

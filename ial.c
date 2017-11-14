@@ -60,15 +60,15 @@ int find(TVariable *s, TVariable *search)
         else //chars do not match (or beggining of pattern)
             subs_ind = fail[subs_ind];
     }
-    
+
     gfree(fail);
-    
+
     if (subs_ind >= subs_len)
-        return (str_ind - subs_len); 
+        return (str_ind - subs_len);
     else
-        return (-1); //-1 for ifj    
+        return (-1); //-1 for ifj
 }
-    
+
 
 /* ----------------heap sort-------------------*/
 /**
@@ -78,12 +78,12 @@ int find(TVariable *s, TVariable *search)
 void siftDown(char *str, int left, int right)
 {
     int root, child, tmp;
-    bool cont; //continue  condition 
+    bool cont; //continue  condition
 
     root = left;
     child = 2*root + 1;
     tmp = str[root];
-    cont = child <= right; 
+    cont = child <= right;
 
     while (cont)
     {
@@ -108,7 +108,7 @@ void siftDown(char *str, int left, int right)
 		}
     }
 
-    str[root] = tmp; 
+    str[root] = tmp;
 }
 
 char *sort(TVariable *var)
@@ -116,7 +116,7 @@ char *sort(TVariable *var)
     char *orig_str = var->data.str;
     int s_len = strlen(orig_str);
     char *str = gmalloc(s_len + 1);
-    strcpy(str, orig_str);   
+    strcpy(str, orig_str);
 
     int right = s_len - 1;
     int left = s_len / 2 - 1;
@@ -133,8 +133,8 @@ char *sort(TVariable *var)
         str[0] ^= str[right];
         siftDown(str, 0, right-1);
     }
-    
-    return str;    
+
+    return str;
 }
 
 /* ---------------hash table-------------------*/
@@ -179,9 +179,9 @@ htab_t* htab_copy(htab_t* old_tab)
             // insert new empty item in hash tab
             new_item = htab_insert(new_tab, old_item->key);
             new_item->data_type = old_item->data_type;
-            // copy variable 
+            // copy variable
             var_copy = gmalloc(sizeof(TVariable));
-            memcpy(var_copy, old_item->data.variable, sizeof(TVariable));   
+            memcpy(var_copy, old_item->data.variable, sizeof(TVariable));
             // insert pointer to new var in new htab item
             new_item->data.variable = var_copy;
             new_item->next = NULL;
@@ -194,43 +194,43 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key)
 {
     struct htab_listitem* item;
     unsigned int index;
-    
+
     index = hash_function(key, tab->htab_size);
-    
+
     if(tab->list[index] == NULL) //list is empty
     {
         return NULL;
     }
     else //search for key, return ptr
-    {   
+    {
         item = tab->list[index];
         while(1)
         {
             if(strcmp(item->key, key) == 0)
-                return item;    
+                return item;
             if(item->next == NULL)
                 return NULL;
             item = item->next;
         }
     }
-    
-    return NULL; 
+
+    return NULL;
 }
 
 struct htab_listitem* htab_insert(htab_t* tab, const char* key)
 {
     struct htab_listitem* item;
     unsigned int index;
-    
+
     index = hash_function(key, tab->htab_size);
-   
+
     item = gmalloc(sizeof(struct htab_listitem));
     item->next = tab->list[index];
     tab->list[index] = item;
 
     item->key = key;
 
-    return item; 
+    return item;
 }
 
 
@@ -254,16 +254,16 @@ void htab_remove(htab_t* tab, const char* key)
 
     index = hash_function(key, tab->htab_size);
     item = tab->list[index];
-   
+
     while(item != NULL && (strcmp(key, item->key) != 0))
     {
         prev_item = item;
         item = item->next;
     }
-   
+
     if(item == NULL)
         return;
-   
+
     if(item == tab->list[index]) //deleting first item
         tab->list[index] = item->next;
     else //deleting next/last item
@@ -290,7 +290,7 @@ void htab_clear(htab_t *tab)
             }
             //gfree((void*)tmp->key);
             gfree((void*)tmp);
-        }       
+        }
 }
 
 void htab_free(htab_t *tab)
@@ -304,10 +304,10 @@ void htab_free(htab_t *tab)
 
 void htab_statistics(htab_t* tab)
 {
-    unsigned int max = 0;    
-    unsigned int min = 1000000000;    
-    unsigned int avg = 0;    
-    unsigned int length = 0;    
+    unsigned int max = 0;
+    unsigned int min = 1000000000;
+    unsigned int avg = 0;
+    unsigned int length = 0;
     struct htab_listitem* item;
 
     for (unsigned int i = 0; i < tab->htab_size; i++)
@@ -320,7 +320,7 @@ void htab_statistics(htab_t* tab)
             max = length;
         if(length < min)
             min = length;
-        length = 0;        
+        length = 0;
     }
     avg = avg/(tab->htab_size);
     printf("Average length: %u\nLongest list: %u\nShortest list: %u\n", avg, max, min);

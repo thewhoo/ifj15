@@ -39,15 +39,15 @@ int main(int argc, char **argv)
     lex_init(fp);
 
     global_init();
-    
+
     expr_init();
 
     parse();
 
     fclose(fp);
-	
+
 	expr_destroy();
-	
+
     interpret();
 
     //gcDestroy();

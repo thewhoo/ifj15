@@ -21,8 +21,8 @@
 
 #include "enums.h"
 #include "galloc.h"
-#include "lex.h" 
-#include "adt.h" 
+#include "lex.h"
+#include "adt.h"
 #include "error.h"
 #include "string.h"
 
@@ -75,7 +75,7 @@ void keyword_check() // compares identifier with keywords
 {
 	int i;
 	char *token_keywords[] = {"auto", "cin", "cout", "double", "else",
-                          	"for", "if", "int", "return", "string", 
+                          	"for", "if", "int", "return", "string",
                           	"length", "substr", "concat", "find", "sort"};
 	for (i = 0; i < KEYWORDS_COUNT; i++)
 		if (strcmp(token_keywords[i], token->data) == 0)
@@ -92,20 +92,20 @@ char hex_to_ascii(char first, char second) //  converts 'xdd' to ascii symbol
 }
 
 TToken* get_token()
-{	
+{
     if(token_buffer != NULL)
     {
         token = token_buffer;
         token_buffer = NULL;
         return token;
     }
-        
-	TString buffer; 
+
+	TString buffer;
 	States state = S_START;
 	char a[2]; // array for hex number
 	int c, i=0;
 
-	initString(&buffer, STR_DEFAULT_SIZE); 
+	initString(&buffer, STR_DEFAULT_SIZE);
 	token->data = buffer.data;
 	while(1)
 	{
@@ -141,7 +141,7 @@ TToken* get_token()
 				    break;
 				case '>':
 					state = S_GREAT;
-				    break;		
+				    break;
 				case '(':
 					token->type = TOKEN_LROUND_BRACKET;
 					return token;
@@ -153,7 +153,7 @@ TToken* get_token()
 					return token;
 				case '}':
 					token->type = TOKEN_RCURLY_BRACKET;
-					return token;	
+					return token;
 				case ',':
 					token->type = TOKEN_COMMA;
 					return token;
@@ -167,7 +167,7 @@ TToken* get_token()
 					if(isdigit(c))
 					{
 						state = S_INT;
-						insertIntoString(&buffer, c);	
+						insertIntoString(&buffer, c);
 					}
 					else if (isalpha(c) || c == '_')
 					{
@@ -175,13 +175,13 @@ TToken* get_token()
 						insertIntoString(&buffer, c);
 					}
 					else if (isspace(c))
-						break;	
+						break;
 					else
-						state = S_ERROR;								
+						state = S_ERROR;
 			}
 		    break;
 
-//********************************************** 
+//**********************************************
 		case S_INT: // INTEGER
 			if (isdigit(c))
 			{
@@ -190,12 +190,12 @@ TToken* get_token()
 			else if(c == '.')
 			{
 				insertIntoString(&buffer, c);
-				state = S_DOT;				
+				state = S_DOT;
 			}
 			else if(c == 'E' || c == 'e')
 			{
 				insertIntoString(&buffer, c);
-				state = S_EXPO_E;				
+				state = S_EXPO_E;
 			}
 			else
 			{
@@ -213,7 +213,7 @@ TToken* get_token()
 			{
 				insertIntoString(&buffer, c);
 				state = S_DBL;
-			}	
+			}
 			else
 			{
 				state = S_ERROR;
@@ -229,7 +229,7 @@ TToken* get_token()
 			else if(c == 'E' || c == 'e')
 			{
 				insertIntoString(&buffer, c);
-				state = S_EXPO_E;				
+				state = S_EXPO_E;
 			}
 			else
 			{
@@ -251,13 +251,13 @@ TToken* get_token()
 			else if (c == '+' || c == '-')
 			{
 				insertIntoString(&buffer, c);
-				state= S_EXPO_M;				
-			}		
+				state= S_EXPO_M;
+			}
 			else
 			{
 				state = S_ERROR;
 			}
-		    break;			
+		    break;
 
 //*****************************************************
 		case S_EXPO_M: // state S_EXPO_M
@@ -265,12 +265,12 @@ TToken* get_token()
 			{
 				insertIntoString(&buffer, c);
 				state= S_EXPO;
-			}		
+			}
 			else
 			{
 				state=S_ERROR;
 			}
-		    break;	
+		    break;
 
 //*****************************************************
 		case S_EXPO: // state S_EXPO
@@ -285,7 +285,7 @@ TToken* get_token()
 				return token;
 			}
 		    break;
-		
+
 //***************************************************
 		case S_IDENT: //STATE IDENTIFIER
 			if (isalnum(c) || c == '_')
@@ -307,21 +307,21 @@ TToken* get_token()
 			if (c == '/')
 				state = S_LCOM;
 			else if (c == '*')
-				state = S_LBC;			
+				state = S_LBC;
 			else
 			{
 				ungetc(c,fp);
 				token->type = TOKEN_DIV;
 				return token;
 			}
-		    break;	
+		    break;
 
 //***************************************************
 		case S_LCOM: // LINE COMMENT
 			if (c == '\n')
 				state = S_START;
 		    break;
-				
+
 //****************************************************
 		case S_LBC: // LEFT BLOCK COMMENT
 			if (c == '*')
@@ -340,32 +340,32 @@ TToken* get_token()
 			else
 				state = S_LBC;
 		break;
-				
+
 //****************************************************
 		case S_ASSIGN: // ASSIGNMENT
 			if (c == '=')
 			{
 				token->type = TOKEN_EQUAL;
 				return token;
-			}			
+			}
 			else
 			{
 				ungetc(c,fp);
 				token->type = TOKEN_ASSIGN;
 				return token;
 			}
-	      	 break;	
-	
+	      	 break;
+
 //****************************************************
 		case S_EXCM: // EXCLAMATION MARK
 			if (c == '=')
 			{
 				token->type = TOKEN_NOT_EQUAL;
 				return token;
-			}			
+			}
 			else
 				state = S_ERROR;
-		   break;	
+		   break;
 
 //****************************************************
 		case S_LESS: // LESS THAN
@@ -378,7 +378,7 @@ TToken* get_token()
 			{
 				token->type=TOKEN_COUT_BRACKET;
 				return token;
-			}				
+			}
 			else
 			{
 				ungetc(c,fp);
@@ -398,7 +398,7 @@ TToken* get_token()
 			{
 				token->type = TOKEN_CIN_BRACKET;
 				return token;
-			}				
+			}
 			else
 			{
 				ungetc(c,fp);
@@ -409,9 +409,9 @@ TToken* get_token()
 
 //****************************************************
 		case S_QUOT: //QUOTATION
-			if (c == '"') 
-			{ 
-				insertIntoString(&buffer, 0); 
+			if (c == '"')
+			{
+				insertIntoString(&buffer, 0);
 				token->type = TOKEN_STRING_VALUE;
 	            token->data = buffer.data;
 				return token;
@@ -460,17 +460,17 @@ TToken* get_token()
 			}
 			else
 			{
-				state=S_ERROR;	
+				state=S_ERROR;
 			}
 			break;
 
-//****************************************************	
+//****************************************************
 		case S_HEX_NUMBER: // HEXADECIMAL NUMBER
 			if (isxdigit(c) && (i < 2)) // if is hexadigit and i<2
 			{
 				a[i]=c;
-				i++;			
-             
+				i++;
+
                 if (i == 2)
                 {
                 	if ((a[0] == '0') && (a[1] == '0'))

@@ -38,7 +38,7 @@ void list_free(Tins_list *list)
         gfree(tmp);
     }
     gfree(list);
-} 
+}
 
 void list_insert(Tins_list *list, TList_item *item)
 {

@@ -52,7 +52,7 @@ enum instructions
     INS_SORT,       //24    dest, src1
     INS_CIN,        //25    dest
     INS_COUT        //26    src1
-}; 
+};
 
 /**
   * @brief 3 address code interpretation

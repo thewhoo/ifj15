@@ -20,7 +20,7 @@
 
 enum tokens
 {
-//keywords 
+//keywords
   TOKEN_AUTO = 0,   //0
   TOKEN_CIN,        //1
   TOKEN_COUT,       //2
@@ -51,7 +51,7 @@ enum tokens
   TOKEN_STRING_VALUE,   //22    // "some text in quotation marks"
   TOKEN_INT_VALUE,      //23    // some integer
   TOKEN_DOUBLE_VALUE,   //24    // double value
-  TOKEN_ASSIGN,         //25    // =        
+  TOKEN_ASSIGN,         //25    // =
 
   TOKEN_SEMICOLON,      //26    // ;
   TOKEN_COMMA,          //27    // ,
@@ -62,7 +62,7 @@ enum tokens
   TOKEN_LCURLY_BRACKET, //32    // {
   TOKEN_RCURLY_BRACKET, //33    // }
 
-//math 
+//math
   TOKEN_MUL,            //34    // *
   TOKEN_DIV,            //35    // /
   TOKEN_ADD,            //36    // +
@@ -73,8 +73,8 @@ enum tokens
   TOKEN_NOT_EQUAL,      //39    // !=
   TOKEN_GREATER,        //40    // >
   TOKEN_GREATER_EQUAL,  //41    // >=
-  TOKEN_LESS,           //42    // < 
-  TOKEN_LESS_EQUAL      //43    // <= 
+  TOKEN_LESS,           //42    // <
+  TOKEN_LESS_EQUAL      //43    // <=
 };
 
 #endif

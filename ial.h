@@ -30,7 +30,7 @@
 /**
  * find substring in string
  *
- * @param *s ptr to target string 
+ * @param *s ptr to target string
  * @param *search ptr to patter
  * @return index of match, from 0, -1 if not found
  */
@@ -54,7 +54,7 @@ enum data_types
     TYPE_FUNCTION,
 };
 
-typedef struct htab_listitem 
+typedef struct htab_listitem
 {
     const char *key;
     int data_type;
@@ -80,7 +80,7 @@ typedef struct hash_tab
 htab_t *htab_init(unsigned int size);
 
 /**
- * @brief copy constructor 
+ * @brief copy constructor
  * @param htab pointer to original hash table
  * @return pointer to copied hash table
  */
@@ -98,17 +98,17 @@ struct htab_listitem* htab_lookup(htab_t* tab, const char* key);
  * @brief insert new item to hash table
  * @param tab hash table
  * @param key of new item
- * @return ptr to new item 
+ * @return ptr to new item
  */
 struct htab_listitem* htab_insert(htab_t* tab, const char* key);
 
 /**
- * @brief call function for every table item 
+ * @brief call function for every table item
  * @param tab hash table
  * @param function to be called
  */
 void htab_foreach(
-        htab_t *tab, 
+        htab_t *tab,
         void function(const char* key, struct s_variable *var));
 
 /**
@@ -119,7 +119,7 @@ void htab_foreach(
 void htab_remove(htab_t* tab, const char* key);
 
 /**
- * @brief Removes all items from table. 
+ * @brief Removes all items from table.
  * @param tab hash table
  */
 void htab_clear(htab_t *tab);

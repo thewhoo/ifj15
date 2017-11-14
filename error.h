@@ -18,7 +18,7 @@
   * @brief Error states library
   *
   * Include this file to report errors in program
-  *  
+  *
   */
 
 #ifndef ERROR_H
@@ -26,8 +26,8 @@
 
 enum error_codes
 {
-  E_OK = 0,       
-  E_LEX = 1,    
+  E_OK = 0,
+  E_LEX = 1,
   E_SYNTAX = 2,
   E_SEMANTIC_DEF = 3,
   E_SEMANTIC_TYPES = 4,

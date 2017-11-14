@@ -29,7 +29,7 @@ void lex_init(FILE *f);
   *
   * If you return more tokens back, only last will be remembered
   *
-  * @param token Pointer to token 
+  * @param token Pointer to token
   */
 
 void unget_token(TToken *tok);
